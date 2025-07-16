@@ -1,0 +1,111 @@
+# Roadmap Grimspire - Gestionnaire de Cité Aventurière
+
+## Phase 1 : Fondations (Core Systems)
+
+### 1.1 Architecture de Base
+- **Système de données** : Classes pour City, Adventurer, Building, Resource
+- **Gestionnaire de scènes** : Navigation entre menus principaux
+- **Système de sauvegarde** : Persistence des données de jeu
+- **UI Framework** : Templates de menus réutilisables
+
+### 1.2 Système de Ressources
+- **ResourceManager** : Gestion de l'or, population, matériaux, magie
+- **Economic System** : Calculs de revenus, dépenses, taxes
+- **Interface ressources** : Affichage temps réel des stocks
+
+### 1.3 Système de Bâtiments (Menu-Based)
+- **Building Database** : Propriétés, coûts, effets de chaque bâtiment
+- **Construction System** : Logique d'achat
+- **Building Effects** : Impact sur ressources et capacités de la ville
+
+## Phase 2 : Système d'Aventuriers 
+
+### 2.1 Génération et Gestion
+- **Adventurer Class** : Stats, équipement, expérience, spécialisations
+- **Recruitment System** : Génération procédurale d'aventuriers
+- **Party Management** : Formation d'équipes, synergies
+
+### 2.2 Équipement et Progression
+- **Item System** : Armes, armures, objets magiques
+- **Crafting System** : Création d'équipements par les artisans
+- **Leveling System** : Progression des stats et capacités
+
+### 2.3 Interface Aventuriers
+- **Roster Management** : Liste, tri, filtrage des aventuriers
+- **Character Sheets** : Détails individuels, historique
+- **Equipment Interface** : Gestion des inventaires
+
+## Phase 3 : Système de Missions
+
+### 3.1 Génération de Missions
+- **Mission Generator** : Création procédurale de donjons et quêtes
+- **Difficulty Scaling** : Adaptation selon progression du joueur
+- **Mission Types** : Exploration, combat, diplomatie, commerce
+
+### 3.2 Système de Combat/Résolution
+- **Combat Calculator** : Résolution automatique des combats
+- **Risk/Reward System** : Calcul des gains vs pertes
+- **Event System** : Événements aléatoires en mission
+
+### 3.3 Interface Missions
+- **Mission Board** : Sélection et assignation des missions
+- **Progress Tracking** : Suivi en temps réel des expéditions
+- **Results Screen** : Rapports détaillés de missions
+
+## Phase 4 : Cycles de Gameplay
+
+### 4.1 Système Jour/Nuit
+- **Time Manager** : Gestion du temps et cycles
+- **Phase Management** : Alternance gestion/aventure
+- **Auto-progression** : Évolution passive pendant les missions
+
+### 4.2 Événements Dynamiques
+- **Event System** : Catastrophes, opportunités, invasions
+- **Random Events** : Événements procéduraux impactant la ville
+- **Decision Trees** : Choix multiples avec conséquences
+
+## Phase 5 : Systèmes Avancés
+
+### 5.1 Diplomatie et Commerce
+- **Faction System** : Relations avec autres cités
+- **Trade Routes** : Commerce inter-cités
+- **Diplomatic Events** : Négociations, alliances, conflits
+
+### 5.2 Recherche et Technologies
+- **Tech Tree** : Déblocage de nouveaux bâtiments/capacités
+- **Research System** : Investissement en R&D
+- **Discoveries** : Trouvailles des aventuriers
+
+### 5.3 Personnalisation Avancée
+- **City Specialization** : Orientations militaire/magique/commerciale
+- **Building Upgrades** : Améliorations modulaires
+- **Unique Buildings** : Structures spéciales débloquables
+
+## Phase 6 : Narration et Contenu
+
+### 6.1 Système Narratif
+- **Story Manager** : Progression de l'intrigue principale
+- **Quest Lines** : Chaînes de missions liées
+- **Character Development** : Histoires individuelles d'aventuriers
+
+### 6.2 Contenu Procédural
+- **World Generation** : Création de régions à explorer
+- **Dungeon Variety** : Types variés de donjons
+- **Lore System** : Découverte progressive du monde
+
+## Phase 7 : Polish et Optimisation
+
+### 7.1 Interface Utilisateur
+- **UI/UX Polish** : Amélioration ergonomie des menus
+- **Visual Feedback** : Animations, transitions fluides
+- **Accessibility** : Options d'accessibilité
+
+### 7.2 Balance et Tuning
+- **Game Balance** : Équilibrage économique et difficulté
+- **Performance** : Optimisation des calculs
+- **Bug Fixing** : Correction des problèmes identifiés
+
+### 7.3 Système de Achievements
+- **Achievement System** : Objectifs et récompenses
+- **Statistics** : Tracking des performances du joueur
+- **Replay Value** : Éléments encourageant la rejouabilité

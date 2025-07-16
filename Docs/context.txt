@@ -1,0 +1,92 @@
+# Grimspire: Gestionnaire de Cité Aventurière
+
+## Concept Principal
+Vous dirigez Grimspire, une cité-forteresse aux frontières d'un royaume fantastique. Votre rôle est double : développer une ville prospère ET gérer une guilde d'aventuriers qui explore les dangereuses terres environnantes.
+
+## Mécaniques de Gestion de Ville
+
+### Infrastructure de Base
+- **Quartier Résidentiel** : Maisons, auberges, tavernes pour attirer population et aventuriers
+- **District Commercial** : Marchés, échoppes d'artisans, banques pour l'économie locale
+- **Zone Industrielle** : Forges, alchimistes, enchanteurs pour équiper les aventuriers
+- **Quartier Administratif** : Mairie, caserne, prison, tribunal pour maintenir l'ordre
+
+### Ressources à Gérer
+- **Or** : Monnaie principale pour constructions et salaires
+- **Population** : Citoyens qui génèrent taxes et main-d'œuvre
+- **Matériaux** : Pierre, bois, métaux rares rapportés par les aventuriers
+- **Magie** : Cristaux et artefacts pour améliorer bâtiments et équipements
+- **Réputation** : Influence sur le recrutement d'aventuriers et relations diplomatiques
+
+## Système d'Aventuriers
+
+### Recrutement et Gestion
+- **Classes variées** : Guerriers, mages, voleurs, clercs, rangers avec spécialisations
+- **Statistiques** : Force, intelligence, agilité, charisme, chance
+- **Équipement** : Armes, armures, objets magiques craftés en ville
+- **Expérience** : Montée en niveau et déblocage de capacités spéciales
+
+### Missions et Exploration
+- **Donjons procéduraux** : Ruines antiques, cavernes de monstres, tours de sorciers
+- **Carte du monde** : Territoires à explorer avec difficultés croissantes
+- **Événements dynamiques** : Invasions de gobelins, dragons, cultistes
+- **Quêtes narratives** : Storylines avec choix impactant la ville et la région
+
+## Cycles de Gameplay
+
+### Phase Jour (Gestion)
+- Construction et amélioration des bâtiments
+- Recrutement et entraînement d'aventuriers
+- Commerce avec autres cités
+- Résolution de problèmes civils et diplomatiques
+
+### Phase Nuit (Aventure)
+- Envoi d'équipes d'aventuriers en mission
+- Suivi des explorations en temps réel ou accéléré
+- Réception des rapports et butin
+- Traitement des blessés et morts
+
+## Systèmes Interconnectés
+
+### Économie Circulaire
+- Aventuriers rapportent ressources rares → Artisans créent équipements → Aventuriers plus efficaces
+- Succès des missions → Réputation → Meilleurs aventuriers et plus de commerce
+- Population heureuse → Plus de taxes → Plus d'investissements possibles
+
+### Événements Dynamiques
+- **Saisons** : Hivers difficiles, printemps de croissance, automne de récoltes
+- **Catastrophes** : Épidémies, tremblements de terre, invasions
+- **Opportunités** : Découverte de mines, alliances, festivals
+
+## Progression et Objectifs
+
+### Objectifs à Court Terme
+- Survivre aux premières invasions
+- Établir une économie stable
+- Former une équipe d'aventuriers compétente
+
+### Objectifs à Long Terme
+- Devenir la capitale régionale
+- Découvrir et résoudre le mystère ancien qui menace le royaume
+- Bâtir un empire commercial et militaire
+
+## Mécaniques Innovantes
+
+### Système de Risque/Récompense
+- Missions dangereuses = Meilleur butin mais risque de perdre des aventuriers
+- Investissements coûteux = Bénéfices à long terme mais vulnérabilité immédiate
+
+### Diplomatie et Alliance
+- Relations avec autres cités, royaumes voisins
+- Échanges d'aventuriers, ressources, technologies
+- Guerres commerciales et conflits territoriaux
+
+### Personnalisation Profonde
+- Architecture modulaire des bâtiments
+- Spécialisation de la ville (militaire, magique, commerciale)
+- Arbre de technologies et découvertes uniques
+
+## Atmosphère et Narration
+Un monde sombre mais plein d'espoir, où votre petite cité représente un phare de civilisation dans un monde sauvage. Chaque décision compte, chaque aventurier a sa propre histoire, et le destin du royaume pourrait dépendre de votre sagesse de gestionnaire.
+
+
