@@ -1,5 +1,7 @@
 # Grimspire: Gestionnaire de Cité Aventurière
 
+Jeu de gestion d'une ville. Que des menus, pas de dessins ni de carte pour l'instant. Le but est de faire prospérer la ville en ajoutant de nouveaux batiments que l'on débloque. Guilde des aventuriers présente dans la ville. On peut gérer les aventuriers, en recruter, les envoyer en mission ou dans des donjons pour faire progresser la ville et récupérer des trésors. 
+
 ## Concept Principal
 Vous dirigez Grimspire, une cité-forteresse aux frontières d'un royaume fantastique. Votre rôle est double : développer une ville prospère ET gérer une guilde d'aventuriers qui explore les dangereuses terres environnantes.
 
