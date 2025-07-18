@@ -1,81 +1,225 @@
-using System;
 using UnityEngine;
 
 [System.Serializable]
 public class Resource
 {
-    public enum ResourceType
+    [Header("Basic Information")]
+    public string name;
+    public string description;
+    public ResourceType resourceType;
+    public int amount;
+    public int maxAmount;
+    
+    [Header("Value")]
+    public int baseValue;
+    public int currentMarketValue;
+    public bool isTradeGood;
+    
+    [Header("Production")]
+    public int dailyProduction;
+    public int dailyConsumption;
+    public bool isRenewable;
+
+    public Resource()
     {
-        Gold,
-        Population,
-        Stone,
-        Wood,
-        Iron,
-        MagicCrystal,
-        Reputation
-    }
-
-    [SerializeField] private ResourceType type;
-    [SerializeField] private int amount;
-    [SerializeField] private int capacity;
-
-    public ResourceType Type => type;
-    public int Amount => amount;
-    public int Capacity => capacity;
-    public bool IsFull => amount >= capacity;
-    public bool IsEmpty => amount <= 0;
-    public float FillPercentage => capacity > 0 ? (float)amount / capacity : 0f;
-
-    public Resource(ResourceType type, int initialAmount = 0, int maxCapacity = int.MaxValue)
-    {
-        this.type = type;
-        this.amount = Mathf.Clamp(initialAmount, 0, maxCapacity);
-        this.capacity = maxCapacity;
-    }
-
-    public bool CanAdd(int value)
-    {
-        return amount + value <= capacity;
-    }
-
-    public bool CanRemove(int value)
-    {
-        return amount >= value;
-    }
-
-    public bool Add(int value)
-    {
-        if (value <= 0) return false;
+        name = "Ressource";
+        description = "Description de la ressource";
+        resourceType = ResourceType.Gold;
+        amount = 0;
+        maxAmount = 1000;
         
-        int newAmount = amount + value;
-        if (newAmount > capacity) return false;
+        baseValue = 1;
+        currentMarketValue = 1;
+        isTradeGood = true;
         
-        amount = newAmount;
-        return true;
+        dailyProduction = 0;
+        dailyConsumption = 0;
+        isRenewable = false;
     }
 
-    public bool Remove(int value)
+    public Resource(ResourceType type, int initialAmount = 0)
     {
-        if (value <= 0) return false;
-        if (amount < value) return false;
+        resourceType = type;
+        amount = initialAmount;
+        SetupResourceData(type);
+    }
+
+    private void SetupResourceData(ResourceType type)
+    {
+        switch (type)
+        {
+            case ResourceType.Gold:
+                name = "Or";
+                description = "Monnaie principale du royaume";
+                maxAmount = 999999;
+                baseValue = 1;
+                currentMarketValue = 1;
+                isTradeGood = true;
+                isRenewable = true;
+                break;
+                
+            case ResourceType.Wood:
+                name = "Bois";
+                description = "Matériau de construction de base";
+                maxAmount = 500;
+                baseValue = 2;
+                currentMarketValue = 2;
+                isTradeGood = true;
+                isRenewable = true;
+                break;
+                
+            case ResourceType.Stone:
+                name = "Pierre";
+                description = "Matériau de construction solide";
+                maxAmount = 300;
+                baseValue = 5;
+                currentMarketValue = 5;
+                isTradeGood = true;
+                isRenewable = false;
+                break;
+                
+            case ResourceType.Iron:
+                name = "Fer";
+                description = "Métal pour armes et outils";
+                maxAmount = 200;
+                baseValue = 10;
+                currentMarketValue = 10;
+                isTradeGood = true;
+                isRenewable = false;
+                break;
+                
+            case ResourceType.MagicCrystal:
+                name = "Cristal Magique";
+                description = "Énergie mystique rare";
+                maxAmount = 100;
+                baseValue = 50;
+                currentMarketValue = 50;
+                isTradeGood = true;
+                isRenewable = false;
+                break;
+                
+            case ResourceType.Food:
+                name = "Nourriture";
+                description = "Nécessaire à la survie de la population";
+                maxAmount = 200;
+                baseValue = 3;
+                currentMarketValue = 3;
+                isTradeGood = true;
+                isRenewable = true;
+                dailyConsumption = 1;
+                break;
+                
+            case ResourceType.Leather:
+                name = "Cuir";
+                description = "Matériau pour armures légères";
+                maxAmount = 150;
+                baseValue = 8;
+                currentMarketValue = 8;
+                isTradeGood = true;
+                isRenewable = true;
+                break;
+                
+            case ResourceType.Gems:
+                name = "Gemmes";
+                description = "Pierres précieuses pour enchantements";
+                maxAmount = 50;
+                baseValue = 100;
+                currentMarketValue = 100;
+                isTradeGood = true;
+                isRenewable = false;
+                break;
+        }
+    }
+
+    public bool CanAdd(int addAmount)
+    {
+        return amount + addAmount <= maxAmount;
+    }
+
+    public bool CanRemove(int removeAmount)
+    {
+        return amount >= removeAmount;
+    }
+
+    public bool Add(int addAmount)
+    {
+        if (CanAdd(addAmount))
+        {
+            amount += addAmount;
+            return true;
+        }
+        return false;
+    }
+
+    public bool Remove(int removeAmount)
+    {
+        if (CanRemove(removeAmount))
+        {
+            amount -= removeAmount;
+            return true;
+        }
+        return false;
+    }
+
+    public int GetAvailableSpace()
+    {
+        return maxAmount - amount;
+    }
+
+    public float GetFillPercentage()
+    {
+        return (float)amount / maxAmount;
+    }
+
+    public int GetTotalValue()
+    {
+        return amount * currentMarketValue;
+    }
+
+    public void UpdateMarketValue(float marketModifier)
+    {
+        currentMarketValue = Mathf.RoundToInt(baseValue * marketModifier);
+        currentMarketValue = Mathf.Max(1, currentMarketValue);
+    }
+
+    public void ProcessDailyProduction()
+    {
+        if (isRenewable && dailyProduction > 0)
+        {
+            Add(dailyProduction);
+        }
+    }
+
+    public void ProcessDailyConsumption()
+    {
+        if (dailyConsumption > 0)
+        {
+            Remove(dailyConsumption);
+        }
+    }
+
+    public string GetStatusText()
+    {
+        string status = $"{name}: {amount}/{maxAmount}";
         
-        amount -= value;
-        return true;
+        if (dailyProduction > 0)
+            status += $" (+{dailyProduction}/jour)";
+            
+        if (dailyConsumption > 0)
+            status += $" (-{dailyConsumption}/jour)";
+            
+        return status;
     }
 
-    public void SetAmount(int newAmount)
+    public Color GetStatusColor()
     {
-        amount = Mathf.Clamp(newAmount, 0, capacity);
-    }
-
-    public void SetCapacity(int newCapacity)
-    {
-        capacity = Mathf.Max(0, newCapacity);
-        amount = Mathf.Min(amount, capacity);
-    }
-
-    public override string ToString()
-    {
-        return $"{type}: {amount}/{capacity}";
+        float fillPercentage = GetFillPercentage();
+        
+        if (fillPercentage < 0.2f)
+            return Color.red;
+        else if (fillPercentage < 0.5f)
+            return Color.yellow;
+        else
+            return Color.green;
     }
 }

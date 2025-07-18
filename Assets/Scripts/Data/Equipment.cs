@@ -1,278 +1,311 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
 public class Equipment
 {
-    public enum EquipmentType
-    {
-        Weapon,
-        Armor,
-        Helmet,
-        Boots,
-        Accessory,
-        Shield
-    }
-
-    public enum EquipmentRarity
-    {
-        Common,
-        Uncommon,
-        Rare,
-        Epic,
-        Legendary,
-        Artifact
-    }
-
     [Header("Basic Information")]
-    [SerializeField] private string name;
-    [SerializeField] private EquipmentType type;
-    [SerializeField] private EquipmentRarity rarity;
-    [SerializeField] private string description;
-    [SerializeField] private Sprite icon;
+    public string name;
+    public string description;
+    public EquipmentType equipmentType;
+    public EquipmentRarity rarity;
+    public int level;
     
     [Header("Stats")]
-    [SerializeField] private Dictionary<string, int> statBonuses;
-    [SerializeField] private int durability;
-    [SerializeField] private int maxDurability;
-    [SerializeField] private int level;
-    [SerializeField] private int sellValue;
+    public int power;
+    public int strengthBonus;
+    public int intelligenceBonus;
+    public int agilityBonus;
+    public int charismaBonus;
+    public int luckBonus;
     
     [Header("Requirements")]
-    [SerializeField] private int requiredLevel;
-    [SerializeField] private List<Adventurer.AdventurerClass> allowedClasses;
+    public AdventurerClass requiredClass;
+    public int requiredLevel;
     
-    public string Name => name;
-    public EquipmentType Type => type;
-    public EquipmentRarity Rarity => rarity;
-    public string Description => description;
-    public Sprite Icon => icon;
-    public Dictionary<string, int> StatBonuses => new Dictionary<string, int>(statBonuses ?? new Dictionary<string, int>());
-    public int Durability => durability;
-    public int MaxDurability => maxDurability;
-    public int Level => level;
-    public int SellValue => sellValue;
-    public int RequiredLevel => requiredLevel;
-    public List<Adventurer.AdventurerClass> AllowedClasses => new List<Adventurer.AdventurerClass>(allowedClasses ?? new List<Adventurer.AdventurerClass>());
-    public bool IsBroken => durability <= 0;
-    public float DurabilityPercentage => maxDurability > 0 ? (float)durability / maxDurability : 0f;
+    [Header("Crafting")]
+    public int craftingCost;
+    public int ironRequired;
+    public int leatherRequired;
+    public int gemsRequired;
+    public int magicCrystalRequired;
 
     public Equipment()
     {
-        statBonuses = new Dictionary<string, int>();
-        allowedClasses = new List<Adventurer.AdventurerClass>();
-        durability = 100;
-        maxDurability = 100;
-    }
-
-    public Equipment(string equipmentName, EquipmentType equipmentType, EquipmentRarity equipmentRarity)
-    {
-        name = equipmentName;
-        type = equipmentType;
-        rarity = equipmentRarity;
-        statBonuses = new Dictionary<string, int>();
-        allowedClasses = new List<Adventurer.AdventurerClass>();
-        durability = 100;
-        maxDurability = 100;
+        name = "Équipement";
+        description = "Description de l'équipement";
+        equipmentType = EquipmentType.Weapon;
+        rarity = EquipmentRarity.Common;
         level = 1;
         
-        GenerateBasicStats();
+        power = 10;
+        strengthBonus = 0;
+        intelligenceBonus = 0;
+        agilityBonus = 0;
+        charismaBonus = 0;
+        luckBonus = 0;
+        
+        requiredClass = AdventurerClass.Warrior;
+        requiredLevel = 1;
+        
+        craftingCost = 100;
+        ironRequired = 5;
+        leatherRequired = 0;
+        gemsRequired = 0;
+        magicCrystalRequired = 0;
     }
 
-    private void GenerateBasicStats()
+    public Equipment(string itemName, EquipmentType type, EquipmentRarity itemRarity, int itemLevel)
     {
-        statBonuses = new Dictionary<string, int>();
+        name = itemName;
+        equipmentType = type;
+        rarity = itemRarity;
+        level = itemLevel;
         
-        switch (type)
+        SetupEquipmentStats();
+        SetupCraftingRequirements();
+    }
+
+    private void SetupEquipmentStats()
+    {
+        int basePower = 10 + (level * 5);
+        float rarityMultiplier = GetRarityMultiplier();
+        
+        power = Mathf.RoundToInt(basePower * rarityMultiplier);
+        
+        switch (equipmentType)
         {
             case EquipmentType.Weapon:
-                statBonuses["Attack"] = GetRarityBaseStat() * 2;
-                statBonuses["Strength"] = GetRarityBaseStat();
+                SetupWeaponStats();
                 break;
-                
             case EquipmentType.Armor:
-                statBonuses["Defense"] = GetRarityBaseStat() * 2;
-                statBonuses["Constitution"] = GetRarityBaseStat();
+                SetupArmorStats();
                 break;
-                
-            case EquipmentType.Helmet:
-                statBonuses["Defense"] = GetRarityBaseStat();
-                statBonuses["Intelligence"] = GetRarityBaseStat();
-                break;
-                
-            case EquipmentType.Boots:
-                statBonuses["Defense"] = GetRarityBaseStat();
-                statBonuses["Agility"] = GetRarityBaseStat();
-                break;
-                
             case EquipmentType.Accessory:
-                statBonuses["Luck"] = GetRarityBaseStat();
-                statBonuses["Charisma"] = GetRarityBaseStat();
+                SetupAccessoryStats();
                 break;
         }
         
-        sellValue = GetRarityBaseStat() * 10;
+        ApplyRarityBonuses();
     }
 
-    private int GetRarityBaseStat()
+    private void SetupWeaponStats()
+    {
+        strengthBonus = Mathf.RoundToInt(level * 2 * GetRarityMultiplier());
+        agilityBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+        
+        if (name.Contains("Bâton") || name.Contains("Grimoire"))
+        {
+            intelligenceBonus = Mathf.RoundToInt(level * 3 * GetRarityMultiplier());
+            strengthBonus = Mathf.RoundToInt(level * 0.5f * GetRarityMultiplier());
+        }
+        else if (name.Contains("Dague") || name.Contains("Arc"))
+        {
+            agilityBonus = Mathf.RoundToInt(level * 3 * GetRarityMultiplier());
+            strengthBonus = Mathf.RoundToInt(level * 1.5f * GetRarityMultiplier());
+        }
+    }
+
+    private void SetupArmorStats()
+    {
+        strengthBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+        agilityBonus = Mathf.RoundToInt(level * 0.5f * GetRarityMultiplier());
+        
+        if (name.Contains("Robe"))
+        {
+            intelligenceBonus = Mathf.RoundToInt(level * 2 * GetRarityMultiplier());
+            charismaBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+        }
+        else if (name.Contains("Cuir"))
+        {
+            agilityBonus = Mathf.RoundToInt(level * 2 * GetRarityMultiplier());
+        }
+    }
+
+    private void SetupAccessoryStats()
+    {
+        luckBonus = Mathf.RoundToInt(level * 1.5f * GetRarityMultiplier());
+        
+        switch (Random.Range(0, 4))
+        {
+            case 0:
+                strengthBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+                break;
+            case 1:
+                intelligenceBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+                break;
+            case 2:
+                agilityBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+                break;
+            case 3:
+                charismaBonus = Mathf.RoundToInt(level * 1 * GetRarityMultiplier());
+                break;
+        }
+    }
+
+    private float GetRarityMultiplier()
     {
         switch (rarity)
         {
-            case EquipmentRarity.Common: return UnityEngine.Random.Range(1, 4);
-            case EquipmentRarity.Uncommon: return UnityEngine.Random.Range(3, 7);
-            case EquipmentRarity.Rare: return UnityEngine.Random.Range(6, 11);
-            case EquipmentRarity.Epic: return UnityEngine.Random.Range(10, 16);
-            case EquipmentRarity.Legendary: return UnityEngine.Random.Range(15, 21);
-            case EquipmentRarity.Artifact: return UnityEngine.Random.Range(20, 31);
-            default: return 1;
+            case EquipmentRarity.Common:
+                return 1f;
+            case EquipmentRarity.Uncommon:
+                return 1.3f;
+            case EquipmentRarity.Rare:
+                return 1.6f;
+            case EquipmentRarity.Epic:
+                return 2f;
+            case EquipmentRarity.Legendary:
+                return 2.5f;
+            default:
+                return 1f;
         }
     }
 
-    public bool CanBeEquippedBy(Adventurer adventurer)
+    private void ApplyRarityBonuses()
     {
-        if (adventurer.Level < requiredLevel) return false;
-        if (allowedClasses.Count > 0 && !allowedClasses.Contains(adventurer.Class)) return false;
+        switch (rarity)
+        {
+            case EquipmentRarity.Uncommon:
+                AddRandomBonus(1);
+                break;
+            case EquipmentRarity.Rare:
+                AddRandomBonus(2);
+                break;
+            case EquipmentRarity.Epic:
+                AddRandomBonus(3);
+                break;
+            case EquipmentRarity.Legendary:
+                AddRandomBonus(4);
+                break;
+        }
+    }
+
+    private void AddRandomBonus(int bonusCount)
+    {
+        for (int i = 0; i < bonusCount; i++)
+        {
+            switch (Random.Range(0, 5))
+            {
+                case 0:
+                    strengthBonus += Random.Range(1, 4);
+                    break;
+                case 1:
+                    intelligenceBonus += Random.Range(1, 4);
+                    break;
+                case 2:
+                    agilityBonus += Random.Range(1, 4);
+                    break;
+                case 3:
+                    charismaBonus += Random.Range(1, 4);
+                    break;
+                case 4:
+                    luckBonus += Random.Range(1, 4);
+                    break;
+            }
+        }
+    }
+
+    private void SetupCraftingRequirements()
+    {
+        craftingCost = Mathf.RoundToInt(50 * level * GetRarityMultiplier());
+        
+        switch (equipmentType)
+        {
+            case EquipmentType.Weapon:
+                ironRequired = Mathf.RoundToInt(3 * level * GetRarityMultiplier());
+                leatherRequired = Mathf.RoundToInt(1 * level);
+                break;
+            case EquipmentType.Armor:
+                ironRequired = Mathf.RoundToInt(2 * level * GetRarityMultiplier());
+                leatherRequired = Mathf.RoundToInt(3 * level * GetRarityMultiplier());
+                break;
+            case EquipmentType.Accessory:
+                gemsRequired = Mathf.RoundToInt(1 * level);
+                magicCrystalRequired = Mathf.RoundToInt(1 * level);
+                break;
+        }
+        
+        if (rarity >= EquipmentRarity.Rare)
+        {
+            gemsRequired += Random.Range(1, 3);
+        }
+        
+        if (rarity >= EquipmentRarity.Epic)
+        {
+            magicCrystalRequired += Random.Range(1, 3);
+        }
+    }
+
+    public bool CanEquip(Adventurer adventurer)
+    {
+        if (adventurer.level < requiredLevel)
+            return false;
+            
+        if (requiredClass != AdventurerClass.Warrior && adventurer.adventurerClass != requiredClass)
+            return false;
+            
         return true;
     }
 
-    public int GetStatBonus(string statName)
+    public int GetTotalStatBonus()
     {
-        return statBonuses.ContainsKey(statName) ? statBonuses[statName] : 0;
+        return strengthBonus + intelligenceBonus + agilityBonus + charismaBonus + luckBonus;
     }
 
-    public void TakeDamage(int damage)
+    public string GetRarityText()
     {
-        durability = Mathf.Max(0, durability - damage);
-    }
-
-    public void Repair(int amount)
-    {
-        durability = Mathf.Min(maxDurability, durability + amount);
-    }
-
-    public void FullRepair()
-    {
-        durability = maxDurability;
+        switch (rarity)
+        {
+            case EquipmentRarity.Common:
+                return "Commun";
+            case EquipmentRarity.Uncommon:
+                return "Peu Commun";
+            case EquipmentRarity.Rare:
+                return "Rare";
+            case EquipmentRarity.Epic:
+                return "Épique";
+            case EquipmentRarity.Legendary:
+                return "Légendaire";
+            default:
+                return "Commun";
+        }
     }
 
     public Color GetRarityColor()
     {
         switch (rarity)
         {
-            case EquipmentRarity.Common: return Color.white;
-            case EquipmentRarity.Uncommon: return Color.green;
-            case EquipmentRarity.Rare: return Color.blue;
-            case EquipmentRarity.Epic: return new Color(0.5f, 0f, 1f); // Purple
-            case EquipmentRarity.Legendary: return new Color(1f, 0.5f, 0f); // Orange
-            case EquipmentRarity.Artifact: return Color.red;
-            default: return Color.white;
+            case EquipmentRarity.Common:
+                return Color.gray;
+            case EquipmentRarity.Uncommon:
+                return Color.green;
+            case EquipmentRarity.Rare:
+                return Color.blue;
+            case EquipmentRarity.Epic:
+                return Color.magenta;
+            case EquipmentRarity.Legendary:
+                return Color.yellow;
+            default:
+                return Color.gray;
         }
     }
 
-    public string GetStatsDescription()
+    public string GetDetailedDescription()
     {
-        string desc = "";
-        foreach (var stat in statBonuses)
-        {
-            if (!string.IsNullOrEmpty(desc)) desc += "\n";
-            desc += $"+{stat.Value} {stat.Key}";
-        }
-        return desc;
-    }
-
-    public override string ToString()
-    {
-        return $"{name} ({rarity} {type})";
-    }
-}
-
-[System.Serializable]
-public class AdventurerTrait
-{
-    [SerializeField] private string name;
-    [SerializeField] private string description;
-    [SerializeField] private Dictionary<string, float> statModifiers;
-    [SerializeField] private bool isPositive;
-
-    public string Name => name;
-    public string Description => description;
-    public Dictionary<string, float> StatModifiers => new Dictionary<string, float>(statModifiers ?? new Dictionary<string, float>());
-    public bool IsPositive => isPositive;
-
-    public AdventurerTrait(string traitName, string traitDescription, bool positive = true)
-    {
-        name = traitName;
-        description = traitDescription;
-        isPositive = positive;
-        statModifiers = new Dictionary<string, float>();
-    }
-
-    public void AddStatModifier(string statName, float modifier)
-    {
-        if (statModifiers == null)
-            statModifiers = new Dictionary<string, float>();
+        string details = $"{name} - {GetRarityText()}\n";
+        details += $"Niveau: {level}\n";
+        details += $"Puissance: {power}\n\n";
         
-        statModifiers[statName] = modifier;
-    }
-
-    public float GetStatModifier(string statName)
-    {
-        return statModifiers?.ContainsKey(statName) == true ? statModifiers[statName] : 0f;
-    }
-}
-
-[System.Serializable]
-public class AdventurerSkill
-{
-    [SerializeField] private string name;
-    [SerializeField] private string description;
-    [SerializeField] private int level;
-    [SerializeField] private int maxLevel;
-    [SerializeField] private int experience;
-    [SerializeField] private int experienceToNext;
-    [SerializeField] private Adventurer.AdventurerClass associatedClass;
-
-    public string Name => name;
-    public string Description => description;
-    public int Level => level;
-    public int MaxLevel => maxLevel;
-    public int Experience => experience;
-    public int ExperienceToNext => experienceToNext;
-    public Adventurer.AdventurerClass AssociatedClass => associatedClass;
-    public bool IsMaxLevel => level >= maxLevel;
-
-    public AdventurerSkill(string skillName, string skillDescription, Adventurer.AdventurerClass skillClass, int maxSkillLevel = 10)
-    {
-        name = skillName;
-        description = skillDescription;
-        associatedClass = skillClass;
-        level = 1;
-        maxLevel = maxSkillLevel;
-        experience = 0;
-        experienceToNext = 100;
-    }
-
-    public bool AddExperience(int amount)
-    {
-        if (IsMaxLevel) return false;
+        if (strengthBonus > 0) details += $"Force: +{strengthBonus}\n";
+        if (intelligenceBonus > 0) details += $"Intelligence: +{intelligenceBonus}\n";
+        if (agilityBonus > 0) details += $"Agilité: +{agilityBonus}\n";
+        if (charismaBonus > 0) details += $"Charisme: +{charismaBonus}\n";
+        if (luckBonus > 0) details += $"Chance: +{luckBonus}\n";
         
-        experience += amount;
-        bool leveledUp = false;
-        
-        while (experience >= experienceToNext && !IsMaxLevel)
-        {
-            experience -= experienceToNext;
-            level++;
-            experienceToNext = level * 100;
-            leveledUp = true;
-        }
-        
-        return leveledUp;
-    }
-
-    public float GetEffectiveness()
-    {
-        return 1.0f + (level - 1) * 0.1f; // 10% increase per level
+        details += $"\nRequis: Niveau {requiredLevel}";
+        if (requiredClass != AdventurerClass.Warrior)
+            details += $", {requiredClass}";
+            
+        return details;
     }
 }

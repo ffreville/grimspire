@@ -1,153 +1,70 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainMenu : BaseMenu
+public class MainMenu : MonoBehaviour
 {
-    [Header("Main Menu Buttons")]
-    [SerializeField] private Button newGameButton;
-    [SerializeField] private Button loadGameButton;
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private Button quitButton;
-    
-    [Header("Main Menu Panels")]
-    [SerializeField] private GameObject titlePanel;
-    [SerializeField] private GameObject buttonPanel;
+    [Header("UI Elements")]
+    public Button newGameButton;
+    public Button loadGameButton;
+    public Button settingsButton;
+    public Button quitButton;
 
-    protected override void SetupEventListeners()
+    public GameObject gameMenu;
+
+    private void Awake()
     {
-        base.SetupEventListeners();
-        
-        if (newGameButton != null)
-            newGameButton.onClick.AddListener(OnNewGamePressed);
-        
-        if (loadGameButton != null)
-            loadGameButton.onClick.AddListener(OnLoadGamePressed);
-        
-        if (settingsButton != null)
-            settingsButton.onClick.AddListener(OnSettingsPressed);
-        
-        if (quitButton != null)
-            quitButton.onClick.AddListener(OnQuitPressed);
+        SetupButtons();
     }
 
-    protected override void OnMenuShown()
+    private void SetupButtons()
     {
-        base.OnMenuShown();
-        
-        // Update load game button availability
-        UpdateLoadGameButton();
-    }
-
-    private void UpdateLoadGameButton()
-    {
-        if (loadGameButton != null && SaveSystem.Instance != null)
-        {
-            loadGameButton.interactable = SaveSystem.Instance.HasSaveFile();
-        }
-    }
-
-    private void OnNewGamePressed()
-    {
-        Debug.Log("New Game pressed");
-        StartNewGame();
-    }
-
-    private void OnLoadGamePressed()
-    {
-        Debug.Log("Load Game pressed");
-        LoadGame();
-    }
-
-    private void OnSettingsPressed()
-    {
-        Debug.Log("Settings pressed");
-        OpenSettings();
-    }
-
-    private void OnQuitPressed()
-    {
-        Debug.Log("Quit pressed");
-        QuitGame();
+        newGameButton?.onClick.AddListener(StartNewGame);
+        loadGameButton?.onClick.AddListener(LoadGame);
+        settingsButton?.onClick.AddListener(OpenSettings);
+        quitButton?.onClick.AddListener(QuitGame);
     }
 
     private void StartNewGame()
     {
-        // Create new game data
-        GameData newGameData = new GameData();
-        newGameData.InitializeGameVersion();
+        Debug.Log("Starting new game...");
         
-        // Save the new game
-        if (SaveSystem.Instance != null)
+        // Hide main menu
+        gameObject.SetActive(false);
+        
+        // Find and show existing game menu
+        if (gameMenu != null)
         {
-            SaveSystem.Instance.SaveGame(newGameData);
+            gameMenu.SetActive(true);
+            
+            // Initialize the game menu if needed
+            var gameMenuScript = gameMenu.GetComponent<GameMenu>();
+            gameMenuScript?.SetActiveTab(0); // Start with Buildings tab
         }
-        
-        // Initialize game manager with new data
-        if (GameManager.Instance != null)
+        else
         {
-            GameManager.Instance.InitializeGame(newGameData);
-        }
-        
-        // Load city management scene
-        if (SceneManager.Instance != null)
-        {
-            SceneManager.Instance.LoadCityManagement();
+            Debug.LogWarning("GameMenu not found in scene! Please add it to the scene first.");
         }
     }
 
     private void LoadGame()
     {
-        if (SaveSystem.Instance != null)
-        {
-            GameData loadedData = SaveSystem.Instance.LoadGame();
-            
-            if (loadedData != null)
-            {
-                // Initialize game manager with loaded data
-                if (GameManager.Instance != null)
-                {
-                    GameManager.Instance.InitializeGame(loadedData);
-                }
-                
-                // Load city management scene
-                if (SceneManager.Instance != null)
-                {
-                    SceneManager.Instance.LoadCityManagement();
-                }
-            }
-        }
+        Debug.Log("Loading game...");
+        // TODO: Implement load game functionality
     }
 
     private void OpenSettings()
     {
-        if (SceneManager.Instance != null)
-        {
-            SceneManager.Instance.LoadSettings();
-        }
+        Debug.Log("Opening settings...");
+        // TODO: Implement settings menu
     }
 
     private void QuitGame()
     {
-        if (SceneManager.Instance != null)
-        {
-            SceneManager.Instance.QuitGame();
-        }
-    }
-
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        
-        if (newGameButton != null)
-            newGameButton.onClick.RemoveListener(OnNewGamePressed);
-        
-        if (loadGameButton != null)
-            loadGameButton.onClick.RemoveListener(OnLoadGamePressed);
-        
-        if (settingsButton != null)
-            settingsButton.onClick.RemoveListener(OnSettingsPressed);
-        
-        if (quitButton != null)
-            quitButton.onClick.RemoveListener(OnQuitPressed);
+        Debug.Log("Quitting game...");
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }

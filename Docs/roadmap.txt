@@ -1,85 +1,33 @@
 # Roadmap Grimspire - Gestionnaire de Cité Aventurière
 
+Tous les generators doivent pouvoir être lancé depuis
+l'editeur unity directement.
+
 ## Phase 1 : Fondations (Core Systems)
+### 1.1 Menu principal
+- **Menu principal** : menu principal pour gérer le lancement d'un nouvelle partie
+- **MainMenuGenerator**: script permettant de générer les gameobjects du menu principal
 
-### 1.1 Architecture de Base
+### 1.2 Nouvelle partie
+- **GameMenuGenerator** : script permettant de générer les gameobjects du menu du jeu (nouveau panel)
+- **Lancement d'une nouvelle partie** : permettre le lancement d'une nouvelle partie en affichant le menu du jeu
 - **Système de données** : Classes pour City, Adventurer, Building, Resource
-- **Gestionnaire de scènes** : Navigation entre menus principaux
-- **Système de sauvegarde** : Persistence des données de jeu
-- **UI Framework** : Templates de menus réutilisables
 
-### 1.2 Système de Ressources
-- **ResourceManager** : Gestion de l'or, population, matériaux, magie
-- **Economic System** : Calculs de revenus, dépenses, taxes
-- **Interface ressources** : Affichage temps réel des stocks
+### 1.3 Menu du jeu
+- **Navigation ** : faire la navigation entre les onglets. Quand on clique sur l'onglet, on affiche le contenu correspondant.
+- ** Onglet batiments ** : script pour afficher la liste des batiments.
+- ** Generator ** : script permettant de créer les gameobjects pour afficher la liste des batiments dans le gameobject Content_Batiments déjà existant.
 
-### 1.3 Système de Bâtiments (Menu-Based)
-- **Building Database** : Propriétés, coûts, effets de chaque bâtiment
-- **Construction System** : Logique d'achat
-- **Building Effects** : Impact sur ressources et capacités de la ville
-
-## Phase 2 : Système d'Aventuriers 
-
-### 2.1 Génération et Gestion
-- **Adventurer Class** : Stats, équipement, expérience, spécialisations
-- **Recruitment System** : Génération procédurale d'aventuriers
-- **Party Management** : Formation d'équipes, synergies
-
-### 2.2 Équipement et Progression
-- **Item System** : Armes, armures, objets magiques
-- **Crafting System** : Création d'équipements par les artisans
-- **Leveling System** : Progression des stats et capacités
-
-### 2.3 Interface Aventuriers
-- **Roster Management** : Liste, tri, filtrage des aventuriers
-- **Character Sheets** : Détails individuels, historique
-- **Equipment Interface** : Gestion des inventaires
+## Phase 2 : Système d'Aventuriers
+- ** Onglet Guilde **: une liste avec les aventuriers recrutés. Une autre liste où il y aura les aventuriers à récruter.
+Un bouton permet de lancer la recherche et de mettre à jour la liste.
+Le bouton appellera une fonction qui sera dans une nouvelle classe dans le dossier systems. Cette classe gèrera toutes les actions en rapport avec les aventuriers à récruter et recrutés.
 
 ## Phase 3 : Système de Missions
 
-### 3.1 Génération de Missions
-- **Mission Generator** : Création procédurale de donjons et quêtes
-- **Difficulty Scaling** : Adaptation selon progression du joueur
-- **Mission Types** : Exploration, combat, diplomatie, commerce
-
-### 3.2 Système de Combat/Résolution
-- **Combat Calculator** : Résolution automatique des combats
-- **Risk/Reward System** : Calcul des gains vs pertes
-- **Event System** : Événements aléatoires en mission
-
-### 3.3 Interface Missions
-- **Mission Board** : Sélection et assignation des missions
-- **Progress Tracking** : Suivi en temps réel des expéditions
-- **Results Screen** : Rapports détaillés de missions
-
 ## Phase 4 : Cycles de Gameplay
 
-### 4.1 Système Jour/Nuit
-- **Time Manager** : Gestion du temps et cycles
-- **Phase Management** : Alternance gestion/aventure
-- **Auto-progression** : Évolution passive pendant les missions
-
-### 4.2 Événements Dynamiques
-- **Event System** : Catastrophes, opportunités, invasions
-- **Random Events** : Événements procéduraux impactant la ville
-- **Decision Trees** : Choix multiples avec conséquences
-
 ## Phase 5 : Systèmes Avancés
-
-### 5.1 Diplomatie et Commerce
-- **Faction System** : Relations avec autres cités
-- **Trade Routes** : Commerce inter-cités
-- **Diplomatic Events** : Négociations, alliances, conflits
-
-### 5.2 Recherche et Technologies
-- **Tech Tree** : Déblocage de nouveaux bâtiments/capacités
-- **Research System** : Investissement en R&D
-- **Discoveries** : Trouvailles des aventuriers
-
-### 5.3 Personnalisation Avancée
-- **City Specialization** : Orientations militaire/magique/commerciale
-- **Building Upgrades** : Améliorations modulaires
-- **Unique Buildings** : Structures spéciales débloquables
 
 ## Phase 6 : Narration et Contenu
 

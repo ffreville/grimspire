@@ -1,22 +1,39 @@
 # Grimspire: Gestionnaire de Cité Aventurière
 
 ## Concept Principal
-Vous dirigez Grimspire, une cité-forteresse aux frontières d'un royaume fantastique. Votre rôle est double : développer une ville prospère ET gérer une guilde d'aventuriers qui explore les dangereuses terres environnantes.
+Vous dirigez Grimspire, une cité-forteresse aux frontières d'un royaume fantastique. 
+Votre rôle est double : développer une ville prospère ET gérer une guilde d'aventuriers qui explore les dangereuses terres environnantes.
+
+## Gameplay
+C'est un jeu en point & click avec uniquement de l'affichage de menu. Il y a un système de jour et nuit.
+Pour chaque jour et chaque nuit on dispose d'un nombre de point d'actions qui augmentera au fil des améliorations de la ville.
+Chaque action dans la ville fait dépenser un nombre de points.
+Des évènements arrivent chaque jour et chaque nuit, le joueur doit prendre des décisions suivant ces évènements.
 
 ## Mécaniques de Gestion de Ville
 
-### Infrastructure de Base
-- **Quartier Résidentiel** : Maisons, auberges, tavernes pour attirer population et aventuriers
+### Liste des quartiers et batiments
+- **Quartier Résidentiel** : Maisons pour augmenter la population. auberges et tavernes pour attirer population et aventuriers
 - **District Commercial** : Marchés, échoppes d'artisans, banques pour l'économie locale
 - **Zone Industrielle** : Forges, alchimistes, enchanteurs pour équiper les aventuriers
 - **Quartier Administratif** : Mairie, caserne, prison, tribunal pour maintenir l'ordre
 
 ### Ressources à Gérer
-- **Or** : Monnaie principale pour constructions et salaires
+- **Or** : Monnaie principale du jeu
 - **Population** : Citoyens qui génèrent taxes et main-d'œuvre
 - **Matériaux** : Pierre, bois, métaux rares rapportés par les aventuriers
 - **Magie** : Cristaux et artefacts pour améliorer bâtiments et équipements
 - **Réputation** : Influence sur le recrutement d'aventuriers et relations diplomatiques
+
+### Liste des onglets du menu du jeu
+- **Batiments** : permet de voir la liste de tous les batiments. Possibilité de les améliorer
+- **Population** : permet de gérer le quartier résidentiel
+- **Commerce**: permet de gérer le district commercial
+- **Industrie**: permet de gérer la zone industrielles
+- **Administration**: permet de gérer le quartier Administratif
+- **Guilde des aventuriers**: permet de gérer les aventuriers
+- **Expédition** : permet de gérer les expéditions, de voir les donjons, de voir les expéditions en cours
+- **Guerre**: permet de gérer les invasions en cours, de voir les rapports des invasions terminées
 
 ## Système d'Aventuriers
 
@@ -39,12 +56,14 @@ Vous dirigez Grimspire, une cité-forteresse aux frontières d'un royaume fantas
 - Recrutement et entraînement d'aventuriers
 - Commerce avec autres cités
 - Résolution de problèmes civils et diplomatiques
+- Possible gestion des invasions de monstre
 
 ### Phase Nuit (Aventure)
 - Envoi d'équipes d'aventuriers en mission
 - Suivi des explorations en temps réel ou accéléré
 - Réception des rapports et butin
 - Traitement des blessés et morts
+- Possible gestion des invasions de monstre
 
 ## Systèmes Interconnectés
 

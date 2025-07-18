@@ -1,165 +1,366 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class Building
 {
-    public enum BuildingType
+    [Header("Basic Information")]
+    public string name;
+    public string description;
+    public BuildingType buildingType;
+    public BuildingCategory category;
+    public int level;
+    public int maxLevel;
+    
+    [Header("Construction")]
+    public bool isBuilt;
+    public bool isUnderConstruction;
+    public int constructionTimeRemaining;
+    
+    [Header("Costs")]
+    public int goldCost;
+    public int woodCost;
+    public int stoneCost;
+    public int ironCost;
+    public int magicCost;
+    
+    [Header("Upgrade Costs")]
+    public int upgradeGoldCost;
+    public int upgradeWoodCost;
+    public int upgradeStoneCost;
+    public int upgradeIronCost;
+    public int upgradeMagicCost;
+    
+    [Header("Effects")]
+    public int populationBonus;
+    public int maxPopulationBonus;
+    public int goldPerDay;
+    public int resourcePerDay;
+    public int actionPointsBonus;
+    public int reputationBonus;
+    
+    [Header("Requirements")]
+    public int populationRequired;
+    public int reputationRequired;
+    public List<string> prerequisiteBuildings;
+
+    public Building()
     {
-        // Residential
-        House,
-        Inn,
-        Tavern,
+        name = "Bâtiment";
+        description = "Description du bâtiment";
+        buildingType = BuildingType.House;
+        category = BuildingCategory.Residential;
+        level = 1;
+        maxLevel = 5;
         
-        // Commercial
-        Market,
-        Shop,
-        Bank,
+        isBuilt = false;
+        isUnderConstruction = false;
+        constructionTimeRemaining = 0;
         
-        // Industrial
-        Forge,
-        Alchemist,
-        Enchanter,
+        goldCost = 100;
+        woodCost = 10;
+        stoneCost = 5;
+        ironCost = 0;
+        magicCost = 0;
         
-        // Administrative
-        TownHall,
-        Barracks,
-        Prison,
-        Court
+        upgradeGoldCost = 200;
+        upgradeWoodCost = 20;
+        upgradeStoneCost = 10;
+        upgradeIronCost = 5;
+        upgradeMagicCost = 0;
+        
+        populationBonus = 0;
+        maxPopulationBonus = 0;
+        goldPerDay = 0;
+        resourcePerDay = 0;
+        actionPointsBonus = 0;
+        reputationBonus = 0;
+        
+        populationRequired = 0;
+        reputationRequired = 0;
+        prerequisiteBuildings = new List<string>();
     }
 
-    public enum BuildingCategory
+    public Building(BuildingType type)
     {
-        Residential,
-        Commercial,
-        Industrial,
-        Administrative
-    }
-
-    [SerializeField] private BuildingType type;
-    [SerializeField] private string name;
-    [SerializeField] private BuildingCategory category;
-    [SerializeField] private int level;
-    [SerializeField] private bool isBuilt;
-    [SerializeField] private Dictionary<Resource.ResourceType, int> buildCosts;
-    [SerializeField] private Dictionary<Resource.ResourceType, int> maintenanceCosts;
-    [SerializeField] private Dictionary<Resource.ResourceType, int> production;
-
-    public BuildingType Type => type;
-    public string Name => name;
-    public BuildingCategory Category => category;
-    public int Level => level;
-    public bool IsBuilt => isBuilt;
-    public Dictionary<Resource.ResourceType, int> BuildCosts => new Dictionary<Resource.ResourceType, int>(buildCosts);
-    public Dictionary<Resource.ResourceType, int> MaintenanceCosts => new Dictionary<Resource.ResourceType, int>(maintenanceCosts);
-    public Dictionary<Resource.ResourceType, int> Production => new Dictionary<Resource.ResourceType, int>(production);
-
-    public Building(BuildingType type, string name, BuildingCategory category)
-    {
-        this.type = type;
-        this.name = name;
-        this.category = category;
-        this.level = 1;
-        this.isBuilt = false;
-        this.buildCosts = new Dictionary<Resource.ResourceType, int>();
-        this.maintenanceCosts = new Dictionary<Resource.ResourceType, int>();
-        this.production = new Dictionary<Resource.ResourceType, int>();
+        buildingType = type;
+        category = GetCategoryForType(type);
+        level = 1;
+        maxLevel = 5;
         
-        InitializeBuildingData();
+        isBuilt = false;
+        isUnderConstruction = false;
+        constructionTimeRemaining = 0;
+        
+        prerequisiteBuildings = new List<string>();
+        
+        SetupBuildingData(type);
     }
 
-    private void InitializeBuildingData()
+    private BuildingCategory GetCategoryForType(BuildingType type)
     {
         switch (type)
         {
             case BuildingType.House:
-                buildCosts[Resource.ResourceType.Gold] = 100;
-                buildCosts[Resource.ResourceType.Wood] = 50;
-                production[Resource.ResourceType.Population] = 4;
-                break;
-                
             case BuildingType.Inn:
-                buildCosts[Resource.ResourceType.Gold] = 200;
-                buildCosts[Resource.ResourceType.Wood] = 75;
-                production[Resource.ResourceType.Gold] = 10;
-                production[Resource.ResourceType.Reputation] = 1;
-                break;
+            case BuildingType.Tavern:
+                return BuildingCategory.Residential;
                 
             case BuildingType.Market:
-                buildCosts[Resource.ResourceType.Gold] = 300;
-                buildCosts[Resource.ResourceType.Wood] = 100;
-                production[Resource.ResourceType.Gold] = 20;
-                break;
+            case BuildingType.Shop:
+            case BuildingType.Bank:
+                return BuildingCategory.Commercial;
                 
             case BuildingType.Forge:
-                buildCosts[Resource.ResourceType.Gold] = 400;
-                buildCosts[Resource.ResourceType.Stone] = 100;
-                buildCosts[Resource.ResourceType.Iron] = 50;
-                maintenanceCosts[Resource.ResourceType.Gold] = 5;
-                break;
+            case BuildingType.Alchemist:
+            case BuildingType.Enchanter:
+                return BuildingCategory.Industrial;
                 
             case BuildingType.TownHall:
-                buildCosts[Resource.ResourceType.Gold] = 500;
-                buildCosts[Resource.ResourceType.Stone] = 200;
-                production[Resource.ResourceType.Reputation] = 5;
-                break;
+            case BuildingType.Prison:
+                return BuildingCategory.Administrative;
+                
+            default:
+                return BuildingCategory.Residential;
         }
     }
 
-    public bool CanBuild(Dictionary<Resource.ResourceType, Resource> availableResources)
+    private void SetupBuildingData(BuildingType type)
     {
-        foreach (var cost in buildCosts)
+        switch (type)
         {
-            if (!availableResources.ContainsKey(cost.Key) || 
-                !availableResources[cost.Key].CanRemove(cost.Value))
-            {
-                return false;
-            }
+            case BuildingType.House:
+                name = "Maison";
+                description = "Logement pour les citoyens";
+                goldCost = 100;
+                woodCost = 15;
+                stoneCost = 5;
+                populationBonus = 5;
+                maxPopulationBonus = 5;
+                break;
+
+            case BuildingType.Inn:
+                name = "Auberge";
+                description = "Attire les voyageurs et aventuriers";
+                goldCost = 300;
+                woodCost = 25;
+                stoneCost = 15;
+                populationBonus = 3;
+                reputationBonus = 2;
+                goldPerDay = 20;
+                break;
+
+            case BuildingType.Tavern:
+                name = "Taverne";
+                description = "Lieu de rassemblement, améliore le moral";
+                goldCost = 250;
+                woodCost = 20;
+                stoneCost = 10;
+                populationBonus = 2;
+                reputationBonus = 3;
+                goldPerDay = 15;
+                break;
+
+            case BuildingType.Market:
+                name = "Marché";
+                description = "Centre commercial, génère de l'or";
+                goldCost = 500;
+                woodCost = 30;
+                stoneCost = 20;
+                ironCost = 5;
+                goldPerDay = 50;
+                reputationBonus = 1;
+                populationRequired = 50;
+                break;
+
+            case BuildingType.Shop:
+                name = "Magasin";
+                description = "Magasin génère un peu d'or";
+                goldCost = 500;
+                woodCost = 30;
+                stoneCost = 20;
+                ironCost = 5;
+                goldPerDay = 50;
+                reputationBonus = 1;
+                populationRequired = 50;
+                break;
+
+            case BuildingType.Bank:
+                name = "Banque";
+                description = "A voir ce que ça fait";
+                goldCost = 500;
+                woodCost = 30;
+                stoneCost = 20;
+                ironCost = 5;
+                goldPerDay = 50;
+                reputationBonus = 1;
+                populationRequired = 50;
+                break;
+
+            case BuildingType.Forge:
+                name = "Forge";
+                description = "Produit des armes et armures";
+                goldCost = 800;
+                woodCost = 20;
+                stoneCost = 40;
+                ironCost = 20;
+                resourcePerDay = 5;
+                populationRequired = 30;
+                break;
+
+
+            case BuildingType.Alchemist:
+                name = "Alchémie";
+                description = "Produit des potions ";
+                goldCost = 800;
+                woodCost = 20;
+                stoneCost = 40;
+                ironCost = 20;
+                resourcePerDay = 5;
+                populationRequired = 30;
+                break;
+
+            case BuildingType.Enchanter:
+                name = "Enchanteur";
+                description = "Produit des parchemins ";
+                goldCost = 800;
+                woodCost = 20;
+                stoneCost = 40;
+                ironCost = 20;
+                resourcePerDay = 5;
+                populationRequired = 30;
+                break;
+
+            case BuildingType.TownHall:
+                name = "Hôtel de Ville";
+                description = "Centre administratif, augmente les points d'action";
+                goldCost = 1000;
+                woodCost = 50;
+                stoneCost = 50;
+                ironCost = 20;
+                actionPointsBonus = 1;
+                reputationBonus = 5;
+                populationRequired = 100;
+                break;
+
+            case BuildingType.Prison:
+                name = "Prison";
+                description = "Prison";
+                goldCost = 1000;
+                woodCost = 50;
+                stoneCost = 50;
+                ironCost = 20;
+                actionPointsBonus = 1;
+                reputationBonus = 5;
+                populationRequired = 100;
+                break;
         }
+        
+        SetupUpgradeCosts();
+    }
+
+    private void SetupUpgradeCosts()
+    {
+        upgradeGoldCost = Mathf.RoundToInt(goldCost * 1.5f);
+        upgradeWoodCost = Mathf.RoundToInt(woodCost * 1.5f);
+        upgradeStoneCost = Mathf.RoundToInt(stoneCost * 1.5f);
+        upgradeIronCost = Mathf.RoundToInt(ironCost * 1.5f);
+        upgradeMagicCost = Mathf.RoundToInt(magicCost * 1.5f);
+    }
+
+    public bool CanBuild(City city)
+    {
+        /*if (isBuilt || isUnderConstruction) return false;
+        
+        if (!city.HasEnoughResources(goldCost, woodCost, stoneCost, ironCost, magicCost))
+            return false;
+            
+        if (city.population < populationRequired)
+            return false;
+            
+        if (city.reputation < reputationRequired)
+            return false;
+            
+        foreach (string prerequisite in prerequisiteBuildings)
+        {
+            bool hasPrerequisite = city.buildings.Exists(b => b.name == prerequisite && b.isBuilt);
+            if (!hasPrerequisite) return false;
+        }
+        */
         return true;
     }
 
-    public void Build()
+    public bool CanUpgrade(City city)
     {
-        if (!isBuilt)
+        if (!isBuilt || isUnderConstruction || level >= maxLevel) return false;
+        
+        return city.HasEnoughResources(upgradeGoldCost, upgradeWoodCost, upgradeStoneCost, upgradeIronCost, upgradeMagicCost);
+    }
+
+    public void StartConstruction()
+    {
+        isUnderConstruction = true;
+        constructionTimeRemaining = 1; // 1 jour de construction
+    }
+
+    public void CompleteConstruction()
+    {
+        isBuilt = true;
+        isUnderConstruction = false;
+        constructionTimeRemaining = 0;
+    }
+
+    public void ProcessConstruction()
+    {
+        if (isUnderConstruction && constructionTimeRemaining > 0)
         {
-            isBuilt = true;
+            constructionTimeRemaining--;
+            if (constructionTimeRemaining == 0)
+            {
+                CompleteConstruction();
+            }
         }
     }
 
     public void Upgrade()
     {
-        if (isBuilt && level < 5)
+        if (level < maxLevel)
         {
             level++;
+            
+            // Amélioration des effets
+            populationBonus = Mathf.RoundToInt(populationBonus * 1.2f);
+            maxPopulationBonus = Mathf.RoundToInt(maxPopulationBonus * 1.2f);
+            goldPerDay = Mathf.RoundToInt(goldPerDay * 1.3f);
+            resourcePerDay = Mathf.RoundToInt(resourcePerDay * 1.3f);
+            reputationBonus = Mathf.RoundToInt(reputationBonus * 1.1f);
+            
+            SetupUpgradeCosts();
         }
     }
 
-    public Dictionary<Resource.ResourceType, int> GetUpgradeCosts()
+    public int GetTotalEffect(string effectType)
     {
-        var upgradeCosts = new Dictionary<Resource.ResourceType, int>();
-        foreach (var cost in buildCosts)
-        {
-            upgradeCosts[cost.Key] = cost.Value * level;
-        }
-        return upgradeCosts;
-    }
-
-    public Dictionary<Resource.ResourceType, int> GetCurrentProduction()
-    {
-        if (!isBuilt) return new Dictionary<Resource.ResourceType, int>();
+        if (!isBuilt) return 0;
         
-        var currentProduction = new Dictionary<Resource.ResourceType, int>();
-        foreach (var prod in production)
+        float levelMultiplier = 1f + (level - 1) * 0.2f;
+        
+        switch (effectType)
         {
-            currentProduction[prod.Key] = prod.Value * level;
+            case "population":
+                return Mathf.RoundToInt(populationBonus * levelMultiplier);
+            case "maxPopulation":
+                return Mathf.RoundToInt(maxPopulationBonus * levelMultiplier);
+            case "gold":
+                return Mathf.RoundToInt(goldPerDay * levelMultiplier);
+            case "resource":
+                return Mathf.RoundToInt(resourcePerDay * levelMultiplier);
+            case "reputation":
+                return Mathf.RoundToInt(reputationBonus * levelMultiplier);
+            case "actionPoints":
+                return actionPointsBonus;
+            default:
+                return 0;
         }
-        return currentProduction;
-    }
-
-    public override string ToString()
-    {
-        return $"{name} (Level {level}) - {(isBuilt ? "Built" : "Not Built")}";
     }
 }

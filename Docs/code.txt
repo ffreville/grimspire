@@ -1,0 +1,4 @@
+Moteur 2D : Unity
+Type : Jeu de gestion
+Language : Csharp 9.0
+Modalités : une seule classe par fichier, cleancode

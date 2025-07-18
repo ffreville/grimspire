@@ -1,0 +1,22 @@
+Assets/
+├── Scripts/
+│   ├── Core/
+│   │   ├── Ici on retrouve les scrips core qui peuvent être utilisés au global.
+│   ├── Data/
+│   │   ├── Toutes les classes et enums des datas. Un sous dossier enums pour les enums
+│   ├── Managers/
+│   │   ├── Les différents managers
+│   ├── UI/
+│   │   ├── Tous les scripts en rapport avec l'UI
+│   ├── Generatos/
+│       ├── On retrouve les generators d'objets dans unity.
+│   ├── Systems/
+│       ├── Les différents systems pour l'economie, les expeditions. 
+
+├── Prefabs/
+│   └── UI/
+├── Scenes/
+│  
+└── Resources/
+    └── Data/
+        ├── Toutes les sauvegardes en .json
