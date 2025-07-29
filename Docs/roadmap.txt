@@ -1,22 +1,18 @@
 # Roadmap Grimspire - Gestionnaire de Cité Aventurière
 
-Tous les generators doivent pouvoir être lancé depuis
-l'editeur unity directement.
+Le développement du jeu se fera dans le dossier web uniquement.
 
 ## Phase 1 : Fondations (Core Systems)
 ### 1.1 Menu principal
 - **Menu principal** : menu principal pour gérer le lancement d'un nouvelle partie
-- **MainMenuGenerator**: script permettant de générer les gameobjects du menu principal
 
 ### 1.2 Nouvelle partie
-- **GameMenuGenerator** : script permettant de générer les gameobjects du menu du jeu (nouveau panel)
 - **Lancement d'une nouvelle partie** : permettre le lancement d'une nouvelle partie en affichant le menu du jeu
 - **Système de données** : Classes pour City, Adventurer, Building, Resource
 
 ### 1.3 Menu du jeu
 - **Navigation ** : faire la navigation entre les onglets. Quand on clique sur l'onglet, on affiche le contenu correspondant.
-- ** Onglet batiments ** : script pour afficher la liste des batiments.
-- ** Generator ** : script permettant de créer les gameobjects pour afficher la liste des batiments dans le gameobject Content_Batiments déjà existant.
+- ** Onglet batiments ** : pour afficher la liste des batiments.
 
 ## Phase 2 : Système d'Aventuriers
 - ** Onglet Guilde **: une liste avec les aventuriers recrutés. Une autre liste où il y aura les aventuriers à récruter.
