@@ -1,6 +1,6 @@
 # Roadmap Grimspire - Gestionnaire de Cité Aventurière
 
-Le développement du jeu se fera dans le dossier web uniquement.
+Le développement du jeu se fera dans le dossier docs uniquement.
 
 ## Phase 1 : Fondations (Core Systems)
 ### 1.1 Menu principal
