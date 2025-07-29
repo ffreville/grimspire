@@ -1,0 +1,123 @@
+/* === GRILLE BÂTIMENTS === */
+.buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.building-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #8b5a3c;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.building-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+}
+
+.building-card.built {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.building-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.building-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.building-level {
+    background: rgba(139, 90, 60, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.building-district {
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.building-effects {
+    margin: 10px 0;
+}
+
+.building-effects h4 {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin: 0 0 5px 0;
+}
+
+.effects-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.effect-item {
+    background: rgba(139, 90, 60, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #e8e6e3;
+}
+
+.building-cost {
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.cost-list {
+    display: flex;
+    gap: 12px;
+    color: #c9c9c9;
+}
+
+.building-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.building-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.building-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.building-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+.building-btn.primary {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}

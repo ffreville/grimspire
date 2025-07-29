@@ -494,6 +494,16 @@ class GrimspireApp {
         const container = document.getElementById('available-adventurers');
         if (!container) return;
 
+        // Mettre à jour le compteur
+        const availableCountElement = document.getElementById('available-count');
+        if (availableCountElement) {
+            if (adventurers.length === 0) {
+                availableCountElement.textContent = 'Recherchez pour trouver des candidats';
+            } else {
+                availableCountElement.textContent = `${adventurers.length} candidat${adventurers.length > 1 ? 's' : ''} disponible${adventurers.length > 1 ? 's' : ''}`;
+            }
+        }
+
         container.innerHTML = '';
 
         if (adventurers.length === 0) {

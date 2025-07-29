@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grimspire - Gestionnaire de Cité Aventurière</title>
-    <link rel="stylesheet" href="css/style.css">
+    <!-- CSS Modulaire -->
+    <link rel="stylesheet" href="css/modules/reset.css">
+    <link rel="stylesheet" href="css/modules/layout.css">
+    <link rel="stylesheet" href="css/modules/menu.css">
+    <link rel="stylesheet" href="css/modules/buildings.css">
+    <link rel="stylesheet" href="css/modules/guild.css">
+    <link rel="stylesheet" href="css/modules/adventurers.css">
+    <link rel="stylesheet" href="css/modules/missions.css">
+    <link rel="stylesheet" href="css/modules/modal.css">
+    <link rel="stylesheet" href="css/modules/scrollbar.css">
+    <link rel="stylesheet" href="css/modules/responsive.css">
 </head>
 <body>
     <div id="app">
@@ -158,31 +168,43 @@
                         </div>
                     </div>
                     
-                    <div class="guild-content">
-                        <!-- Section Aventuriers Recrutés -->
-                        <div class="guild-section">
-                            <div class="section-header">
-                                <h4>Aventuriers Recrutés</h4>
+                    <!-- Contrôles de recrutement centralisés -->
+                    <div class="guild-recruitment-header">
+                        <h4>🔍 Recrutement d'Aventuriers</h4>
+                        <div class="recruitment-controls">
+                            <button id="search-adventurers-btn" class="action-btn primary">
+                                🔍 Rechercher des aventuriers
+                            </button>
+                            <span id="search-info" class="search-info">Coût: 50💰</span>
+                        </div>
+                    </div>
+                    
+                    <div class="guild-layout">
+                        <!-- Colonne de gauche : Aventuriers recrutés -->
+                        <div class="guild-recruited">
+                            <div class="column-header">
+                                <h4 class="column-title">👥 Aventuriers Recrutés</h4>
                                 <span class="section-count" id="recruited-count">3 aventuriers</span>
                             </div>
-                            <div id="recruited-adventurers" class="adventurers-grid">
-                                <!-- Les aventuriers recrutés seront ajoutés dynamiquement -->
+                            
+                            <div class="guild-section">
+                                <div id="recruited-adventurers" class="adventurers-grid">
+                                    <!-- Les aventuriers recrutés seront ajoutés dynamiquement -->
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Section Recherche et Recrutement -->
-                        <div class="guild-section">
-                            <div class="section-header">
-                                <h4>Recrutement</h4>
-                                <div class="recruitment-controls">
-                                    <button id="search-adventurers-btn" class="action-btn primary">
-                                        🔍 Rechercher des aventuriers
-                                    </button>
-                                    <span id="search-info" class="search-info">Coût: 50💰</span>
-                                </div>
+                        <!-- Colonne de droite : Aventuriers disponibles au recrutement -->
+                        <div class="guild-available">
+                            <div class="column-header">
+                                <h4 class="column-title">💼 Candidats Disponibles</h4>
+                                <span class="section-count" id="available-count">Recherchez pour trouver des candidats</span>
                             </div>
-                            <div id="available-adventurers" class="adventurers-grid">
-                                <!-- Les aventuriers disponibles au recrutement seront ajoutés dynamiquement -->
+                            
+                            <div class="guild-section">
+                                <div id="available-adventurers" class="adventurers-grid">
+                                    <!-- Les aventuriers disponibles au recrutement seront ajoutés dynamiquement -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -214,22 +236,38 @@
                         </div>
                     </div>
                     
-                    <div class="mission-content">
-                        <!-- Section Missions en Cours -->
-                        <div class="mission-section">
-                            <div class="section-header">
-                                <h4>Missions en Cours</h4>
-                                <span class="section-count" id="active-missions-count">0 mission(s)</span>
+                    <div class="expedition-layout">
+                        <!-- Colonne de gauche : Suivi des expéditions -->
+                        <div class="expedition-tracking">
+                            <h4 class="column-title">📊 Suivi des Expéditions</h4>
+                            
+                            <!-- Section Missions en Cours -->
+                            <div class="mission-section">
+                                <div class="section-header">
+                                    <h5>Missions en Cours</h5>
+                                    <span class="section-count" id="active-missions-count">0 mission(s)</span>
+                                </div>
+                                <div id="active-missions" class="missions-grid">
+                                    <!-- Les missions actives seront ajoutées dynamiquement -->
+                                </div>
                             </div>
-                            <div id="active-missions" class="missions-grid">
-                                <!-- Les missions actives seront ajoutées dynamiquement -->
+                            
+                            <!-- Section Missions Terminées -->
+                            <div class="mission-section">
+                                <div class="section-header">
+                                    <h5>Missions Récentes</h5>
+                                    <span class="section-count" id="completed-missions-count">Historique</span>
+                                </div>
+                                <div id="completed-missions" class="missions-grid completed">
+                                    <!-- Les missions terminées seront ajoutées dynamiquement -->
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Section Missions Disponibles -->
-                        <div class="mission-section">
-                            <div class="section-header">
-                                <h4>Missions Disponibles</h4>
+                        <!-- Colonne de droite : Missions disponibles -->
+                        <div class="expedition-available">
+                            <div class="column-header">
+                                <h4 class="column-title">🗺️ Missions Disponibles</h4>
                                 <div class="mission-controls">
                                     <button id="refresh-missions-btn" class="action-btn primary">
                                         🔄 Actualiser
@@ -237,19 +275,12 @@
                                     <span id="refresh-info" class="search-info">Coût: 100💰</span>
                                 </div>
                             </div>
-                            <div id="available-missions" class="missions-grid">
-                                <!-- Les missions disponibles seront ajoutées dynamiquement -->
-                            </div>
-                        </div>
-                        
-                        <!-- Section Missions Terminées -->
-                        <div class="mission-section">
-                            <div class="section-header">
-                                <h4>Missions Récentes</h4>
-                                <span class="section-count" id="completed-missions-count">Historique</span>
-                            </div>
-                            <div id="completed-missions" class="missions-grid completed">
-                                <!-- Les missions terminées seront ajoutées dynamiquement -->
+                            
+                            <!-- Section Missions Disponibles -->
+                            <div class="mission-section">
+                                <div id="available-missions" class="missions-grid">
+                                    <!-- Les missions disponibles seront ajoutées dynamiquement -->
+                                </div>
                             </div>
                         </div>
                     </div>

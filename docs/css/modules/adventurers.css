@@ -1,0 +1,219 @@
+/* === GRILLE AVENTURIERS === */
+.adventurers-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+/* Dans les colonnes de la guilde, adapter selon l'espace disponible */
+.guild-recruited .adventurers-grid,
+.guild-available .adventurers-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.adventurer-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b5a3c;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.adventurer-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+    transform: translateY(-2px);
+}
+
+.adventurer-card.recruit {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.adventurer-card.on-mission {
+    border-color: #6d4428;
+    background: rgba(109, 68, 40, 0.1);
+    opacity: 0.8;
+}
+
+.adventurer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.adventurer-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.adventurer-level {
+    background: rgba(139, 90, 60, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #e8e6e3;
+}
+
+.adventurer-class {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+}
+
+.adventurer-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    padding: 2px 0;
+}
+
+.stat-item .stat-name {
+    text-transform: capitalize;
+}
+
+.stat-item .stat-value {
+    color: #e8e6e3;
+    font-weight: 500;
+}
+
+.adventurer-health {
+    margin-bottom: 12px;
+}
+
+.health-bar {
+    background: rgba(139, 90, 60, 0.3);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.health-fill {
+    background: linear-gradient(90deg, #4a7c59 0%, #5a8c69 100%);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.health-fill.low {
+    background: linear-gradient(90deg, #c94a4a 0%, #d95a5a 100%);
+}
+
+.health-fill.medium {
+    background: linear-gradient(90deg, #c9a94a 0%, #d9b95a 100%);
+}
+
+.health-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+}
+
+.adventurer-cost {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+.cost-label {
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+.cost-list {
+    display: flex;
+    gap: 12px;
+    color: #e8e6e3;
+}
+
+.adventurer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.adventurer-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.adventurer-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.adventurer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+.adventurer-btn.recruit {
+    background: linear-gradient(145deg, #4a7c59 0%, #3a6c49 100%);
+    border-color: #5a8c69;
+}
+
+.adventurer-btn.dismiss {
+    background: linear-gradient(145deg, #c94a4a 0%, #b93a3a 100%);
+    border-color: #d95a5a;
+}
+
+.mission-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(109, 68, 40, 0.9);
+    color: #e8e6e3;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.specializations {
+    margin-top: 8px;
+}
+
+.specializations-label {
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+.specializations-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.specialization-tag {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}

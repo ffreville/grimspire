@@ -1,0 +1,116 @@
+/* === RESPONSIVE === */
+@media (max-width: 1200px) {
+    .game-header {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .resources-panel {
+        order: 3;
+        flex-basis: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-container {
+        padding: 40px 20px;
+        margin: 20px;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .menu-button {
+        min-width: 200px;
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    .game-header {
+        padding: 10px 15px;
+    }
+    
+    .resources-panel {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .resource {
+        min-width: 80px;
+    }
+    
+    .tabs-navigation {
+        overflow-x: scroll;
+    }
+    
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .buildings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-content {
+        padding: 15px;
+    }
+    
+    /* Layout expéditions en mobile */
+    .expedition-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .expedition-tracking,
+    .expedition-available {
+        max-height: 400px;
+    }
+    
+    /* Layout guilde en mobile */
+    .guild-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .guild-recruited,
+    .guild-available {
+        max-height: 400px;
+    }
+    
+    .guild-recruitment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .column-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    /* Grilles d'aventuriers en mobile */
+    .guild-recruited .adventurers-grid,
+    .guild-available .adventurers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 2rem;
+        letter-spacing: 2px;
+    }
+    
+    .menu-container {
+        padding: 30px 15px;
+    }
+    
+    .menu-button {
+        min-width: 180px;
+        padding: 10px 15px;
+    }
+}

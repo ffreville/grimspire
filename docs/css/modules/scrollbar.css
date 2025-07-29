@@ -1,0 +1,62 @@
+/* === MASQUAGE DES SCROLLBARS === */
+
+/* Pour les navigateurs Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Pour Firefox */
+* {
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}
+
+/* Alternative pour tous les éléments avec scroll */
+.tab-content,
+.expedition-tracking,
+.expedition-available,
+.guild-recruited,
+.guild-available,
+.modal-adventurers-grid {
+    /* Webkit */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE et Edge */
+}
+
+.tab-content::-webkit-scrollbar,
+.expedition-tracking::-webkit-scrollbar,
+.expedition-available::-webkit-scrollbar,
+.guild-recruited::-webkit-scrollbar,
+.guild-available::-webkit-scrollbar,
+.modal-adventurers-grid::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Masquer aussi les scrollbars horizontales des onglets */
+.tabs-navigation {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.tabs-navigation::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
