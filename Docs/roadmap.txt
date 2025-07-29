@@ -26,7 +26,8 @@ Le bouton appellera une fonction qui sera dans une nouvelle classe dans le dossi
 ## Phase 3 : Système de Missions
 - ** Onglet expéditions **: une liste d'expéditions en cours. Une liste d'expédition à faire. 
 Quand on sélectionne une expédition à faire, on affiche la liste des aventuriers recrutés qui ne sont pas en expédition en ce moment.
-
+Un expédition permet de gagner de l'expérience, des butins. Les aventuriers peuvent être bléssés.
+La durée des expéditions varient.
 
 ## Phase 4 : Cycles de Gameplay
 
