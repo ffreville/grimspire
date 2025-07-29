@@ -55,6 +55,20 @@ public class GameMenu : MonoBehaviour
             buildingMenu.SetCity(currentCity);
         }
         
+        // Find and setup AdventurerMenu
+        AdventurerMenu adventurerMenu = GetComponentInChildren<AdventurerMenu>();
+        if (adventurerMenu != null)
+        {
+            adventurerMenu.SetCity(currentCity);
+        }
+        
+        // Find and setup ExpeditionMenu
+        ExpeditionMenu expeditionMenu = GetComponentInChildren<ExpeditionMenu>();
+        if (expeditionMenu != null)
+        {
+            expeditionMenu.SetCity(currentCity);
+        }
+        
         // Add other menus here when they're created
         // PopulationMenu, CommerceMenu, etc.
     }
@@ -113,7 +127,33 @@ public class GameMenu : MonoBehaviour
                 // TODO: Refresh commerce menu
                 break;
                 
-            // Add other tabs as needed
+            case 3: // Industrie
+                // TODO: Refresh industrie menu
+                break;
+                
+            case 4: // Administration
+                // TODO: Refresh administration menu
+                break;
+                
+            case 5: // Guilde
+                AdventurerMenu adventurerMenu = GetComponentInChildren<AdventurerMenu>();
+                if (adventurerMenu != null && adventurerMenu.gameObject.activeInHierarchy)
+                {
+                    adventurerMenu.RefreshAdventurerLists();
+                }
+                break;
+                
+            case 6: // Expédition
+                ExpeditionMenu expeditionMenu = GetComponentInChildren<ExpeditionMenu>();
+                if (expeditionMenu != null && expeditionMenu.gameObject.activeInHierarchy)
+                {
+                    expeditionMenu.RefreshExpeditionLists();
+                }
+                break;
+                
+            case 7: // Guerre
+                // TODO: Refresh guerre menu
+                break;
         }
     }
 

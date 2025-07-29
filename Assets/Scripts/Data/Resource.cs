@@ -88,8 +88,8 @@ public class Resource
                 isRenewable = false;
                 break;
                 
-            case ResourceType.MagicCrystal:
-                name = "Cristal Magique";
+            case ResourceType.MagicCrystals:
+                name = "Cristaux Magiques";
                 description = "Énergie mystique rare";
                 maxAmount = 100;
                 baseValue = 50;
@@ -125,6 +125,27 @@ public class Resource
                 maxAmount = 50;
                 baseValue = 100;
                 currentMarketValue = 100;
+                isTradeGood = true;
+                isRenewable = false;
+                break;
+                
+            case ResourceType.Population:
+                name = "Population";
+                description = "Habitants de la cité";
+                maxAmount = 1000;
+                baseValue = 0;
+                currentMarketValue = 0;
+                isTradeGood = false;
+                isRenewable = true;
+                dailyProduction = 1;
+                break;
+                
+            case ResourceType.Materials:
+                name = "Matériaux";
+                description = "Matériaux de construction combinés";
+                maxAmount = 1000;
+                baseValue = 5;
+                currentMarketValue = 5;
                 isTradeGood = true;
                 isRenewable = false;
                 break;

@@ -4,8 +4,10 @@ public enum ResourceType
     Wood,
     Stone,
     Iron,
-    MagicCrystal,
+    MagicCrystals,
     Food,
     Leather,
-    Gems
+    Gems,
+    Population,
+    Materials
 }

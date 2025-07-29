@@ -110,4 +110,63 @@ public class City
             actionPointsNight = maxActionPointsNight;
         }
     }
+
+    public int GetResourceAmount(ResourceType resourceType)
+    {
+        return resourceType switch
+        {
+            ResourceType.Gold => gold,
+            ResourceType.Population => population,
+            ResourceType.Materials => wood + stone + iron, // Combiné pour simplifier
+            ResourceType.MagicCrystals => magicCrystals,
+            _ => 0
+        };
+    }
+
+    public void AddResource(ResourceType resourceType, int amount)
+    {
+        switch (resourceType)
+        {
+            case ResourceType.Gold:
+                gold += amount;
+                break;
+            case ResourceType.Population:
+                population = Mathf.Min(population + amount, maxPopulation);
+                break;
+            case ResourceType.Materials:
+                // Distribuer entre wood, stone, iron
+                int perMaterial = amount / 3;
+                wood += perMaterial;
+                stone += perMaterial;
+                iron += amount - (perMaterial * 2); // Le reste va au fer
+                break;
+            case ResourceType.MagicCrystals:
+                magicCrystals += amount;
+                break;
+        }
+    }
+
+    public List<Adventurer> GetAdventurers()
+    {
+        return adventurers;
+    }
+
+    public void AddAdventurer(Adventurer adventurer)
+    {
+        if (adventurers.Count < maxAdventurers)
+        {
+            adventurers.Add(adventurer);
+        }
+    }
+
+    public bool RemoveAdventurer(string adventurerId)
+    {
+        var adventurer = adventurers.Find(a => a.id == adventurerId);
+        if (adventurer != null)
+        {
+            adventurers.Remove(adventurer);
+            return true;
+        }
+        return false;
+    }
 }

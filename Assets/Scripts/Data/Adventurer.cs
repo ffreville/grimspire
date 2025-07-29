@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Adventurer
 {
     [Header("Basic Information")]
+    public string id;
     public string name;
     public AdventurerClass adventurerClass;
     public int level;
@@ -36,6 +37,7 @@ public class Adventurer
     
     public Adventurer()
     {
+        id = System.Guid.NewGuid().ToString();
         name = "Aventurier";
         adventurerClass = AdventurerClass.Warrior;
         level = 1;
@@ -64,6 +66,7 @@ public class Adventurer
 
     public Adventurer(string adventurerName, AdventurerClass classType)
     {
+        id = System.Guid.NewGuid().ToString();
         name = adventurerName;
         adventurerClass = classType;
         level = 1;
