@@ -135,14 +135,163 @@
                 <div id="tab-guilde" class="tab-panel">
                     <div class="panel-header">
                         <h3>Guilde des Aventuriers</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                        <p>Recrutez et gérez votre équipe d'aventuriers</p>
+                    </div>
+                    
+                    <!-- Statistiques de la guilde -->
+                    <div class="guild-stats">
+                        <div class="stat-card">
+                            <span class="stat-label">Aventuriers recrutés</span>
+                            <span id="guild-total-count" class="stat-value">3</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Disponibles</span>
+                            <span id="guild-available-count" class="stat-value">3</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">En mission</span>
+                            <span id="guild-mission-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Niveau moyen</span>
+                            <span id="guild-avg-level" class="stat-value">1.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="guild-content">
+                        <!-- Section Aventuriers Recrutés -->
+                        <div class="guild-section">
+                            <div class="section-header">
+                                <h4>Aventuriers Recrutés</h4>
+                                <span class="section-count" id="recruited-count">3 aventuriers</span>
+                            </div>
+                            <div id="recruited-adventurers" class="adventurers-grid">
+                                <!-- Les aventuriers recrutés seront ajoutés dynamiquement -->
+                            </div>
+                        </div>
+                        
+                        <!-- Section Recherche et Recrutement -->
+                        <div class="guild-section">
+                            <div class="section-header">
+                                <h4>Recrutement</h4>
+                                <div class="recruitment-controls">
+                                    <button id="search-adventurers-btn" class="action-btn primary">
+                                        🔍 Rechercher des aventuriers
+                                    </button>
+                                    <span id="search-info" class="search-info">Coût: 50💰</span>
+                                </div>
+                            </div>
+                            <div id="available-adventurers" class="adventurers-grid">
+                                <!-- Les aventuriers disponibles au recrutement seront ajoutés dynamiquement -->
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div id="tab-expedition" class="tab-panel">
                     <div class="panel-header">
                         <h3>Expéditions</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                        <p>Envoyez vos aventuriers en mission pour gagner expérience et ressources</p>
+                    </div>
+                    
+                    <!-- Statistiques des missions -->
+                    <div class="mission-stats">
+                        <div class="stat-card">
+                            <span class="stat-label">Missions actives</span>
+                            <span id="mission-active-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Missions réussies</span>
+                            <span id="mission-success-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Taux de réussite</span>
+                            <span id="mission-success-rate" class="stat-value">0%</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Disponibles</span>
+                            <span id="mission-available-count" class="stat-value">5</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mission-content">
+                        <!-- Section Missions en Cours -->
+                        <div class="mission-section">
+                            <div class="section-header">
+                                <h4>Missions en Cours</h4>
+                                <span class="section-count" id="active-missions-count">0 mission(s)</span>
+                            </div>
+                            <div id="active-missions" class="missions-grid">
+                                <!-- Les missions actives seront ajoutées dynamiquement -->
+                            </div>
+                        </div>
+                        
+                        <!-- Section Missions Disponibles -->
+                        <div class="mission-section">
+                            <div class="section-header">
+                                <h4>Missions Disponibles</h4>
+                                <div class="mission-controls">
+                                    <button id="refresh-missions-btn" class="action-btn primary">
+                                        🔄 Actualiser
+                                    </button>
+                                    <span id="refresh-info" class="search-info">Coût: 100💰</span>
+                                </div>
+                            </div>
+                            <div id="available-missions" class="missions-grid">
+                                <!-- Les missions disponibles seront ajoutées dynamiquement -->
+                            </div>
+                        </div>
+                        
+                        <!-- Section Missions Terminées -->
+                        <div class="mission-section">
+                            <div class="section-header">
+                                <h4>Missions Récentes</h4>
+                                <span class="section-count" id="completed-missions-count">Historique</span>
+                            </div>
+                            <div id="completed-missions" class="missions-grid completed">
+                                <!-- Les missions terminées seront ajoutées dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal de sélection d'aventuriers -->
+                <div id="adventurer-selection-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modal-mission-name">Sélection d'Aventuriers</h3>
+                            <button id="close-modal-btn" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mission-requirements">
+                                <p id="modal-mission-description">Description de la mission</p>
+                                <div class="requirements-info">
+                                    <span>Aventuriers requis: </span>
+                                    <span id="modal-party-size">1-3</span>
+                                    <span class="difficulty-display">
+                                        Difficulté: <span id="modal-difficulty">⭐⭐⭐</span>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="adventurer-selection">
+                                <h4>Aventuriers Disponibles:</h4>
+                                <div id="modal-adventurers-list" class="modal-adventurers-grid">
+                                    <!-- Liste des aventuriers disponibles -->
+                                </div>
+                            </div>
+                            
+                            <div class="selected-adventurers">
+                                <h4>Équipe Sélectionnée: <span id="selected-count">0</span></h4>
+                                <div id="selected-adventurers-list" class="selected-list">
+                                    <!-- Aventuriers sélectionnés -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="cancel-mission-btn" class="modal-btn secondary">Annuler</button>
+                            <button id="start-mission-btn" class="modal-btn primary">Lancer la Mission</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -161,7 +310,10 @@
     <script src="js/classes/Building.js"></script>
     <script src="js/classes/Adventurer.js"></script>
     <script src="js/classes/City.js"></script>
+    <script src="js/classes/Mission.js"></script>
     <script src="js/classes/GameManager.js"></script>
+    <script src="js/systems/AdventurerManager.js"></script>
+    <script src="js/systems/MissionManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

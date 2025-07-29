@@ -400,6 +400,813 @@ body {
     border-color: #d4af37;
 }
 
+/* === ONGLET GUILDE === */
+.guild-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background: rgba(139, 90, 60, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(139, 90, 60, 0.2);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #d4af37;
+}
+
+.guild-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.guild-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(139, 90, 60, 0.2);
+}
+
+.section-header h4 {
+    color: #d4af37;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.section-count {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+}
+
+.recruitment-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.action-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+    transform: translateY(-1px);
+}
+
+.action-btn.primary {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    transform: none;
+}
+
+.search-info {
+    color: #c9c9c9;
+    font-size: 0.85rem;
+}
+
+/* === GRILLE AVENTURIERS === */
+.adventurers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.adventurer-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b5a3c;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.adventurer-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+    transform: translateY(-2px);
+}
+
+.adventurer-card.recruit {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.adventurer-card.on-mission {
+    border-color: #6d4428;
+    background: rgba(109, 68, 40, 0.1);
+    opacity: 0.8;
+}
+
+.adventurer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.adventurer-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.adventurer-level {
+    background: rgba(139, 90, 60, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #e8e6e3;
+}
+
+.adventurer-class {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+}
+
+.adventurer-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    padding: 2px 0;
+}
+
+.stat-item .stat-name {
+    text-transform: capitalize;
+}
+
+.stat-item .stat-value {
+    color: #e8e6e3;
+    font-weight: 500;
+}
+
+.adventurer-health {
+    margin-bottom: 12px;
+}
+
+.health-bar {
+    background: rgba(139, 90, 60, 0.3);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.health-fill {
+    background: linear-gradient(90deg, #4a7c59 0%, #5a8c69 100%);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.health-fill.low {
+    background: linear-gradient(90deg, #c94a4a 0%, #d95a5a 100%);
+}
+
+.health-fill.medium {
+    background: linear-gradient(90deg, #c9a94a 0%, #d9b95a 100%);
+}
+
+.health-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+}
+
+.adventurer-cost {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+.cost-label {
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+.cost-list {
+    display: flex;
+    gap: 12px;
+    color: #e8e6e3;
+}
+
+.adventurer-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.adventurer-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.adventurer-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.adventurer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+.adventurer-btn.recruit {
+    background: linear-gradient(145deg, #4a7c59 0%, #3a6c49 100%);
+    border-color: #5a8c69;
+}
+
+.adventurer-btn.dismiss {
+    background: linear-gradient(145deg, #c94a4a 0%, #b93a3a 100%);
+    border-color: #d95a5a;
+}
+
+.mission-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(109, 68, 40, 0.9);
+    color: #e8e6e3;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.specializations {
+    margin-top: 8px;
+}
+
+.specializations-label {
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+.specializations-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.specialization-tag {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+/* === ONGLET EXPÉDITIONS === */
+.mission-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    border: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.mission-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.mission-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.mission-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* === GRILLE MISSIONS === */
+.missions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 15px;
+}
+
+.missions-grid.completed {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.mission-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b5a3c;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.mission-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+    transform: translateY(-2px);
+}
+
+.mission-card.active {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.mission-card.completed.success {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.05);
+}
+
+.mission-card.completed.failed {
+    border-color: #c94a4a;
+    background: rgba(201, 74, 74, 0.05);
+}
+
+.mission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.mission-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.mission-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.mission-type-icon {
+    font-size: 1.2rem;
+}
+
+.mission-difficulty {
+    font-size: 0.9rem;
+    color: #f4d03f;
+}
+
+.mission-description {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.mission-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.mission-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    padding: 4px 8px;
+    background: rgba(139, 90, 60, 0.1);
+    border-radius: 4px;
+}
+
+.mission-detail .detail-value {
+    color: #e8e6e3;
+    font-weight: 500;
+}
+
+.mission-party-size {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+    color: #c9c9c9;
+    margin-bottom: 10px;
+}
+
+.party-size-value {
+    color: #e8e6e3;
+    font-weight: 500;
+}
+
+.mission-rewards {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.mission-rewards h5 {
+    color: #d4af37;
+    font-size: 0.8rem;
+    margin: 0 0 5px 0;
+}
+
+.rewards-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #e8e6e3;
+}
+
+.reward-item {
+    background: rgba(139, 90, 60, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* === MISSIONS ACTIVES === */
+.mission-progress {
+    margin: 10px 0;
+}
+
+.progress-bar {
+    background: rgba(139, 90, 60, 0.3);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #4a7c59 0%, #5a8c69 100%);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+.mission-adventurers {
+    margin: 10px 0;
+}
+
+.mission-adventurers h5 {
+    color: #d4af37;
+    font-size: 0.8rem;
+    margin: 0 0 5px 0;
+}
+
+.adventurers-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.adventurer-tag {
+    background: rgba(74, 124, 89, 0.2);
+    color: #4a7c59;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    border: 1px solid rgba(74, 124, 89, 0.3);
+}
+
+/* === ACTIONS MISSIONS === */
+.mission-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.mission-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mission-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.mission-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+.mission-btn.start {
+    background: linear-gradient(145deg, #4a7c59 0%, #3a6c49 100%);
+    border-color: #5a8c69;
+}
+
+/* === MODAL DE SÉLECTION === */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #8b5a3c;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 30px rgba(139, 90, 60, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.modal-header h3 {
+    color: #d4af37;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #c9c9c9;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+    color: #d4af37;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.mission-requirements {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(139, 90, 60, 0.2);
+}
+
+.requirements-info {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #c9c9c9;
+}
+
+.difficulty-display {
+    color: #f4d03f;
+}
+
+.adventurer-selection,
+.selected-adventurers {
+    margin-bottom: 20px;
+}
+
+.adventurer-selection h4,
+.selected-adventurers h4 {
+    color: #d4af37;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.modal-adventurers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+}
+
+.modal-adventurer-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #8b5a3c;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-adventurer-card:hover {
+    border-color: #d4af37;
+    background: rgba(139, 90, 60, 0.1);
+}
+
+.modal-adventurer-card.selected {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.2);
+}
+
+.modal-adventurer-card.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #666;
+}
+
+.modal-adventurer-name {
+    color: #d4af37;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.modal-adventurer-class {
+    color: #c9c9c9;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+}
+
+.modal-adventurer-level {
+    color: #e8e6e3;
+    font-size: 0.75rem;
+}
+
+.selected-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 1px dashed rgba(139, 90, 60, 0.3);
+}
+
+.selected-adventurer-tag {
+    background: rgba(74, 124, 89, 0.3);
+    color: #e8e6e3;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border: 1px solid rgba(74, 124, 89, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.remove-adventurer {
+    background: none;
+    border: none;
+    color: #c94a4a;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0;
+}
+
+.remove-adventurer:hover {
+    color: #d95a5a;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.modal-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn.secondary {
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+}
+
+.modal-btn.primary {
+    background: linear-gradient(145deg, #4a7c59 0%, #3a6c49 100%);
+    color: #e8e6e3;
+    border-color: #5a8c69;
+}
+
+.modal-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(139, 90, 60, 0.3);
+}
+
+.modal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1200px) {
     .game-header {

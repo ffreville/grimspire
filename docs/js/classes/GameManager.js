@@ -4,6 +4,8 @@
 class GameManager {
     constructor() {
         this.city = null;
+        this.adventurerManager = null;
+        this.missionManager = null;
         this.gameState = 'menu'; // 'menu', 'playing', 'paused'
         this.currentTab = 'batiments';
         this.saveKey = 'grimspire_save';
@@ -22,6 +24,12 @@ class GameManager {
         
         // Ajouter quelques aventuriers de départ
         this.addStartingAdventurers();
+        
+        // Créer le gestionnaire d'aventuriers
+        this.adventurerManager = new AdventurerManager(this.city);
+        
+        // Créer le gestionnaire de missions
+        this.missionManager = new MissionManager(this.city);
         
         // Changer l'état du jeu
         this.gameState = 'playing';
@@ -56,6 +64,20 @@ class GameManager {
                 this.gameState = parsedData.gameState || 'playing';
                 this.currentTab = parsedData.currentTab || 'batiments';
                 
+                // Recréer le gestionnaire d'aventuriers
+                if (parsedData.adventurerManager) {
+                    this.adventurerManager = AdventurerManager.fromJSON(parsedData.adventurerManager, this.city);
+                } else {
+                    this.adventurerManager = new AdventurerManager(this.city);
+                }
+                
+                // Recréer le gestionnaire de missions
+                if (parsedData.missionManager) {
+                    this.missionManager = MissionManager.fromJSON(parsedData.missionManager, this.city);
+                } else {
+                    this.missionManager = new MissionManager(this.city);
+                }
+                
                 this.notifyStateChange();
                 return true;
             }
@@ -71,6 +93,8 @@ class GameManager {
         try {
             const saveData = {
                 city: this.city.toJSON(),
+                adventurerManager: this.adventurerManager ? this.adventurerManager.toJSON() : null,
+                missionManager: this.missionManager ? this.missionManager.toJSON() : null,
                 gameState: this.gameState,
                 currentTab: this.currentTab,
                 timestamp: Date.now()
@@ -130,6 +154,16 @@ class GameManager {
         if (!this.city) return;
         
         this.city.switchTimePhase();
+        
+        // Traiter le changement de phase pour les gestionnaires
+        if (this.adventurerManager) {
+            this.adventurerManager.processTurnChange();
+        }
+        
+        if (this.missionManager) {
+            this.missionManager.processTurnChange();
+        }
+        
         this.notifyStateChange();
         this.autoSave();
     }
@@ -216,8 +250,89 @@ class GameManager {
         };
     }
 
+    // Méthodes pour l'onglet Guilde
+    searchForAdventurers() {
+        if (!this.adventurerManager) return { success: false, message: 'Gestionnaire d\'aventuriers non initialisé' };
+        
+        const result = this.adventurerManager.searchForAdventurers();
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    recruitAdventurer(adventurerId) {
+        if (!this.adventurerManager) return { success: false, message: 'Gestionnaire d\'aventuriers non initialisé' };
+        
+        const result = this.adventurerManager.recruitAdventurer(adventurerId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    dismissAdventurer(adventurerId) {
+        if (!this.adventurerManager) return { success: false, message: 'Gestionnaire d\'aventuriers non initialisé' };
+        
+        const result = this.adventurerManager.dismissAdventurer(adventurerId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    getGuildInfo() {
+        if (!this.adventurerManager) return null;
+        
+        return {
+            stats: this.adventurerManager.getGuildStats(),
+            recruited: this.adventurerManager.getRecruitedAdventurers(),
+            available: this.adventurerManager.getRecruitableAdventurers(),
+            searchInfo: this.adventurerManager.getSearchInfo()
+        };
+    }
+
+    // Méthodes pour l'onglet Expéditions
+    refreshMissions() {
+        if (!this.missionManager) return { success: false, message: 'Gestionnaire de missions non initialisé' };
+        
+        const result = this.missionManager.refreshMissions();
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    startMission(missionId, selectedAdventurerIds) {
+        if (!this.missionManager) return { success: false, message: 'Gestionnaire de missions non initialisé' };
+        
+        const result = this.missionManager.startMission(missionId, selectedAdventurerIds);
+        if (result.success) {
+            this.autoSave();
+        }
+        return result;
+    }
+
+    getMissionInfo() {
+        if (!this.missionManager) return null;
+        
+        return {
+            stats: this.missionManager.getMissionStats(),
+            available: this.missionManager.getAvailableMissions(),
+            active: this.missionManager.getActiveMissions(),
+            completed: this.missionManager.getCompletedMissions(),
+            refreshInfo: this.missionManager.getRefreshInfo()
+        };
+    }
+
     resetGame() {
         this.city = null;
+        this.adventurerManager = null;
+        this.missionManager = null;
         this.gameState = 'menu';
         this.currentTab = 'batiments';
         localStorage.removeItem(this.saveKey);
