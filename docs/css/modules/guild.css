@@ -1,57 +1,113 @@
-/* === ONGLET GUILDE === */
-.guild-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    border: 1px solid rgba(139, 90, 60, 0.3);
+/* === ONGLET GUILDE AVEC SIDEBAR === */
+.guild-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 0;
 }
 
-.stat-card {
+/* === SIDEBAR GAUCHE === */
+.guild-sidebar {
+    width: 280px;
+    background: rgba(0, 0, 0, 0.4);
+    border-right: 2px solid rgba(139, 90, 60, 0.3);
+    padding: 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.sidebar-header h3 {
+    color: #d4af37;
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+}
+
+.sidebar-header p {
+    color: #c9c9c9;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* === STATISTIQUES SIDEBAR === */
+.guild-stats-sidebar {
+    margin-bottom: 25px;
+}
+
+.guild-stats-sidebar h4 {
+    color: #d4af37;
+    margin: 0 0 15px 0;
+    font-size: 1rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 10px;
+    gap: 8px;
+}
+
+.stat-card-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
     background: rgba(139, 90, 60, 0.1);
     border-radius: 6px;
     border: 1px solid rgba(139, 90, 60, 0.2);
 }
 
+.stat-card-compact:last-child {
+    margin-bottom: 0;
+}
+
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #c9c9c9;
-    margin-bottom: 5px;
-    text-align: center;
 }
 
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: #d4af37;
 }
 
-/* === HEADER DE RECRUTEMENT === */
-.guild-recruitment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 15px 20px;
+/* === RECRUTEMENT SIDEBAR === */
+.guild-recruitment-sidebar {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
+    padding: 15px;
     border: 1px solid rgba(139, 90, 60, 0.3);
 }
 
-.guild-recruitment-header h4 {
+.guild-recruitment-sidebar h4 {
     color: #d4af37;
-    margin: 0;
-    font-size: 1.1rem;
+    margin: 0 0 15px 0;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.sidebar-btn {
+    width: 100%;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.search-info-sidebar {
+    color: #c9c9c9;
+    font-size: 0.8rem;
+    text-align: center;
+    display: block;
+}
+
+/* === ZONE PRINCIPALE === */
+.guild-main {
+    flex: 1;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 /* === LAYOUT DEUX COLONNES === */
@@ -59,7 +115,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    height: calc(100vh - 350px);
+    height: 100%;
 }
 
 .guild-recruited,

@@ -29,8 +29,10 @@
 .tab-content,
 .expedition-tracking,
 .expedition-available,
+.expedition-sidebar,
 .guild-recruited,
 .guild-available,
+.guild-sidebar,
 .modal-adventurers-grid {
     /* Webkit */
     -webkit-overflow-scrolling: touch;
@@ -41,8 +43,10 @@
 .tab-content::-webkit-scrollbar,
 .expedition-tracking::-webkit-scrollbar,
 .expedition-available::-webkit-scrollbar,
+.expedition-sidebar::-webkit-scrollbar,
 .guild-recruited::-webkit-scrollbar,
 .guild-available::-webkit-scrollbar,
+.guild-sidebar::-webkit-scrollbar,
 .modal-adventurers-grid::-webkit-scrollbar {
     display: none;
     width: 0;

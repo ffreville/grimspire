@@ -59,8 +59,25 @@
     }
     
     /* Layout expéditions en mobile */
+    .expedition-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .expedition-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid rgba(139, 90, 60, 0.3);
+        max-height: none;
+    }
+    
+    .expedition-main {
+        padding: 15px;
+    }
+    
     .expedition-layout {
         grid-template-columns: 1fr;
+        gap: 15px;
         height: auto;
     }
     
@@ -69,9 +86,38 @@
         max-height: 400px;
     }
     
+    .mission-stats-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .mission-stats-sidebar h4 {
+        grid-column: 1 / -1;
+        margin-bottom: 10px;
+    }
+    
     /* Layout guilde en mobile */
+    .guild-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .guild-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid rgba(139, 90, 60, 0.3);
+        max-height: none;
+    }
+    
+    .guild-main {
+        padding: 15px;
+    }
+    
     .guild-layout {
         grid-template-columns: 1fr;
+        gap: 15px;
         height: auto;
     }
     
@@ -80,10 +126,21 @@
         max-height: 400px;
     }
     
-    .guild-recruitment-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .guild-stats-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .guild-stats-sidebar h4 {
+        grid-column: 1 / -1;
+        margin-bottom: 10px;
+    }
+    
+    .sidebar-btn {
+        width: auto;
+        padding: 8px 16px;
     }
     
     .column-header {
