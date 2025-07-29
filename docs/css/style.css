@@ -124,12 +124,296 @@ body {
 
 /* === ÉCRAN DE JEU === */
 #game-screen {
-    background: #0f3460;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
     color: #e8e6e3;
+    flex-direction: column;
+    padding: 0;
+    overflow-y: auto;
+}
+
+/* === EN-TÊTE DE JEU === */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 20px;
+    border-bottom: 2px solid #8b5a3c;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.city-info h2 {
+    color: #d4af37;
+    margin: 0 0 5px 0;
+    font-size: 1.5rem;
+}
+
+.time-info {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: #c9c9c9;
+}
+
+.time-info span {
+    padding: 4px 8px;
+    background: rgba(139, 90, 60, 0.3);
+    border-radius: 4px;
+}
+
+/* === PANNEAU RESSOURCES === */
+.resources-panel {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.resource {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(139, 90, 60, 0.2);
+    border-radius: 6px;
+    border: 1px solid #8b5a3c;
+}
+
+.resource-icon {
     font-size: 1.2rem;
 }
 
+.resource span:last-child {
+    font-weight: 500;
+    color: #e8e6e3;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* === CONTRÔLES DE JEU === */
+.game-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+/* === NAVIGATION ONGLETS === */
+.tabs-navigation {
+    display: flex;
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom: 2px solid #8b5a3c;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    color: #c9c9c9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.tab-btn:hover {
+    color: #e8e6e3;
+    background: rgba(139, 90, 60, 0.1);
+}
+
+.tab-btn.active {
+    color: #d4af37;
+    background: rgba(139, 90, 60, 0.2);
+    border-bottom-color: #d4af37;
+}
+
+/* === CONTENU ONGLETS === */
+.tab-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tab-panel {
+    display: none;
+    height: 100%;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.panel-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(139, 90, 60, 0.3);
+}
+
+.panel-header h3 {
+    color: #d4af37;
+    margin: 0 0 5px 0;
+    font-size: 1.3rem;
+}
+
+.panel-header p {
+    color: #c9c9c9;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* === GRILLE BÂTIMENTS === */
+.buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.building-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #8b5a3c;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.building-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+}
+
+.building-card.built {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.building-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.building-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.building-level {
+    background: rgba(139, 90, 60, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.building-district {
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.building-effects {
+    margin: 10px 0;
+}
+
+.building-effects h4 {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin: 0 0 5px 0;
+}
+
+.effects-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.effect-item {
+    background: rgba(139, 90, 60, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #e8e6e3;
+}
+
+.building-cost {
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.cost-list {
+    display: flex;
+    gap: 12px;
+    color: #c9c9c9;
+}
+
+.building-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.building-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: 1px solid #8b5a3c;
+    border-radius: 4px;
+    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
+    color: #e8e6e3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.building-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
+.building-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
+.building-btn.primary {
+    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    border-color: #d4af37;
+}
+
 /* === RESPONSIVE === */
+@media (max-width: 1200px) {
+    .game-header {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .resources-panel {
+        order: 3;
+        flex-basis: 100%;
+        justify-content: center;
+    }
+}
+
 @media (max-width: 768px) {
     .menu-container {
         padding: 40px 20px;
@@ -144,6 +428,36 @@ body {
         min-width: 200px;
         padding: 12px 20px;
         font-size: 1rem;
+    }
+    
+    .game-header {
+        padding: 10px 15px;
+    }
+    
+    .resources-panel {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .resource {
+        min-width: 80px;
+    }
+    
+    .tabs-navigation {
+        overflow-x: scroll;
+    }
+    
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .buildings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tab-content {
+        padding: 15px;
     }
 }
 

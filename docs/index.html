@@ -35,12 +35,133 @@
             </div>
         </div>
 
-        <!-- Écran de jeu (sera créé dans les phases suivantes) -->
+        <!-- Écran de jeu -->
         <div id="game-screen" class="screen">
-            <p>Interface de jeu - À implémenter dans les phases suivantes</p>
+            <!-- En-tête du jeu -->
+            <div class="game-header">
+                <div class="city-info">
+                    <h2 id="city-name">Grimspire</h2>
+                    <div class="time-info">
+                        <span id="day-counter">Jour 1</span>
+                        <span id="phase-indicator">Jour</span>
+                        <span id="action-points">3/3 PA</span>
+                    </div>
+                </div>
+                
+                <div class="resources-panel">
+                    <div class="resource">
+                        <span class="resource-icon">💰</span>
+                        <span id="gold-amount">1000</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">👥</span>
+                        <span id="population-amount">50</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">🔨</span>
+                        <span id="materials-amount">100</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">✨</span>
+                        <span id="magic-amount">20</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">⭐</span>
+                        <span id="reputation-amount">50</span>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="next-phase-btn" class="control-btn">Passer à la Nuit</button>
+                    <button id="save-game-btn" class="control-btn">Sauvegarder</button>
+                    <button id="return-menu-btn" class="control-btn">Menu</button>
+                </div>
+            </div>
+            
+            <!-- Navigation par onglets -->
+            <div class="tabs-navigation">
+                <button class="tab-btn active" data-tab="batiments">Bâtiments</button>
+                <button class="tab-btn" data-tab="population">Population</button>
+                <button class="tab-btn" data-tab="commerce">Commerce</button>
+                <button class="tab-btn" data-tab="industrie">Industrie</button>
+                <button class="tab-btn" data-tab="administration">Administration</button>
+                <button class="tab-btn" data-tab="guilde">Guilde</button>
+                <button class="tab-btn" data-tab="expedition">Expédition</button>
+                <button class="tab-btn" data-tab="guerre">Guerre</button>
+            </div>
+            
+            <!-- Contenu des onglets -->
+            <div class="tab-content">
+                <!-- Onglet Bâtiments -->
+                <div id="tab-batiments" class="tab-panel active">
+                    <div class="panel-header">
+                        <h3>Gestion des Bâtiments</h3>
+                        <p>Construisez et améliorez les bâtiments de votre cité</p>
+                    </div>
+                    <div id="buildings-list" class="buildings-grid">
+                        <!-- Les bâtiments seront ajoutés dynamiquement -->
+                    </div>
+                </div>
+                
+                <!-- Autres onglets (temporairement désactivés) -->
+                <div id="tab-population" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Quartier Résidentiel</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-commerce" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>District Commercial</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-industrie" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Zone Industrielle</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-administration" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Quartier Administratif</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-guilde" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Guilde des Aventuriers</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-expedition" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Expéditions</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+                
+                <div id="tab-guerre" class="tab-panel">
+                    <div class="panel-header">
+                        <h3>Défense de la Cité</h3>
+                        <p>Disponible dans les prochaines phases</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="js/classes/Resource.js"></script>
+    <script src="js/classes/Building.js"></script>
+    <script src="js/classes/Adventurer.js"></script>
+    <script src="js/classes/City.js"></script>
+    <script src="js/classes/GameManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

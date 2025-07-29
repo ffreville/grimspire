@@ -1,45 +1,116 @@
 /**
- * Grimspire - Menu Principal
- * Phase 1.1 - Menu principal pour gérer le lancement d'une nouvelle partie
+ * Grimspire - Application Principale
+ * Phase 1.2 - Système de données et menu de jeu avec onglets
  */
 
-class MainMenu {
+class GrimspireApp {
     constructor() {
+        this.gameManager = new GameManager();
+        this.currentScreen = 'menu';
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
+        // Menu principal
+        this.initializeMainMenu();
+        
+        // Interface de jeu
+        this.initializeGameInterface();
+        
+        // Navigation onglets
+        this.initializeTabNavigation();
+    }
+
+    initializeMainMenu() {
         // Bouton Nouvelle Partie
         const newGameBtn = document.getElementById('new-game-btn');
         if (newGameBtn) {
             newGameBtn.addEventListener('click', this.startNewGame.bind(this));
         }
 
-        // Boutons désactivés pour les phases futures
+        // Bouton Charger Partie
         const loadGameBtn = document.getElementById('load-game-btn');
+        if (loadGameBtn) {
+            if (this.gameManager.hasSaveData()) {
+                loadGameBtn.disabled = false;
+                loadGameBtn.addEventListener('click', this.loadGame.bind(this));
+            } else {
+                loadGameBtn.addEventListener('click', () => this.showNotImplemented('Charger Partie'));
+            }
+        }
+        
+        // Autres boutons
         const settingsBtn = document.getElementById('settings-btn');
         const quitBtn = document.getElementById('quit-btn');
 
-        if (loadGameBtn) {
-            loadGameBtn.addEventListener('click', this.showNotImplemented.bind(this, 'Charger Partie'));
-        }
-        
         if (settingsBtn) {
-            settingsBtn.addEventListener('click', this.showNotImplemented.bind(this, 'Options'));
+            settingsBtn.addEventListener('click', () => this.showNotImplemented('Options'));
         }
         
         if (quitBtn) {
-            quitBtn.addEventListener('click', this.showNotImplemented.bind(this, 'Quitter'));
+            quitBtn.addEventListener('click', () => this.showNotImplemented('Quitter'));
         }
     }
 
-    startNewGame() {
-        console.log('Lancement d\'une nouvelle partie...');
-        
-        // Animation de transition
-        this.fadeTransition(() => {
-            this.switchToGameScreen();
+    initializeGameInterface() {
+        // Contrôles de jeu
+        const nextPhaseBtn = document.getElementById('next-phase-btn');
+        const saveGameBtn = document.getElementById('save-game-btn');
+        const returnMenuBtn = document.getElementById('return-menu-btn');
+
+        if (nextPhaseBtn) {
+            nextPhaseBtn.addEventListener('click', this.nextPhase.bind(this));
+        }
+
+        if (saveGameBtn) {
+            saveGameBtn.addEventListener('click', this.saveGame.bind(this));
+        }
+
+        if (returnMenuBtn) {
+            returnMenuBtn.addEventListener('click', this.returnToMainMenu.bind(this));
+        }
+
+        // Callbacks du GameManager
+        this.gameManager.setStateChangeCallback(this.updateGameInterface.bind(this));
+        this.gameManager.setTabChangeCallback(this.updateActiveTab.bind(this));
+        this.gameManager.setResourcesChangeCallback(this.updateResources.bind(this));
+    }
+
+    initializeTabNavigation() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabName = e.target.getAttribute('data-tab');
+                this.switchTab(tabName);
+            });
         });
+    }
+
+    startNewGame() {
+        console.log('Démarrage d\'une nouvelle partie...');
+        
+        const gameState = this.gameManager.startNewGame();
+        if (gameState) {
+            this.fadeTransition(() => {
+                this.switchToGameScreen();
+                this.updateGameInterface(gameState);
+                this.renderBuildings();
+            });
+        }
+    }
+
+    loadGame() {
+        console.log('Chargement de la partie...');
+        
+        if (this.gameManager.loadGame()) {
+            this.fadeTransition(() => {
+                this.switchToGameScreen();
+                this.updateGameInterface(this.gameManager.getCurrentGameState());
+                this.renderBuildings();
+            });
+        } else {
+            alert('Erreur lors du chargement de la sauvegarde');
+        }
     }
 
     switchToGameScreen() {
@@ -49,25 +120,7 @@ class MainMenu {
         if (mainMenu && gameScreen) {
             mainMenu.classList.remove('active');
             gameScreen.classList.add('active');
-            
-            // Message temporaire pour la phase 1.1
-            gameScreen.innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <h2 style="color: #d4af37; margin-bottom: 20px;">Bienvenue dans Grimspire!</h2>
-                    <p style="font-size: 1.1rem; margin-bottom: 15px;">
-                        Interface de jeu en cours de développement.
-                    </p>
-                    <p style="color: #999;">
-                        Phase 1.1 terminée - Menu principal fonctionnel
-                    </p>
-                    <button onclick="mainMenuInstance.returnToMainMenu()" 
-                            style="margin-top: 30px; padding: 10px 20px; 
-                                   background: #8b5a3c; color: white; 
-                                   border: none; border-radius: 5px; cursor: pointer;">
-                        Retour au Menu Principal
-                    </button>
-                </div>
-            `;
+            this.currentScreen = 'game';
         }
     }
 
@@ -78,13 +131,249 @@ class MainMenu {
         if (mainMenu && gameScreen) {
             gameScreen.classList.remove('active');
             mainMenu.classList.add('active');
+            this.currentScreen = 'menu';
         }
+    }
+
+    switchTab(tabName) {
+        this.gameManager.switchTab(tabName);
+        this.updateActiveTab(tabName);
+        
+        // Mettre à jour le contenu selon l'onglet
+        if (tabName === 'batiments') {
+            this.renderBuildings();
+        }
+    }
+
+    updateActiveTab(tabName) {
+        // Mettre à jour les boutons d'onglets
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+
+        // Mettre à jour les panneaux
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabName}`)?.classList.add('active');
+    }
+
+    updateGameInterface(gameState) {
+        if (!gameState) return;
+
+        // Mettre à jour les informations de la ville
+        document.getElementById('city-name').textContent = gameState.name;
+        document.getElementById('day-counter').textContent = `Jour ${gameState.day}`;
+        document.getElementById('phase-indicator').textContent = gameState.isNight ? 'Nuit' : 'Jour';
+        document.getElementById('action-points').textContent = `${gameState.currentActionPoints}/${gameState.maxActionPoints} PA`;
+
+        // Mettre à jour le bouton de phase
+        const nextPhaseBtn = document.getElementById('next-phase-btn');
+        if (nextPhaseBtn) {
+            nextPhaseBtn.textContent = gameState.isNight ? 'Passer au Jour' : 'Passer à la Nuit';
+        }
+
+        this.updateResources(gameState.resources);
+    }
+
+    updateResources(resources) {
+        if (!resources) return;
+
+        document.getElementById('gold-amount').textContent = resources.gold;
+        document.getElementById('population-amount').textContent = resources.population;
+        document.getElementById('materials-amount').textContent = resources.materials;
+        document.getElementById('magic-amount').textContent = resources.magic;
+        document.getElementById('reputation-amount').textContent = resources.reputation;
+    }
+
+    renderBuildings() {
+        const buildingsContainer = document.getElementById('buildings-list');
+        if (!buildingsContainer) return;
+
+        const buildings = this.gameManager.getBuildingsInfo();
+        
+        buildingsContainer.innerHTML = '';
+        
+        buildings.forEach(building => {
+            const buildingCard = this.createBuildingCard(building);
+            buildingsContainer.appendChild(buildingCard);
+        });
+    }
+
+    createBuildingCard(building) {
+        const card = document.createElement('div');
+        card.className = `building-card ${building.built ? 'built' : ''}`;
+        
+        const effects = this.formatEffects(building.effects);
+        const cost = this.formatCost(building.upgradeCost);
+        
+        card.innerHTML = `
+            <div class="building-header">
+                <h4 class="building-name">${building.name}</h4>
+                <span class="building-level">Niv. ${building.level}/${building.maxLevel}</span>
+            </div>
+            <div class="building-district">District: ${building.district}</div>
+            
+            <div class="building-effects">
+                <h4>Effets:</h4>
+                <div class="effects-list">
+                    ${effects}
+                </div>
+            </div>
+            
+            <div class="building-cost">
+                <strong>${building.built ? 'Coût amélioration:' : 'Coût construction:'}</strong>
+                <div class="cost-list">
+                    ${cost}
+                </div>
+            </div>
+            
+            <div class="building-actions">
+                ${this.createBuildingActions(building)}
+            </div>
+        `;
+        
+        return card;
+    }
+
+    formatEffects(effects) {
+        if (!effects || Object.keys(effects).length === 0) {
+            return '<span class="effect-item">Aucun effet</span>';
+        }
+        
+        return Object.entries(effects)
+            .map(([key, value]) => {
+                let effectName = key;
+                let effectValue = value > 0 ? `+${value}` : `${value}`;
+                
+                // Traduire les noms d'effets
+                const translations = {
+                    'population': 'Population',
+                    'goldPerTurn': 'Or/tour',
+                    'materialsPerTurn': 'Matériaux/tour',
+                    'magicPerTurn': 'Magie/tour',
+                    'reputation': 'Réputation'
+                };
+                
+                effectName = translations[key] || key;
+                
+                return `<span class="effect-item">${effectName}: ${effectValue}</span>`;
+            })
+            .join('');
+    }
+
+    formatCost(cost) {
+        if (!cost || Object.keys(cost).length === 0) {
+            return 'Gratuit';
+        }
+        
+        return Object.entries(cost)
+            .map(([resource, amount]) => {
+                const icons = {
+                    'gold': '💰',
+                    'population': '👥',
+                    'materials': '🔨',
+                    'magic': '✨'
+                };
+                
+                return `${icons[resource] || resource}: ${amount}`;
+            })
+            .join(' | ');
+    }
+
+    createBuildingActions(building) {
+        const resources = this.gameManager.getResourcesInfo();
+        const canAfford = resources && this.canAffordCost(resources, building.upgradeCost);
+        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(building.built ? 1 : 2);
+        
+        if (!building.built) {
+            return `
+                <button class="building-btn primary" 
+                        onclick="app.buildBuilding('${building.id}')"
+                        ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
+                    Construire
+                </button>
+            `;
+        } else if (building.level < building.maxLevel) {
+            return `
+                <button class="building-btn" 
+                        onclick="app.upgradeBuilding('${building.id}')"
+                        ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
+                    Améliorer
+                </button>
+            `;
+        } else {
+            return `<button class="building-btn" disabled>Niveau Maximum</button>`;
+        }
+    }
+
+    canAffordCost(resources, cost) {
+        return Object.entries(cost).every(([resource, amount]) => {
+            return resources[resource] >= amount;
+        });
+    }
+
+    buildBuilding(buildingId) {
+        const result = this.gameManager.performBuildingAction(buildingId, 'build');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderBuildings();
+        }
+    }
+
+    upgradeBuilding(buildingId) {
+        const result = this.gameManager.performBuildingAction(buildingId, 'upgrade');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderBuildings();
+        }
+    }
+
+    nextPhase() {
+        this.gameManager.switchTimePhase();
+        this.renderBuildings(); // Actualise les boutons d'action
+    }
+
+    saveGame() {
+        if (this.gameManager.saveGame()) {
+            this.showActionResult({ success: true, message: 'Partie sauvegardée' });
+        } else {
+            this.showActionResult({ success: false, message: 'Erreur de sauvegarde' });
+        }
+    }
+
+    showActionResult(result) {
+        const message = document.createElement('div');
+        message.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${result.success ? 'rgba(74, 124, 89, 0.9)' : 'rgba(139, 90, 60, 0.9)'};
+            color: #e8e6e3;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 2px solid ${result.success ? '#4a7c59' : '#8b5a3c'};
+            z-index: 1000;
+            font-size: 0.9rem;
+            max-width: 300px;
+        `;
+        
+        message.textContent = result.message;
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+            if (message.parentElement) {
+                message.remove();
+            }
+        }, 3000);
     }
 
     fadeTransition(callback) {
         const app = document.getElementById('app');
         
-        // Effet de fondu
         app.style.transition = 'opacity 0.3s ease-in-out';
         app.style.opacity = '0';
         
@@ -95,52 +384,19 @@ class MainMenu {
     }
 
     showNotImplemented(featureName) {
-        console.log(`${featureName} - Fonctionnalité non implémentée`);
-        
-        // Message temporaire pour les fonctionnalités futures
-        const message = document.createElement('div');
-        message.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #e8e6e3;
-            padding: 20px 30px;
-            border-radius: 10px;
-            border: 2px solid #8b5a3c;
-            z-index: 1000;
-            text-align: center;
-        `;
-        
-        message.innerHTML = `
-            <h3 style="color: #d4af37; margin-bottom: 10px;">${featureName}</h3>
-            <p>Cette fonctionnalité sera implémentée dans les phases suivantes.</p>
-            <button onclick="this.parentElement.remove()" 
-                    style="margin-top: 15px; padding: 8px 16px; 
-                           background: #8b5a3c; color: white; 
-                           border: none; border-radius: 5px; cursor: pointer;">
-                OK
-            </button>
-        `;
-        
-        document.body.appendChild(message);
-        
-        // Auto-suppression après 3 secondes
-        setTimeout(() => {
-            if (message.parentElement) {
-                message.remove();
-            }
-        }, 3000);
+        this.showActionResult({
+            success: false,
+            message: `${featureName} - Fonctionnalité non implémentée (prochaines phases)`
+        });
     }
 }
 
-// Initialisation de l'application
-let mainMenuInstance;
+// Instance globale de l'application
+let app;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Grimspire - Phase 1.1 initialisée');
-    mainMenuInstance = new MainMenu();
+    console.log('Grimspire - Phase 1.2 initialisée');
+    app = new GrimspireApp();
 });
 
 // Gestion des erreurs globales
@@ -148,7 +404,7 @@ window.addEventListener('error', (event) => {
     console.error('Erreur JavaScript:', event.error);
 });
 
-// Export pour utilisation dans d'autres modules (phases futures)
+// Export pour utilisation dans d'autres modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { MainMenu };
+    module.exports = { GrimspireApp };
 }
