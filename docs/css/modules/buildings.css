@@ -1,123 +1,548 @@
-/* === GRILLE BÂTIMENTS === */
+/* === INTERFACE BÂTIMENTS === */
+
+.buildings-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* === SIDEBAR BÂTIMENTS === */
+
+.buildings-sidebar {
+    width: 280px;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.buildings-sidebar .sidebar-header {
+    margin-bottom: 25px;
+    text-align: center;
+    border-bottom: 1px solid #4a4a4a;
+    padding-bottom: 15px;
+}
+
+.buildings-sidebar .sidebar-header h3 {
+    color: #d4af37;
+    font-size: 1.4rem;
+    margin: 0 0 8px 0;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.building-stats-sidebar h4 {
+    color: #d4af37;
+    font-size: 1rem;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+/* === ZONE PRINCIPALE BÂTIMENTS === */
+
+.buildings-main {
+    flex: 1;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.buildings-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    height: 100%;
+}
+
+/* === COLONNES === */
+
+.buildings-constructed,
+.buildings-available {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #4a4a4a;
+}
+
+.column-title {
+    color: #d4af37;
+    font-size: 1.3rem;
+    margin: 0;
+    text-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+.section-count {
+    color: #b8b8b8;
+    font-size: 0.9rem;
+    background: rgba(60, 60, 60, 0.8);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid #4a4a4a;
+}
+
+.building-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-info {
+    color: #999;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* === SECTIONS === */
+
+.buildings-section {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.buildings-section.locked-section {
+    flex: none;
+    margin-top: 20px;
+    border-top: 1px solid #4a4a4a;
+    padding-top: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-header h5 {
+    color: #999;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* === GRILLES === */
+
 .buildings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 15px;
 }
 
+.building-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.building-types-grid.locked {
+    opacity: 0.6;
+}
+
+/* === CARTES DE BÂTIMENTS CONSTRUITS === */
+
 .building-card {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #8b5a3c;
-    border-radius: 8px;
+    background: rgba(40, 40, 40, 0.9);
+    border: 2px solid #4a4a4a;
+    border-radius: 10px;
     padding: 15px;
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .building-card:hover {
-    border-color: #d4af37;
-    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
-}
-
-.building-card.built {
-    border-color: #4a7c59;
-    background: rgba(74, 124, 89, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    border-color: #6a6a6a;
 }
 
 .building-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 10px;
 }
 
-.building-name {
-    color: #d4af37;
+.building-icon {
+    font-size: 1.8rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(60, 60, 60, 0.8);
+    border-radius: 8px;
+    border: 2px solid #4a4a4a;
+}
+
+.building-info h4 {
+    color: #e8e6e3;
     font-size: 1.1rem;
-    font-weight: 500;
+    margin: 0 0 3px 0;
+    font-weight: 600;
+}
+
+.building-type {
+    color: #b8b8b8;
+    font-size: 0.8rem;
     margin: 0;
 }
 
 .building-level {
-    background: rgba(139, 90, 60, 0.3);
-    padding: 4px 8px;
+    color: #d4af37;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(212, 175, 55, 0.1);
+    padding: 2px 8px;
     border-radius: 4px;
-    font-size: 0.8rem;
+    border: 1px solid #d4af37;
 }
 
 .building-district {
     color: #999;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+/* === CARTES DE TYPES DE BÂTIMENTS === */
+
+.building-type-card {
+    background: rgba(40, 40, 40, 0.9);
+    border: 2px solid #4a4a4a;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.building-type-card:hover:not(.locked) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    border-color: #d4af37;
+}
+
+.building-type-card.locked {
+    background: rgba(30, 30, 30, 0.7);
+    border-color: #333;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.building-type-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 10px;
 }
 
-.building-effects {
-    margin: 10px 0;
+.building-type-info h5 {
+    color: #e8e6e3;
+    font-size: 1rem;
+    margin: 0 0 3px 0;
+    font-weight: 600;
 }
 
-.building-effects h4 {
+.building-type-card.locked .building-type-info h5 {
+    color: #888;
+}
+
+.unlock-status {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.unlock-status.available {
+    background: rgba(74, 124, 89, 0.2);
+    color: #4a7c59;
+    border: 1px solid #4a7c59;
+}
+
+.unlock-status.locked {
+    background: rgba(139, 90, 60, 0.2);
+    color: #8b5a3c;
+    border: 1px solid #8b5a3c;
+}
+
+.building-type-description {
     color: #c9c9c9;
-    font-size: 0.9rem;
-    margin: 0 0 5px 0;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    margin-bottom: 12px;
 }
 
-.effects-list {
+.building-type-card.locked .building-type-description {
+    color: #666;
+}
+
+/* === EFFETS ET COÛTS === */
+
+.building-effects {
+    margin-bottom: 15px;
+}
+
+.building-effects h4,
+.building-cost strong {
+    color: #b8b8b8;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.effects-list,
+.cost-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
-.effect-item {
-    background: rgba(139, 90, 60, 0.2);
-    padding: 3px 8px;
+.effect-item,
+.cost-item {
+    background: rgba(60, 60, 60, 0.8);
+    border: 1px solid #4a4a4a;
     border-radius: 4px;
+    padding: 4px 8px;
     font-size: 0.8rem;
     color: #e8e6e3;
 }
 
-.building-cost {
-    margin: 10px 0;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 4px;
-    font-size: 0.85rem;
+.effect-item.positive {
+    background: rgba(74, 124, 89, 0.2);
+    border-color: #4a7c59;
+    color: #4a7c59;
 }
 
-.cost-list {
-    display: flex;
-    gap: 12px;
-    color: #c9c9c9;
+.effect-item.negative {
+    background: rgba(139, 90, 60, 0.2);
+    border-color: #8b5a3c;
+    color: #8b5a3c;
 }
+
+/* === ACTIONS === */
 
 .building-actions {
     display: flex;
+    justify-content: flex-end;
     gap: 8px;
     margin-top: 10px;
 }
 
 .building-btn {
-    flex: 1;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    border: 1px solid #8b5a3c;
-    border-radius: 4px;
-    background: linear-gradient(145deg, #2c2c54 0%, #1a1a2e 100%);
-    color: #e8e6e3;
+    background: rgba(212, 175, 55, 0.9);
+    border: 2px solid #d4af37;
+    border-radius: 6px;
+    color: #1a1a1a;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    min-width: 70px;
 }
 
 .building-btn:hover:not(:disabled) {
-    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
-    border-color: #d4af37;
+    background: #d4af37;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(212, 175, 55, 0.3);
 }
 
 .building-btn:disabled {
-    opacity: 0.5;
+    background: rgba(100, 100, 100, 0.3);
+    border-color: #666;
+    color: #999;
     cursor: not-allowed;
-    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    opacity: 0.6;
 }
 
 .building-btn.primary {
-    background: linear-gradient(145deg, #8b5a3c 0%, #6d4428 100%);
+    background: rgba(74, 124, 89, 0.9);
+    border-color: #4a7c59;
+    color: #fff;
+}
+
+.building-btn.primary:hover:not(:disabled) {
+    background: #4a7c59;
+}
+
+.building-btn.danger {
+    background: rgba(139, 90, 60, 0.9);
+    border-color: #8b5a3c;
+    color: #fff;
+}
+
+.building-btn.danger:hover:not(:disabled) {
+    background: #8b5a3c;
+}
+
+/* === MODAL DE CONSTRUCTION === */
+
+/* Positionnement spécial pour la modal de construction */
+#building-construction-modal {
+    /* Hérite des styles généraux de modal mais avec positionnement ajusté */
+    align-items: flex-start;
+    padding-top: 80px; /* Espace pour voir l'en-tête avec les ressources */
+}
+
+#building-construction-modal .modal-content {
+    margin: 0 auto;
+    max-width: 600px;
+    width: 95%;
+}
+
+.construction-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #d4af37;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    background: rgba(40, 40, 40, 0.9);
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    color: #e8e6e3;
+    padding: 10px 12px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
     border-color: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.form-group small {
+    color: #999;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: block;
+}
+
+.building-type-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(60, 60, 60, 0.5);
+    border-radius: 8px;
+    border: 1px solid #4a4a4a;
+}
+
+.building-type-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(40, 40, 40, 0.8);
+    border-radius: 10px;
+    border: 2px solid #4a4a4a;
+}
+
+.building-type-details h4 {
+    color: #d4af37;
+    font-size: 1.3rem;
+    margin: 0 0 5px 0;
+}
+
+.building-type-details p {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.construction-cost,
+.building-effects {
+    margin-bottom: 20px;
+}
+
+.construction-cost h5,
+.building-effects h5 {
+    color: #b8b8b8;
+    font-size: 0.9rem;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 1400px) {
+    .buildings-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .buildings-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .buildings-sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .buildings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .building-types-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .buildings-container {
+        padding: 15px;
+    }
+    
+    .buildings-main {
+        padding: 20px;
+    }
+    
+    .buildings-grid,
+    .building-types-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .building-card,
+    .building-type-card {
+        padding: 12px;
+    }
+    
+    .building-header,
+    .building-type-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
 }

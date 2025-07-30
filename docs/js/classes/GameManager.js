@@ -6,6 +6,8 @@ class GameManager {
         this.city = null;
         this.adventurerManager = null;
         this.missionManager = null;
+        this.cityUpgradeManager = null;
+        this.buildingManager = null;
         this.gameState = 'menu'; // 'menu', 'playing', 'paused'
         this.currentTab = 'batiments';
         this.saveKey = 'grimspire_save';
@@ -31,6 +33,12 @@ class GameManager {
         // Créer le gestionnaire de missions
         this.missionManager = new MissionManager(this.city);
         
+        // Créer le gestionnaire d'améliorations de ville
+        this.cityUpgradeManager = new CityUpgradeManager(this.city);
+        
+        // Créer le gestionnaire de bâtiments
+        this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
+        
         // Changer l'état du jeu
         this.gameState = 'playing';
         
@@ -44,15 +52,8 @@ class GameManager {
     }
 
     addStartingAdventurers() {
-        const startingAdventurers = [
-            new Adventurer('adv_1', 'Sir Gareth', 'guerrier'),
-            new Adventurer('adv_2', 'Lyra la Sage', 'mage'),
-            new Adventurer('adv_3', 'Finn Doigts-Agiles', 'voleur')
-        ];
-        
-        startingAdventurers.forEach(adventurer => {
-            this.city.addAdventurer(adventurer);
-        });
+        // Aucun aventurier de départ - ils doivent être recrutés
+        // La méthode est conservée pour la compatibilité mais ne fait rien
     }
 
     loadGame() {
@@ -60,7 +61,12 @@ class GameManager {
             const saveData = localStorage.getItem(this.saveKey);
             if (saveData) {
                 const parsedData = JSON.parse(saveData);
-                this.city = City.fromJSON(parsedData.city);
+                // Pour charger les bâtiments, on a besoin des types disponibles
+                const tempUpgradeManager = new CityUpgradeManager(null);
+                const tempBuildingManager = new BuildingManager(null, tempUpgradeManager);
+                const buildingTypes = tempBuildingManager.buildingTypes;
+                
+                this.city = City.fromJSON(parsedData.city, buildingTypes);
                 this.gameState = parsedData.gameState || 'playing';
                 this.currentTab = parsedData.currentTab || 'batiments';
                 
@@ -76,6 +82,20 @@ class GameManager {
                     this.missionManager = MissionManager.fromJSON(parsedData.missionManager, this.city);
                 } else {
                     this.missionManager = new MissionManager(this.city);
+                }
+                
+                // Recréer le gestionnaire d'améliorations de ville
+                if (parsedData.cityUpgradeManager) {
+                    this.cityUpgradeManager = CityUpgradeManager.fromJSON(parsedData.cityUpgradeManager, this.city);
+                } else {
+                    this.cityUpgradeManager = new CityUpgradeManager(this.city);
+                }
+                
+                // Recréer le gestionnaire de bâtiments
+                if (parsedData.buildingManager) {
+                    this.buildingManager = BuildingManager.fromJSON(parsedData.buildingManager, this.city, this.cityUpgradeManager);
+                } else {
+                    this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
                 }
                 
                 this.notifyStateChange();
@@ -95,6 +115,8 @@ class GameManager {
                 city: this.city.toJSON(),
                 adventurerManager: this.adventurerManager ? this.adventurerManager.toJSON() : null,
                 missionManager: this.missionManager ? this.missionManager.toJSON() : null,
+                cityUpgradeManager: this.cityUpgradeManager ? this.cityUpgradeManager.toJSON() : null,
+                buildingManager: this.buildingManager ? this.buildingManager.toJSON() : null,
                 gameState: this.gameState,
                 currentTab: this.currentTab,
                 timestamp: Date.now()
@@ -127,19 +149,17 @@ class GameManager {
         return this.city.getGameState();
     }
 
+    // Anciennes méthodes de bâtiments pour compatibilité (désormais déléguées au BuildingManager)
     performBuildingAction(buildingId, action) {
-        if (!this.city) return { success: false, message: 'Aucune partie en cours' };
+        if (!this.buildingManager) return { success: false, message: 'Gestionnaire de bâtiments non initialisé' };
         
         let result;
         switch (action) {
-            case 'build':
-                result = this.city.buildBuilding(buildingId);
-                break;
             case 'upgrade':
-                result = this.city.upgradeBuilding(buildingId);
+                result = this.buildingManager.upgradeBuilding(buildingId);
                 break;
             default:
-                return { success: false, message: 'Action inconnue' };
+                return { success: false, message: 'Action non supportée dans le nouveau système' };
         }
         
         if (result.success) {
@@ -147,6 +167,43 @@ class GameManager {
             this.autoSave();
         }
         
+        return result;
+    }
+
+    // Nouvelles méthodes pour le système de bâtiments
+    constructBuilding(typeId, customName) {
+        if (!this.buildingManager) return { success: false, message: 'Gestionnaire de bâtiments non initialisé' };
+        
+        const result = this.buildingManager.constructBuilding(typeId, customName);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    upgradeBuilding(buildingId) {
+        if (!this.buildingManager) return { success: false, message: 'Gestionnaire de bâtiments non initialisé' };
+        
+        const result = this.buildingManager.upgradeBuilding(buildingId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    demolishBuilding(buildingId) {
+        if (!this.buildingManager) return { success: false, message: 'Gestionnaire de bâtiments non initialisé' };
+        
+        const result = this.buildingManager.demolishBuilding(buildingId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.notifyStateChange();
+            this.autoSave();
+        }
         return result;
     }
 
@@ -162,6 +219,10 @@ class GameManager {
         
         if (this.missionManager) {
             this.missionManager.processTurnChange();
+        }
+        
+        if (this.cityUpgradeManager) {
+            this.cityUpgradeManager.processTurnChange();
         }
         
         this.notifyStateChange();
@@ -191,8 +252,54 @@ class GameManager {
     }
 
     getBuildingsInfo() {
-        if (!this.city) return [];
-        return this.city.buildings.map(b => b.getDisplayInfo());
+        if (!this.buildingManager) return [];
+        return this.buildingManager.getConstructedBuildings();
+    }
+
+    getBuildingTypesInfo() {
+        if (!this.buildingManager) return { available: [], locked: [], all: [] };
+        
+        return {
+            available: this.buildingManager.getAvailableBuildingTypes(),
+            locked: this.buildingManager.getLockedBuildingTypes(),
+            all: this.buildingManager.getAllBuildingTypes(),
+            stats: this.buildingManager.getBuildingStats()
+        };
+    }
+
+    hasCityHall() {
+        if (!this.city) return false;
+        return this.city.buildings.some(building => building.buildingType.id === 'mairie');
+    }
+
+    hasCommercialBuildings() {
+        if (!this.city) return { hasAny: false, marche: false, artisan: false, banque: false };
+        
+        const marche = this.city.buildings.some(building => building.buildingType.id === 'marche');
+        const artisan = this.city.buildings.some(building => building.buildingType.id === 'echoppe_artisan');
+        const banque = this.city.buildings.some(building => building.buildingType.id === 'banque');
+        
+        return {
+            hasAny: marche || artisan || banque,
+            marche,
+            artisan,
+            banque
+        };
+    }
+
+    hasIndustrialBuildings() {
+        if (!this.city) return { hasAny: false, forge: false, alchimiste: false, enchanteur: false };
+        
+        const forge = this.city.buildings.some(building => building.buildingType.id === 'forge');
+        const alchimiste = this.city.buildings.some(building => building.buildingType.id === 'alchimiste');
+        const enchanteur = this.city.buildings.some(building => building.buildingType.id === 'enchanteur');
+        
+        return {
+            hasAny: forge || alchimiste || enchanteur,
+            forge,
+            alchimiste,
+            enchanteur
+        };
     }
 
     getAdventurersInfo() {
@@ -257,6 +364,7 @@ class GameManager {
         const result = this.adventurerManager.searchForAdventurers();
         if (result.success) {
             this.notifyResourcesChange();
+            this.notifyStateChange();
             this.autoSave();
         }
         return result;
@@ -268,6 +376,7 @@ class GameManager {
         const result = this.adventurerManager.recruitAdventurer(adventurerId);
         if (result.success) {
             this.notifyResourcesChange();
+            this.notifyStateChange();
             this.autoSave();
         }
         return result;
@@ -302,6 +411,7 @@ class GameManager {
         const result = this.missionManager.refreshMissions();
         if (result.success) {
             this.notifyResourcesChange();
+            this.notifyStateChange();
             this.autoSave();
         }
         return result;
@@ -312,6 +422,7 @@ class GameManager {
         
         const result = this.missionManager.startMission(missionId, selectedAdventurerIds);
         if (result.success) {
+            this.notifyStateChange();
             this.autoSave();
         }
         return result;
@@ -329,10 +440,41 @@ class GameManager {
         };
     }
 
+    // Méthodes pour l'onglet Administration
+    unlockUpgrade(upgradeId) {
+        if (!this.cityUpgradeManager) return { success: false, message: 'Gestionnaire d\'améliorations non initialisé' };
+        
+        const result = this.cityUpgradeManager.unlockUpgrade(upgradeId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    getUpgradeInfo() {
+        if (!this.cityUpgradeManager) return null;
+        
+        return {
+            stats: this.cityUpgradeManager.getUpgradeStats(),
+            available: this.cityUpgradeManager.getAvailableUpgrades(),
+            unlocked: this.cityUpgradeManager.getUnlockedUpgrades(),
+            all: this.cityUpgradeManager.getAllUpgrades()
+        };
+    }
+
+    isUpgradeUnlocked(upgradeId) {
+        if (!this.cityUpgradeManager) return false;
+        return this.cityUpgradeManager.isUpgradeUnlocked(upgradeId);
+    }
+
     resetGame() {
         this.city = null;
         this.adventurerManager = null;
         this.missionManager = null;
+        this.cityUpgradeManager = null;
+        this.buildingManager = null;
         this.gameState = 'menu';
         this.currentTab = 'batiments';
         localStorage.removeItem(this.saveKey);

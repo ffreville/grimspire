@@ -77,8 +77,20 @@ class MissionManager {
 
         // Générer les paramètres de la mission
         const difficulty = Math.ceil(Math.random() * 5); // 1-5
-        const baseDuration = 2 + (difficulty * 0.5); // 2h à 4.5h
-        const duration = baseDuration + (Math.random() * 2 - 1); // ±1h de variation
+        
+        // Nouvelles durées plus courtes en fractions d'heure
+        const durations = [
+            0.17,  // 10 minutes (0.17h)
+            0.25,  // 15 minutes (0.25h)
+            0.33,  // 20 minutes (0.33h)
+            0.5,   // 30 minutes (0.5h)
+            0.75,  // 45 minutes (0.75h)
+            1.0    // 1 heure (1.0h)
+        ];
+        
+        // Sélectionner une durée selon la difficulté (plus difficile = plus long)
+        const durationIndex = Math.min(Math.floor((difficulty - 1) * 1.2), durations.length - 1);
+        const duration = durations[durationIndex];
         
         // Sélectionner un nom
         const typeNames = this.missionNames[selectedType];

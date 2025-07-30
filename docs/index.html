@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="css/modules/modal.css">
     <link rel="stylesheet" href="css/modules/scrollbar.css">
     <link rel="stylesheet" href="css/modules/responsive.css">
+    <link rel="stylesheet" href="css/modules/administration.css">
+    <link rel="stylesheet" href="css/modules/commerce.css">
+    <link rel="stylesheet" href="css/modules/industrie.css">
 </head>
 <body>
     <div id="app">
@@ -61,23 +64,23 @@
                 <div class="resources-panel">
                     <div class="resource">
                         <span class="resource-icon">💰</span>
-                        <span id="gold-amount">1000</span>
+                        <span id="gold-amount">5000</span>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">👥</span>
-                        <span id="population-amount">50</span>
+                        <span id="population-amount">0</span>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">🔨</span>
-                        <span id="materials-amount">100</span>
+                        <span id="materials-amount">2000</span>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">✨</span>
-                        <span id="magic-amount">20</span>
+                        <span id="magic-amount">0</span>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">⭐</span>
-                        <span id="reputation-amount">50</span>
+                        <span id="reputation-amount">0</span>
                     </div>
                 </div>
                 
@@ -91,54 +94,316 @@
             <!-- Navigation par onglets -->
             <div class="tabs-navigation">
                 <button class="tab-btn active" data-tab="batiments">Bâtiments</button>
-                <button class="tab-btn" data-tab="population">Population</button>
                 <button class="tab-btn" data-tab="commerce">Commerce</button>
                 <button class="tab-btn" data-tab="industrie">Industrie</button>
-                <button class="tab-btn" data-tab="administration">Administration</button>
-                <button class="tab-btn" data-tab="guilde">Guilde</button>
-                <button class="tab-btn" data-tab="expedition">Expédition</button>
-                <button class="tab-btn" data-tab="guerre">Guerre</button>
+                <button class="tab-btn" data-tab="administration" style="opacity: 0.5; cursor: not-allowed;" disabled>Administration</button>
+                <button class="tab-btn" data-tab="guilde" style="opacity: 0.5; cursor: not-allowed;" disabled>Guilde</button>
+                <button class="tab-btn" data-tab="expedition" style="opacity: 0.5; cursor: not-allowed;" disabled>Expéditions</button>
             </div>
             
             <!-- Contenu des onglets -->
             <div class="tab-content">
                 <!-- Onglet Bâtiments -->
                 <div id="tab-batiments" class="tab-panel active">
-                    <div class="panel-header">
-                        <h3>Gestion des Bâtiments</h3>
-                        <p>Construisez et améliorez les bâtiments de votre cité</p>
-                    </div>
-                    <div id="buildings-list" class="buildings-grid">
-                        <!-- Les bâtiments seront ajoutés dynamiquement -->
+                    <div class="buildings-container">
+                        <!-- Sidebar gauche avec stats et contrôles -->
+                        <div class="buildings-sidebar">
+                            <div class="sidebar-header">
+                                <h3>Bâtiments</h3>
+                                <p>Construisez et gérez votre cité</p>
+                            </div>
+                            
+                            <!-- Statistiques des bâtiments -->
+                            <div class="building-stats-sidebar">
+                                <h4>📈 Statistiques</h4>
+                                <div class="stat-card-compact">
+                                    <span class="stat-label">Construits</span>
+                                    <span id="buildings-total-count" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-card-compact">
+                                    <span class="stat-label">Niveau moyen</span>
+                                    <span id="buildings-avg-level" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-card-compact">
+                                    <span class="stat-label">Types disponibles</span>
+                                    <span id="building-types-available" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-card-compact">
+                                    <span class="stat-label">Types verrouillés</span>
+                                    <span id="building-types-locked" class="stat-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale avec les deux colonnes -->
+                        <div class="buildings-main">
+                            <div class="buildings-layout">
+                                <!-- Colonne de gauche : Bâtiments construits -->
+                                <div class="buildings-constructed">
+                                    <div class="column-header">
+                                        <h4 class="column-title">🏗️ Bâtiments Construits</h4>
+                                        <span class="section-count" id="constructed-count">0 bâtiment</span>
+                                    </div>
+                                    
+                                    <div class="buildings-section">
+                                        <div id="constructed-buildings" class="buildings-grid">
+                                            <!-- Les bâtiments construits seront ajoutés dynamiquement -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Colonne de droite : Types de bâtiments disponibles -->
+                                <div class="buildings-available">
+                                    <div class="column-header">
+                                        <h4 class="column-title">🏠 Types Disponibles</h4>
+                                        <div class="building-controls">
+                                            <span id="available-info" class="search-info">Sélectionnez un type pour construire</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="buildings-section">
+                                        <div id="available-building-types" class="building-types-grid">
+                                            <!-- Les types de bâtiments disponibles seront ajoutés dynamiquement -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Section des types verrouillés -->
+                                    <div class="buildings-section locked-section">
+                                        <div class="section-header">
+                                            <h5>Types Verrouillés</h5>
+                                            <span class="section-count" id="locked-types-count">Améliorations requises</span>
+                                        </div>
+                                        <div id="locked-building-types" class="building-types-grid locked">
+                                            <!-- Les types verrouillés seront ajoutés dynamiquement -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Autres onglets (temporairement désactivés) -->
-                <div id="tab-population" class="tab-panel">
-                    <div class="panel-header">
-                        <h3>Quartier Résidentiel</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                <!-- Modal de construction de bâtiment -->
+                <div id="building-construction-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="modal-building-type-name">Construire un Bâtiment</h3>
+                            <button id="close-construction-modal-btn" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="building-type-info">
+                                <div class="building-type-icon" id="modal-building-icon">🏠</div>
+                                <div class="building-type-details">
+                                    <h4 id="modal-building-name">Type de Bâtiment</h4>
+                                    <p id="modal-building-description">Description du bâtiment</p>
+                                </div>
+                            </div>
+                            
+                            <div class="construction-form">
+                                <div class="form-group">
+                                    <label for="building-custom-name">Nom du bâtiment (optionnel) :</label>
+                                    <input type="text" id="building-custom-name" maxlength="30" placeholder="Laissez vide pour un nom automatique...">
+                                    <small>Maximum 30 caractères - Un nom sera généré automatiquement si vide</small>
+                                </div>
+                                
+                                <div class="construction-cost">
+                                    <h5>Coût de construction :</h5>
+                                    <div id="modal-construction-cost" class="cost-list">
+                                        <!-- Coût sera ajouté dynamiquement -->
+                                    </div>
+                                </div>
+                                
+                                <div class="building-effects">
+                                    <h5>Effets (Niveau 1) :</h5>
+                                    <div id="modal-building-effects" class="effects-list">
+                                        <!-- Effets seront ajoutés dynamiquement -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="cancel-construction-btn" class="modal-btn secondary">Annuler</button>
+                            <button id="confirm-construction-btn" class="modal-btn primary">Construire</button>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Onglet Commerce -->
                 <div id="tab-commerce" class="tab-panel">
-                    <div class="panel-header">
-                        <h3>District Commercial</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                    <div class="commerce-container">
+                        <!-- Sidebar gauche avec menu vertical -->
+                        <div class="commerce-sidebar">
+                            <div class="sidebar-header">
+                                <h3>Commerce</h3>
+                                <p>Économie et négoce</p>
+                            </div>
+                            
+                            <!-- Menu vertical -->
+                            <div class="commerce-menu">
+                                <button class="commerce-menu-btn active" data-commerce-tab="marche" disabled>
+                                    🔒 Marché
+                                </button>
+                                <button class="commerce-menu-btn" data-commerce-tab="artisans" disabled>
+                                    🔒 Artisans
+                                </button>
+                                <button class="commerce-menu-btn" data-commerce-tab="banque" disabled>
+                                    🔒 Banque
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale avec contenu -->
+                        <div class="commerce-main">
+                            <!-- Onglet Marché -->
+                            <div id="commerce-marche" class="commerce-content active">
+                                <div class="commerce-content-header">
+                                    <h4>Marché</h4>
+                                    <p>Centre du négoce et des échanges</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez un marché pour débloquer cette section</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Onglet Artisans -->
+                            <div id="commerce-artisans" class="commerce-content">
+                                <div class="commerce-content-header">
+                                    <h4>Artisans</h4>
+                                    <p>Production de biens artisanaux</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez une échoppe d'artisan pour débloquer cette section</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Onglet Banque -->
+                            <div id="commerce-banque" class="commerce-content">
+                                <div class="commerce-content-header">
+                                    <h4>Banque</h4>
+                                    <p>Services financiers et investissements</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez une banque pour débloquer cette section</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Onglet Industrie -->
                 <div id="tab-industrie" class="tab-panel">
-                    <div class="panel-header">
-                        <h3>Zone Industrielle</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                    <div class="industrie-container">
+                        <!-- Sidebar gauche avec menu vertical -->
+                        <div class="industrie-sidebar">
+                            <div class="sidebar-header">
+                                <h3>Industrie</h3>
+                                <p>Production et artisanat</p>
+                            </div>
+                            
+                            <!-- Menu vertical -->
+                            <div class="industrie-menu">
+                                <button class="industrie-menu-btn active" data-industrie-tab="forge" disabled>
+                                    🔒 Forge
+                                </button>
+                                <button class="industrie-menu-btn" data-industrie-tab="alchimistes" disabled>
+                                    🔒 Alchimistes
+                                </button>
+                                <button class="industrie-menu-btn" data-industrie-tab="enchanteurs" disabled>
+                                    🔒 Enchanteurs
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale avec contenu -->
+                        <div class="industrie-main">
+                            <!-- Onglet Forge -->
+                            <div id="industrie-forge" class="industrie-content active">
+                                <div class="industrie-content-header">
+                                    <h4>Forge</h4>
+                                    <p>Production d'équipements et d'outils</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez une forge pour débloquer cette section</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Onglet Alchimistes -->
+                            <div id="industrie-alchimistes" class="industrie-content">
+                                <div class="industrie-content-header">
+                                    <h4>Alchimistes</h4>
+                                    <p>Production de substances magiques</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez un alchimiste pour débloquer cette section</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Onglet Enchanteurs -->
+                            <div id="industrie-enchanteurs" class="industrie-content">
+                                <div class="industrie-content-header">
+                                    <h4>Enchanteurs</h4>
+                                    <p>Amélioration des équipements</p>
+                                </div>
+                                <div class="locked-message">
+                                    <p>🔒 Construisez un enchanteur pour débloquer cette section</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div id="tab-administration" class="tab-panel">
-                    <div class="panel-header">
-                        <h3>Quartier Administratif</h3>
-                        <p>Disponible dans les prochaines phases</p>
+                    <div class="administration-container">
+                        <!-- Sidebar gauche avec menu vertical -->
+                        <div class="admin-sidebar">
+                            <div class="sidebar-header">
+                                <h3>Administration</h3>
+                                <p>Gestion de votre cité</p>
+                            </div>
+                            
+                            <!-- Menu vertical -->
+                            <div class="admin-menu">
+                                <button class="admin-menu-btn active" data-admin-tab="upgrades">
+                                    🏗️ Améliorations de la ville
+                                </button>
+                                <button class="admin-menu-btn" data-admin-tab="tbd1" disabled>
+                                    🔒 TBD 1
+                                </button>
+                                <button class="admin-menu-btn" data-admin-tab="tbd2" disabled>
+                                    🔒 TBD 2
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale avec contenu -->
+                        <div class="admin-main">
+                            <!-- Onglet Améliorations de la ville -->
+                            <div id="admin-upgrades" class="admin-content active">
+                                <div class="admin-content-header">
+                                    <h4>Améliorations de la Ville</h4>
+                                    <p>Débloquez de nouveaux bâtiments et fonctionnalités pour votre cité</p>
+                                </div>
+                                
+                                <div id="city-upgrades-list" class="upgrades-grid">
+                                    <!-- Les améliorations seront ajoutées dynamiquement -->
+                                </div>
+                            </div>
+                            
+                            <!-- Onglets TBD (pour plus tard) -->
+                            <div id="admin-tbd1" class="admin-content">
+                                <div class="admin-content-header">
+                                    <h4>TBD 1</h4>
+                                    <p>Fonctionnalité à venir</p>
+                                </div>
+                            </div>
+                            
+                            <div id="admin-tbd2" class="admin-content">
+                                <div class="admin-content-header">
+                                    <h4>TBD 2</h4>
+                                    <p>Fonctionnalité à venir</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -156,11 +421,11 @@
                                 <h4>📊 Statistiques</h4>
                                 <div class="stat-card-compact">
                                     <span class="stat-label">Recrutés</span>
-                                    <span id="guild-total-count" class="stat-value">3</span>
+                                    <span id="guild-total-count" class="stat-value">0</span>
                                 </div>
                                 <div class="stat-card-compact">
                                     <span class="stat-label">Disponibles</span>
-                                    <span id="guild-available-count" class="stat-value">3</span>
+                                    <span id="guild-available-count" class="stat-value">0</span>
                                 </div>
                                 <div class="stat-card-compact">
                                     <span class="stat-label">En mission</span>
@@ -168,7 +433,7 @@
                                 </div>
                                 <div class="stat-card-compact">
                                     <span class="stat-label">Niveau moyen</span>
-                                    <span id="guild-avg-level" class="stat-value">1.0</span>
+                                    <span id="guild-avg-level" class="stat-value">0</span>
                                 </div>
                             </div>
                             
@@ -181,7 +446,7 @@
                                 <div class="guild-recruited">
                                     <div class="column-header">
                                         <h4 class="column-title">👥 Aventuriers Recrutés</h4>
-                                        <span class="section-count" id="recruited-count">3 aventuriers</span>
+                                        <span class="section-count" id="recruited-count">0 aventurier</span>
                                     </div>
                                     
                                     <div class="guild-section">
@@ -338,25 +603,23 @@
                     </div>
                 </div>
                 
-                <div id="tab-guerre" class="tab-panel">
-                    <div class="panel-header">
-                        <h3>Défense de la Cité</h3>
-                        <p>Disponible dans les prochaines phases</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="js/classes/Resource.js"></script>
+    <script src="js/classes/BuildingType.js"></script>
     <script src="js/classes/Building.js"></script>
     <script src="js/classes/Adventurer.js"></script>
     <script src="js/classes/City.js"></script>
     <script src="js/classes/Mission.js"></script>
+    <script src="js/classes/CityUpgrade.js"></script>
     <script src="js/classes/GameManager.js"></script>
+    <script src="js/systems/BuildingManager.js"></script>
     <script src="js/systems/AdventurerManager.js"></script>
     <script src="js/systems/MissionManager.js"></script>
+    <script src="js/systems/CityUpgradeManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

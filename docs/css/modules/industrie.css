@@ -1,0 +1,113 @@
+/* === INDUSTRIE INTERFACE === */
+
+.industrie-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* === SIDEBAR INDUSTRIE === */
+
+.industrie-sidebar {
+    width: 280px;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.industrie-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.industrie-menu-btn {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 15px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.industrie-menu-btn:hover:not(:disabled) {
+    background: rgba(40, 40, 40, 0.9);
+    border-color: #666;
+    color: #fff;
+}
+
+.industrie-menu-btn.active {
+    background: rgba(160, 82, 45, 0.3);
+    border-color: #cd853f;
+    color: #deb887;
+}
+
+.industrie-menu-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #666;
+}
+
+/* === CONTENU PRINCIPAL INDUSTRIE === */
+
+.industrie-main {
+    flex: 1;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.industrie-content {
+    display: none;
+    padding: 30px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.industrie-content.active {
+    display: block;
+}
+
+.industrie-content-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #333;
+}
+
+.industrie-content-header h4 {
+    color: #fff;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.industrie-content-header p {
+    color: #aaa;
+    margin: 0;
+    font-size: 16px;
+}
+
+.locked-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #888;
+    font-size: 18px;
+    text-align: center;
+}
+
+.locked-message p {
+    margin: 0;
+}

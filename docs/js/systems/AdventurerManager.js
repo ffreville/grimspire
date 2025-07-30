@@ -31,11 +31,8 @@ class AdventurerManager {
     }
 
     generateInitialAdventurers() {
-        // Générer 3-5 aventuriers de départ
-        const count = 3 + Math.floor(Math.random() * 3);
-        for (let i = 0; i < count; i++) {
-            this.availableForRecruitment.push(this.generateRandomAdventurer());
-        }
+        // Aucun aventurier disponible au départ - ils doivent être recherchés
+        // La liste reste vide jusqu'à la première recherche
     }
 
     generateRandomAdventurer() {

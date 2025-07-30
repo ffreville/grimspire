@@ -25,35 +25,71 @@ Quand on sélectionne une expédition à faire, on affiche la liste des aventuri
 Un expédition permet de gagner de l'expérience, des butins. Les aventuriers peuvent être bléssés.
 La durée des expéditions varient.
 
-## Phase 4 : Cycles de Gameplay
+## Phase 3.5
+Dans l'onglet administration, il faudrait un sous-menu placé à gauche à la vertical avec les onglets suivants : 
+- Améliorations de la ville
+- TBD 1
+- TBD 2
+Dans l'onglet d'améliorations de la ville, il faudrait une liste d'amélioration de la ville.
+Chacune est payante et coute 100 gold, voici la liste : 
+- Débloquer la guilde des aventuriers
+- Débloquer les banques
+- Débloquer les alchimistes
+- Débloquer les enchanteurs
+- Débloquer la prison
 
-## Phase 5 : Systèmes Avancés
+Les onglets Guilde, expédition et guerre sont grisés et ne sont pas accessibles tant que l'amélioration pour débloquer la ville n'a été payée.
 
-## Phase 6 : Narration et Contenu
+## Phase 4 : Gestion des batiments
+Tous les batiments ne doivent pas être accessibles dès le début. 
+Je vais te donner la liste des tous les batiments du jeu, ainsi que la méthode de déblocage s'il y en a une.
+Si un des batiments déjà existant n'est pas dans la nouvelle liste il devra être supprimé.
+Voici la liste : 
+- Maison
+- Taverne
+- marché
+- échoppe d'artisan
+- banque - (besoin d'une amélioration)
+- mairie
+- forge
+- Alchimiste (besoin d'une amélioration)
+- Enchanteur (besoin d'une amélioration)
+- Guilde des aventuriers (besoin d'une amélioration)
+- prison (besoin d'une amélioration)
 
-### 6.1 Système Narratif
-- **Story Manager** : Progression de l'intrigue principale
-- **Quest Lines** : Chaînes de missions liées
-- **Character Development** : Histoires individuelles d'aventuriers
+Les batiments qui ne sont pas débloqués doivent être grisés dans la liste avec un message indiquant qu'il faut le débloquer.
 
-### 6.2 Contenu Procédural
-- **World Generation** : Création de régions à explorer
-- **Dungeon Variety** : Types variés de donjons
-- **Lore System** : Découverte progressive du monde
+Il faudrait revoir le système de batiments. On choisit un type de batiment à constuire dans une liste, on lui donne un nom et on le construit.
+Il faut donc aussi une liste de batiments que l'on a constuits. Pour l'affichage tu peux t'inspirer de ce qui est fait dans l'onglet expedition.
 
-## Phase 7 : Polish et Optimisation
+## Phase 5 : Refonte du menu
+Voici la nouvelle liste des onglets : 
+- Batiments
+- Commerce
+- Magie
+- Administration
+- Guilde
+- Expéditions
 
-### 7.1 Interface Utilisateur
-- **UI/UX Polish** : Amélioration ergonomie des menus
-- **Visual Feedback** : Animations, transitions fluides
-- **Accessibility** : Options d'accessibilité
+De plus, l'onglet administration doit être grisé tant qu'une mairie n'a pas été construite.
 
-### 7.2 Balance et Tuning
-- **Game Balance** : Équilibrage économique et difficulté
-- **Performance** : Optimisation des calculs
-- **Bug Fixing** : Correction des problèmes identifiés
+## Phase 6
+Tu peux mettre 5000 en argent de base.
+Il faut enlever renommer l'onglet magie en Industrie.
 
-### 7.3 Système de Achievements
-- **Achievement System** : Objectifs et récompenses
-- **Statistics** : Tracking des performances du joueur
-- **Replay Value** : Éléments encourageant la rejouabilité
+L'onglet commerce contient un sous-menu comme dans l'onglet administration.
+Voici les onglets du sous-menu :
+- Marché
+- Artisans
+- Banque
+Ces sous-onglets ne sont accessibles que si les batiments correspondants ont été construits : marché, échoppe d'artisan, banque
+L'onglet commerce doit être grisé si aucun de ses 3 batiments n'a été construit
+
+L'onglet industrie contient un sous-menu comme dans l'onglet administration.
+Voici les onglets du sous-menu :
+- Forge
+- Alchimistes
+- Enchanteurs
+
+Ces sous-onglets ne sont accessibles que si les batiments correspondants ont été construits : forge, alchimiste, enchanteur
+L'onglet industrie doit être grisé si aucun de ses 3 batiments n'a été construit

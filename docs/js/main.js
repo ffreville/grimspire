@@ -19,6 +19,15 @@ class GrimspireApp {
         
         // Navigation onglets
         this.initializeTabNavigation();
+        
+        // Navigation administration
+        this.initializeAdminNavigation();
+        
+        // Navigation commerce
+        this.initializeCommerceNavigation();
+        
+        // Navigation industrie
+        this.initializeIndustrieNavigation();
     }
 
     initializeMainMenu() {
@@ -57,6 +66,21 @@ class GrimspireApp {
         const nextPhaseBtn = document.getElementById('next-phase-btn');
         const saveGameBtn = document.getElementById('save-game-btn');
         const returnMenuBtn = document.getElementById('return-menu-btn');
+
+        // Contrôles des bâtiments
+        const closeBuildingModalBtn = document.getElementById('close-construction-modal-btn');
+        const cancelConstructionBtn = document.getElementById('cancel-construction-btn');
+        const confirmConstructionBtn = document.getElementById('confirm-construction-btn');
+        
+        if (closeBuildingModalBtn) {
+            closeBuildingModalBtn.addEventListener('click', this.closeBuildingModal.bind(this));
+        }
+        if (cancelConstructionBtn) {
+            cancelConstructionBtn.addEventListener('click', this.closeBuildingModal.bind(this));
+        }
+        if (confirmConstructionBtn) {
+            confirmConstructionBtn.addEventListener('click', this.confirmBuildingConstruction.bind(this));
+        }
 
         if (nextPhaseBtn) {
             nextPhaseBtn.addEventListener('click', this.nextPhase.bind(this));
@@ -113,6 +137,89 @@ class GrimspireApp {
         });
     }
 
+    initializeAdminNavigation() {
+        const adminMenuButtons = document.querySelectorAll('.admin-menu-btn');
+        adminMenuButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (!e.target.disabled) {
+                    const adminTab = e.target.getAttribute('data-admin-tab');
+                    this.switchAdminTab(adminTab);
+                }
+            });
+        });
+    }
+
+    switchAdminTab(adminTabName) {
+        // Mettre à jour les boutons du menu admin
+        document.querySelectorAll('.admin-menu-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-admin-tab="${adminTabName}"]`)?.classList.add('active');
+
+        // Mettre à jour les contenus admin
+        document.querySelectorAll('.admin-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`admin-${adminTabName}`)?.classList.add('active');
+        
+        // Charger le contenu spécifique selon l'onglet admin
+        if (adminTabName === 'upgrades') {
+            this.renderCityUpgrades();
+        }
+    }
+
+    initializeCommerceNavigation() {
+        const commerceMenuButtons = document.querySelectorAll('.commerce-menu-btn');
+        commerceMenuButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (!e.target.disabled) {
+                    const commerceTab = e.target.getAttribute('data-commerce-tab');
+                    this.switchCommerceTab(commerceTab);
+                }
+            });
+        });
+    }
+
+    switchCommerceTab(commerceTabName) {
+        // Mettre à jour les boutons du menu commerce
+        document.querySelectorAll('.commerce-menu-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-commerce-tab="${commerceTabName}"]`)?.classList.add('active');
+
+        // Mettre à jour les contenus commerce
+        document.querySelectorAll('.commerce-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`commerce-${commerceTabName}`)?.classList.add('active');
+    }
+
+    initializeIndustrieNavigation() {
+        const industrieMenuButtons = document.querySelectorAll('.industrie-menu-btn');
+        industrieMenuButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (!e.target.disabled) {
+                    const industrieTab = e.target.getAttribute('data-industrie-tab');
+                    this.switchIndustrieTab(industrieTab);
+                }
+            });
+        });
+    }
+
+    switchIndustrieTab(industrieTabName) {
+        // Mettre à jour les boutons du menu industrie
+        document.querySelectorAll('.industrie-menu-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-industrie-tab="${industrieTabName}"]`)?.classList.add('active');
+
+        // Mettre à jour les contenus industrie
+        document.querySelectorAll('.industrie-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`industrie-${industrieTabName}`)?.classList.add('active');
+    }
+
     startNewGame() {
         console.log('Démarrage d\'une nouvelle partie...');
         
@@ -122,11 +229,15 @@ class GrimspireApp {
                 this.switchToGameScreen();
                 this.updateGameInterface(gameState);
                 this.renderBuildings();
+                // Mettre à jour la disponibilité des onglets
+                this.updateTabsAvailability();
                 // Affichage initial selon l'onglet actuel
                 if (this.gameManager.currentTab === 'guilde') {
                     this.renderGuild();
                 } else if (this.gameManager.currentTab === 'expedition') {
                     this.renderExpeditions();
+                } else if (this.gameManager.currentTab === 'administration') {
+                    this.renderAdministration();
                 }
             });
         }
@@ -140,11 +251,15 @@ class GrimspireApp {
                 this.switchToGameScreen();
                 this.updateGameInterface(this.gameManager.getCurrentGameState());
                 this.renderBuildings();
+                // Mettre à jour la disponibilité des onglets
+                this.updateTabsAvailability();
                 // Affichage initial selon l'onglet actuel
                 if (this.gameManager.currentTab === 'guilde') {
                     this.renderGuild();
                 } else if (this.gameManager.currentTab === 'expedition') {
                     this.renderExpeditions();
+                } else if (this.gameManager.currentTab === 'administration') {
+                    this.renderAdministration();
                 }
             });
         } else {
@@ -175,6 +290,21 @@ class GrimspireApp {
     }
 
     switchTab(tabName) {
+        // Vérifier si l'onglet est désactivé
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton && tabButton.disabled) {
+            let requiredUpgrade = '';
+            if (tabName === 'guilde' || tabName === 'expedition' || tabName === 'guerre') {
+                requiredUpgrade = 'Débloquer la guilde des aventuriers';
+            }
+            
+            this.showActionResult({
+                success: false,
+                message: `Onglet verrouillé. Requis: ${requiredUpgrade}`
+            });
+            return;
+        }
+        
         this.gameManager.switchTab(tabName);
         this.updateActiveTab(tabName);
         
@@ -185,6 +315,8 @@ class GrimspireApp {
             this.renderGuild();
         } else if (tabName === 'expedition') {
             this.renderExpeditions();
+        } else if (tabName === 'administration') {
+            this.renderAdministration();
         }
     }
 
@@ -231,50 +363,178 @@ class GrimspireApp {
     }
 
     renderBuildings() {
-        const buildingsContainer = document.getElementById('buildings-list');
-        if (!buildingsContainer) return;
+        const buildingInfo = this.gameManager.getBuildingTypesInfo();
+        if (!buildingInfo) return;
 
-        const buildings = this.gameManager.getBuildingsInfo();
-        
-        buildingsContainer.innerHTML = '';
-        
+        this.updateBuildingStats(buildingInfo.stats);
+        this.renderConstructedBuildings(this.gameManager.getBuildingsInfo());
+        this.renderAvailableBuildingTypes(buildingInfo.available);
+        this.renderLockedBuildingTypes(buildingInfo.locked);
+    }
+
+    updateBuildingStats(stats) {
+        document.getElementById('buildings-total-count').textContent = stats.total;
+        document.getElementById('buildings-avg-level').textContent = stats.averageLevel;
+        document.getElementById('building-types-available').textContent = Object.keys(stats.districts).length;
+        document.getElementById('building-types-locked').textContent = this.gameManager.getBuildingTypesInfo().locked.length;
+        document.getElementById('constructed-count').textContent = `${stats.total} bâtiment${stats.total > 1 ? 's' : ''}`;
+    }
+
+    renderConstructedBuildings(buildings) {
+        const container = document.getElementById('constructed-buildings');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (buildings.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <p>Aucun bâtiment construit</p>
+                    <p style="font-size: 0.9rem;">Sélectionnez un type de bâtiment à droite pour commencer</p>
+                </div>
+            `;
+            return;
+        }
+
         buildings.forEach(building => {
-            const buildingCard = this.createBuildingCard(building);
-            buildingsContainer.appendChild(buildingCard);
+            const card = this.createConstructedBuildingCard(building);
+            container.appendChild(card);
         });
     }
 
-    createBuildingCard(building) {
+    renderAvailableBuildingTypes(buildingTypes) {
+        const container = document.getElementById('available-building-types');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (buildingTypes.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <p>Aucun type de bâtiment disponible</p>
+                    <p style="font-size: 0.9rem;">Débloquez des améliorations dans l'onglet Administration</p>
+                </div>
+            `;
+            return;
+        }
+
+        buildingTypes.forEach(buildingType => {
+            const card = this.createBuildingTypeCard(buildingType, false);
+            container.appendChild(card);
+        });
+    }
+
+    renderLockedBuildingTypes(buildingTypes) {
+        const container = document.getElementById('locked-building-types');
+        if (!container) return;
+
+        container.innerHTML = '';
+        document.getElementById('locked-types-count').textContent = `${buildingTypes.length} type${buildingTypes.length > 1 ? 's' : ''} verrouillé${buildingTypes.length > 1 ? 's' : ''}`;
+
+        if (buildingTypes.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    <p>Tous les types de bâtiments débloqués !</p>
+                </div>
+            `;
+            return;
+        }
+
+        buildingTypes.forEach(buildingType => {
+            const card = this.createBuildingTypeCard(buildingType, true);
+            container.appendChild(card);
+        });
+    }
+
+    createConstructedBuildingCard(building) {
         const card = document.createElement('div');
-        card.className = `building-card ${building.built ? 'built' : ''}`;
+        card.className = 'building-card';
         
         const effects = this.formatEffects(building.effects);
         const cost = this.formatCost(building.upgradeCost);
         
         card.innerHTML = `
             <div class="building-header">
-                <h4 class="building-name">${building.name}</h4>
+                <div class="building-icon">${building.icon}</div>
+                <div class="building-info">
+                    <h4>${building.customName}</h4>
+                    <div class="building-type">${building.typeName}</div>
+                </div>
                 <span class="building-level">Niv. ${building.level}/${building.maxLevel}</span>
             </div>
             <div class="building-district">District: ${building.district}</div>
             
             <div class="building-effects">
-                <h4>Effets:</h4>
+                <h4>Effets actuels:</h4>
                 <div class="effects-list">
                     ${effects}
                 </div>
             </div>
             
-            <div class="building-cost">
-                <strong>${building.built ? 'Coût amélioration:' : 'Coût construction:'}</strong>
-                <div class="cost-list">
-                    ${cost}
+            ${building.level < building.maxLevel ? `
+                <div class="building-cost">
+                    <strong>Coût amélioration:</strong>
+                    <div class="cost-list">
+                        ${cost}
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="building-actions">
+                ${this.createConstructedBuildingActions(building)}
+            </div>
+        `;
+        
+        return card;
+    }
+
+    createBuildingTypeCard(buildingType, isLocked) {
+        const card = document.createElement('div');
+        card.className = `building-type-card ${isLocked ? 'locked' : ''}`;
+        
+        if (!isLocked) {
+            card.onclick = () => this.openBuildingConstructionModal(buildingType.id);
+        }
+        
+        // Récupérer l'instance complète du BuildingType pour accéder aux méthodes
+        const fullBuildingType = this.gameManager.buildingManager.getBuildingTypeById(buildingType.id);
+        const effectsAtLevel1 = this.formatEffects(fullBuildingType.getEffectsAtLevel(1));
+        const baseCost = this.formatCost(buildingType.baseCost);
+        const statusClass = isLocked ? 'locked' : 'available';
+        const statusText = isLocked ? 'Verrouillé' : 'Disponible';
+        
+        card.innerHTML = `
+            <div class="building-type-header">
+                <div class="building-icon">${buildingType.icon}</div>
+                <div class="building-type-info">
+                    <h5>${buildingType.name}</h5>
+                    <div class="unlock-status ${statusClass}">${statusText}</div>
                 </div>
             </div>
             
-            <div class="building-actions">
-                ${this.createBuildingActions(building)}
+            <div class="building-type-description">
+                ${buildingType.description}
             </div>
+            
+            <div class="building-effects">
+                <h4>Effets (Niv. 1):</h4>
+                <div class="effects-list">
+                    ${effectsAtLevel1}
+                </div>
+            </div>
+            
+            <div class="building-cost">
+                <strong>Coût de base:</strong>
+                <div class="cost-list">
+                    ${baseCost}
+                </div>
+            </div>
+            
+            ${isLocked && buildingType.unlockRequirement ? `
+                <div style="margin-top: 10px; padding: 8px; background: rgba(139, 90, 60, 0.2); border-radius: 4px; border: 1px solid #8b5a3c;">
+                    <small style="color: #8b5a3c;">Requis: Amélioration correspondante</small>
+                </div>
+            ` : ''}
         `;
         
         return card;
@@ -325,30 +585,38 @@ class GrimspireApp {
             .join(' | ');
     }
 
-    createBuildingActions(building) {
+    createConstructedBuildingActions(building) {
         const resources = this.gameManager.getResourcesInfo();
         const canAfford = resources && this.canAffordCost(resources, building.upgradeCost);
-        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(building.built ? 1 : 2);
+        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(1);
         
-        if (!building.built) {
-            return `
+        const actions = [];
+        
+        if (building.level < building.maxLevel) {
+            actions.push(`
                 <button class="building-btn primary" 
-                        onclick="app.buildBuilding('${building.id}')"
-                        ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
-                    Construire
-                </button>
-            `;
-        } else if (building.level < building.maxLevel) {
-            return `
-                <button class="building-btn" 
                         onclick="app.upgradeBuilding('${building.id}')"
                         ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
                     Améliorer
                 </button>
-            `;
+            `);
         } else {
-            return `<button class="building-btn" disabled>Niveau Maximum</button>`;
+            actions.push(`<button class="building-btn" disabled>Niveau Max</button>`);
         }
+        
+        // Bouton de démolition (sauf pour certains bâtiments protégés)
+        if (building.typeId !== 'mairie') {
+            const canDemolish = this.gameManager.city && this.gameManager.city.canPerformAction(1);
+            actions.push(`
+                <button class="building-btn danger" 
+                        onclick="app.demolishBuilding('${building.id}')"
+                        ${!canDemolish ? 'disabled' : ''}>
+                    Détruire
+                </button>
+            `);
+        }
+        
+        return actions.join('');
     }
 
     canAffordCost(resources, cost) {
@@ -357,8 +625,64 @@ class GrimspireApp {
         });
     }
 
-    buildBuilding(buildingId) {
-        const result = this.gameManager.performBuildingAction(buildingId, 'build');
+    // Nouvelles méthodes pour le système de bâtiments
+    openBuildingConstructionModal(buildingTypeId) {
+        this.currentBuildingTypeId = buildingTypeId;
+        const buildingTypesInfo = this.gameManager.getBuildingTypesInfo();
+        const buildingType = buildingTypesInfo.all.find(type => type.id === buildingTypeId);
+        
+        if (!buildingType) {
+            this.showActionResult({ success: false, message: 'Type de bâtiment introuvable' });
+            return;
+        }
+
+        // Remplir la modal avec les informations du type de bâtiment
+        document.getElementById('modal-building-type-name').textContent = `Construire: ${buildingType.name}`;
+        document.getElementById('modal-building-icon').textContent = buildingType.icon;
+        document.getElementById('modal-building-name').textContent = buildingType.name;
+        document.getElementById('modal-building-description').textContent = buildingType.description;
+        
+        // Afficher le coût
+        const costHtml = this.formatCost(buildingType.baseCost);
+        document.getElementById('modal-construction-cost').innerHTML = costHtml;
+        
+        // Récupérer l'instance complète du BuildingType pour accéder aux méthodes
+        const fullBuildingType = this.gameManager.buildingManager.getBuildingTypeById(buildingType.id);
+        // Afficher les effets réels au niveau 1
+        const effectsAtLevel1 = fullBuildingType.getEffectsAtLevel(1);
+        const effectsHtml = this.formatEffects(effectsAtLevel1);
+        document.getElementById('modal-building-effects').innerHTML = effectsHtml;
+        
+        // Réinitialiser le formulaire
+        document.getElementById('building-custom-name').value = '';
+        
+        // Afficher la modal
+        document.getElementById('building-construction-modal').classList.add('active');
+    }
+
+    closeBuildingModal() {
+        document.getElementById('building-construction-modal').classList.remove('active');
+        this.currentBuildingTypeId = null;
+    }
+
+    confirmBuildingConstruction() {
+        if (!this.currentBuildingTypeId) return;
+        
+        const customName = document.getElementById('building-custom-name').value.trim();
+        
+        const result = this.gameManager.constructBuilding(this.currentBuildingTypeId, customName);
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.closeBuildingModal();
+            this.renderBuildings();
+            // Mettre à jour la disponibilité des onglets (en cas de construction d'une mairie)
+            this.updateTabsAvailability();
+        }
+    }
+
+    upgradeBuilding(buildingId) {
+        const result = this.gameManager.upgradeBuilding(buildingId);
         this.showActionResult(result);
         
         if (result.success) {
@@ -366,8 +690,16 @@ class GrimspireApp {
         }
     }
 
-    upgradeBuilding(buildingId) {
-        const result = this.gameManager.performBuildingAction(buildingId, 'upgrade');
+    demolishBuilding(buildingId) {
+        // Demander confirmation
+        const building = this.gameManager.getBuildingsInfo().find(b => b.id === buildingId);
+        if (!building) return;
+        
+        if (!confirm(`Êtes-vous sûr de vouloir détruire "${building.customName}" ?\n\nVous récupérerez 30% des ressources investîs.`)) {
+            return;
+        }
+        
+        const result = this.gameManager.demolishBuilding(buildingId);
         this.showActionResult(result);
         
         if (result.success) {
@@ -394,14 +726,15 @@ class GrimspireApp {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${result.success ? 'rgba(74, 124, 89, 0.9)' : 'rgba(139, 90, 60, 0.9)'};
+            background: ${result.success ? 'rgba(74, 124, 89, 0.95)' : 'rgba(139, 90, 60, 0.95)'};
             color: #e8e6e3;
             padding: 15px 20px;
             border-radius: 8px;
             border: 2px solid ${result.success ? '#4a7c59' : '#8b5a3c'};
-            z-index: 1000;
+            z-index: 2500;
             font-size: 0.9rem;
             max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         `;
         
         message.textContent = result.message;
@@ -1057,6 +1390,274 @@ class GrimspireApp {
         document.getElementById('adventurer-selection-modal').classList.remove('active');
         this.currentMissionId = null;
         this.selectedAdventurers = [];
+    }
+
+    // === MÉTHODES POUR L'ONGLET ADMINISTRATION ===
+
+    renderAdministration() {
+        // Par défaut, afficher l'onglet des améliorations
+        this.renderCityUpgrades();
+    }
+
+    renderCityUpgrades() {
+        const upgradeInfo = this.gameManager.getUpgradeInfo();
+        if (!upgradeInfo) return;
+
+        this.renderUpgradesList(upgradeInfo.all);
+    }
+
+    renderUpgradesList(upgrades) {
+        const container = document.getElementById('city-upgrades-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (upgrades.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <p>Aucune amélioration disponible</p>
+                </div>
+            `;
+            return;
+        }
+
+        upgrades.forEach(upgrade => {
+            const card = this.createUpgradeCard(upgrade);
+            container.appendChild(card);
+        });
+    }
+
+    createUpgradeCard(upgrade) {
+        const card = document.createElement('div');
+        card.className = `upgrade-card ${upgrade.unlocked ? 'unlocked' : ''}`;
+
+        const costHtml = this.formatCost(upgrade.cost);
+        const statusClass = upgrade.unlocked ? 'unlocked' : 'available';
+        const statusText = upgrade.unlocked ? 'Débloqué' : 'Disponible';
+
+        card.innerHTML = `
+            <div class="upgrade-header">
+                <div class="upgrade-icon">${upgrade.icon}</div>
+                <div class="upgrade-info">
+                    <h5>${upgrade.name}</h5>
+                    <div class="upgrade-status ${statusClass}">${statusText}</div>
+                </div>
+            </div>
+            
+            <div class="upgrade-description">
+                ${upgrade.description}
+            </div>
+            
+            <div class="upgrade-cost">
+                <div class="upgrade-cost-label">Coût:</div>
+                <div class="upgrade-cost-items">
+                    ${costHtml}
+                </div>
+            </div>
+            
+            <div class="upgrade-actions">
+                ${this.createUpgradeActions(upgrade)}
+            </div>
+        `;
+
+        return card;
+    }
+
+    createUpgradeActions(upgrade) {
+        if (upgrade.unlocked) {
+            return `<button class="upgrade-btn unlocked" disabled>Débloqué</button>`;
+        }
+
+        const resources = this.gameManager.getResourcesInfo();
+        const canAfford = resources && this.canAffordCost(resources, upgrade.cost);
+        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(1);
+
+        return `
+            <button class="upgrade-btn" 
+                    onclick="app.unlockUpgrade('${upgrade.id}')"
+                    ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
+                Débloquer
+            </button>
+        `;
+    }
+
+    unlockUpgrade(upgradeId) {
+        const result = this.gameManager.unlockUpgrade(upgradeId);
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderCityUpgrades();
+            // Mettre à jour les onglets qui pourraient être débloqués
+            this.updateTabsAvailability();
+        }
+    }
+
+    updateTabsAvailability() {
+        const guildTab = document.querySelector('[data-tab="guilde"]');
+        const expeditionTab = document.querySelector('[data-tab="expedition"]');
+        const administrationTab = document.querySelector('[data-tab="administration"]');
+        const commerceTab = document.querySelector('[data-tab="commerce"]');
+        const industrieTab = document.querySelector('[data-tab="industrie"]');
+
+        // Vérifier si la guilde est débloquée
+        const isGuildUnlocked = this.gameManager.isUpgradeUnlocked('guild_unlock');
+        
+        // Vérifier si une mairie est construite
+        const hasCityHall = this.gameManager.hasCityHall();
+        
+        // Vérifier les bâtiments commerciaux
+        const commercialBuildings = this.gameManager.hasCommercialBuildings();
+        
+        // Vérifier les bâtiments industriels
+        const industrialBuildings = this.gameManager.hasIndustrialBuildings();
+        
+        if (guildTab) {
+            if (isGuildUnlocked) {
+                guildTab.disabled = false;
+                guildTab.style.opacity = '1';
+                guildTab.style.cursor = 'pointer';
+            } else {
+                guildTab.disabled = true;
+                guildTab.style.opacity = '0.5';
+                guildTab.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (expeditionTab) {
+            if (isGuildUnlocked) {
+                expeditionTab.disabled = false;
+                expeditionTab.style.opacity = '1';
+                expeditionTab.style.cursor = 'pointer';
+            } else {
+                expeditionTab.disabled = true;
+                expeditionTab.style.opacity = '0.5';
+                expeditionTab.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (administrationTab) {
+            if (hasCityHall) {
+                administrationTab.disabled = false;
+                administrationTab.style.opacity = '1';
+                administrationTab.style.cursor = 'pointer';
+            } else {
+                administrationTab.disabled = true;
+                administrationTab.style.opacity = '0.5';
+                administrationTab.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (commerceTab) {
+            if (commercialBuildings.hasAny) {
+                commerceTab.disabled = false;
+                commerceTab.style.opacity = '1';
+                commerceTab.style.cursor = 'pointer';
+            } else {
+                commerceTab.disabled = true;
+                commerceTab.style.opacity = '0.5';
+                commerceTab.style.cursor = 'not-allowed';
+            }
+        }
+
+        if (industrieTab) {
+            if (industrialBuildings.hasAny) {
+                industrieTab.disabled = false;
+                industrieTab.style.opacity = '1';
+                industrieTab.style.cursor = 'pointer';
+            } else {
+                industrieTab.disabled = true;
+                industrieTab.style.opacity = '0.5';
+                industrieTab.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Mettre à jour les sous-menus
+        this.updateCommerceSubTabs(commercialBuildings);
+        this.updateIndustrieSubTabs(industrialBuildings);
+    }
+
+    updateCommerceSubTabs(commercialBuildings) {
+        const marcheBtn = document.querySelector('[data-commerce-tab="marche"]');
+        const artisansBtn = document.querySelector('[data-commerce-tab="artisans"]');
+        const banqueBtn = document.querySelector('[data-commerce-tab="banque"]');
+
+        if (marcheBtn) {
+            if (commercialBuildings.marche) {
+                marcheBtn.disabled = false;
+                marcheBtn.textContent = '🏪 Marché';
+                marcheBtn.style.opacity = '1';
+            } else {
+                marcheBtn.disabled = true;
+                marcheBtn.textContent = '🔒 Marché';
+                marcheBtn.style.opacity = '0.5';
+            }
+        }
+
+        if (artisansBtn) {
+            if (commercialBuildings.artisan) {
+                artisansBtn.disabled = false;
+                artisansBtn.textContent = '🔨 Artisans';
+                artisansBtn.style.opacity = '1';
+            } else {
+                artisansBtn.disabled = true;
+                artisansBtn.textContent = '🔒 Artisans';
+                artisansBtn.style.opacity = '0.5';
+            }
+        }
+
+        if (banqueBtn) {
+            if (commercialBuildings.banque) {
+                banqueBtn.disabled = false;
+                banqueBtn.textContent = '🏦 Banque';
+                banqueBtn.style.opacity = '1';
+            } else {
+                banqueBtn.disabled = true;
+                banqueBtn.textContent = '🔒 Banque';
+                banqueBtn.style.opacity = '0.5';
+            }
+        }
+    }
+
+    updateIndustrieSubTabs(industrialBuildings) {
+        const forgeBtn = document.querySelector('[data-industrie-tab="forge"]');
+        const alchimistesBtn = document.querySelector('[data-industrie-tab="alchimistes"]');
+        const enchanteursBtn = document.querySelector('[data-industrie-tab="enchanteurs"]');
+
+        if (forgeBtn) {
+            if (industrialBuildings.forge) {
+                forgeBtn.disabled = false;
+                forgeBtn.textContent = '⚒️ Forge';
+                forgeBtn.style.opacity = '1';
+            } else {
+                forgeBtn.disabled = true;
+                forgeBtn.textContent = '🔒 Forge';
+                forgeBtn.style.opacity = '0.5';
+            }
+        }
+
+        if (alchimistesBtn) {
+            if (industrialBuildings.alchimiste) {
+                alchimistesBtn.disabled = false;
+                alchimistesBtn.textContent = '🧪 Alchimistes';
+                alchimistesBtn.style.opacity = '1';
+            } else {
+                alchimistesBtn.disabled = true;
+                alchimistesBtn.textContent = '🔒 Alchimistes';
+                alchimistesBtn.style.opacity = '0.5';
+            }
+        }
+
+        if (enchanteursBtn) {
+            if (industrialBuildings.enchanteur) {
+                enchanteursBtn.disabled = false;
+                enchanteursBtn.textContent = '✨ Enchanteurs';
+                enchanteursBtn.style.opacity = '1';
+            } else {
+                enchanteursBtn.disabled = true;
+                enchanteursBtn.textContent = '🔒 Enchanteurs';
+                enchanteursBtn.style.opacity = '0.5';
+            }
+        }
     }
 }
 

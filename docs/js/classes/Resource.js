@@ -2,7 +2,7 @@
  * Classe Resource - Gestion des ressources de la ville
  */
 class Resource {
-    constructor(gold = 1000, population = 50, materials = 100, magic = 20, reputation = 50) {
+    constructor(gold = 10000, population = 0, materials = 2000, magic = 0, reputation = 0) {
         this.gold = gold;
         this.population = population;
         this.materials = materials;

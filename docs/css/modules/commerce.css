@@ -1,0 +1,113 @@
+/* === COMMERCE INTERFACE === */
+
+.commerce-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* === SIDEBAR COMMERCE === */
+
+.commerce-sidebar {
+    width: 280px;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.commerce-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.commerce-menu-btn {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 15px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.commerce-menu-btn:hover:not(:disabled) {
+    background: rgba(40, 40, 40, 0.9);
+    border-color: #666;
+    color: #fff;
+}
+
+.commerce-menu-btn.active {
+    background: rgba(70, 130, 180, 0.3);
+    border-color: #4682b4;
+    color: #87ceeb;
+}
+
+.commerce-menu-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #666;
+}
+
+/* === CONTENU PRINCIPAL COMMERCE === */
+
+.commerce-main {
+    flex: 1;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.commerce-content {
+    display: none;
+    padding: 30px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.commerce-content.active {
+    display: block;
+}
+
+.commerce-content-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #333;
+}
+
+.commerce-content-header h4 {
+    color: #fff;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.commerce-content-header p {
+    color: #aaa;
+    margin: 0;
+    font-size: 16px;
+}
+
+.locked-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #888;
+    font-size: 18px;
+    text-align: center;
+}
+
+.locked-message p {
+    margin: 0;
+}

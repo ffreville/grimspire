@@ -295,14 +295,38 @@ class Mission {
     getFormattedDuration() {
         const hours = Math.floor(this.duration);
         const minutes = Math.floor((this.duration % 1) * 60);
-        return minutes > 0 ? `${hours}h${minutes}m` : `${hours}h`;
+        
+        // Si moins d'1 heure, afficher seulement les minutes
+        if (hours === 0) {
+            return `${minutes}min`;
+        }
+        
+        // Si exactement des heures pleines
+        if (minutes === 0) {
+            return `${hours}h`;
+        }
+        
+        // Heures + minutes
+        return `${hours}h${minutes}min`;
     }
 
     getFormattedRemainingTime(currentTime) {
         const remaining = this.getRemainingTime(currentTime);
         const hours = Math.floor(remaining / (60 * 60 * 1000));
         const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-        return `${hours}h${minutes}m`;
+        
+        // Si moins d'1 heure, afficher seulement les minutes
+        if (hours === 0) {
+            return `${minutes}min`;
+        }
+        
+        // Si exactement des heures pleines
+        if (minutes === 0) {
+            return `${hours}h`;
+        }
+        
+        // Heures + minutes
+        return `${hours}h${minutes}min`;
     }
 
     getDifficultyStars() {

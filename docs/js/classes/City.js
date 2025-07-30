@@ -17,23 +17,9 @@ class City {
     }
 
     initializeStartingBuildings() {
-        // Bâtiments de départ
-        const startingBuildings = [
-            new Building('house_1', 'Maison 1', 'maison', 'residentiel'),
-            new Building('house_2', 'Maison 2', 'maison', 'residentiel'),
-            new Building('tavern_1', 'La Chope Dorée', 'taverne', 'residentiel'),
-            new Building('market_1', 'Marché Central', 'marche', 'commercial'),
-            new Building('forge_1', 'Forge du Marteau', 'forge', 'industriel'),
-            new Building('town_hall', 'Mairie', 'mairie', 'administratif')
-        ];
-        
-        // Construire quelques bâtiments de base
-        startingBuildings.forEach((building, index) => {
-            if (index < 3) { // Les 3 premiers sont construits
-                building.build();
-            }
-            this.buildings.push(building);
-        });
+        // Le nouveau système n'a plus de bâtiments prédéfinis
+        // Les bâtiments sont créés à la demande lors de la construction
+        // Cette méthode est conservée pour la compatibilité mais ne fait rien
     }
 
     addBuilding(building) {
@@ -128,8 +114,10 @@ class City {
             if (effects.reputationPerTurn) dailyGain.reputation += effects.reputationPerTurn;
         });
         
-        // Ajouter un minimum de base
-        dailyGain.gold += 50; // Revenu de base
+        // Revenu de base seulement s'il y a des bâtiments construits
+        if (builtBuildings.length > 0) {
+            dailyGain.gold += 50; // Revenu de base
+        }
         
         this.resources.gain(dailyGain);
         
@@ -214,11 +202,27 @@ class City {
         };
     }
 
-    static fromJSON(data) {
+    static fromJSON(data, buildingTypes = null) {
         const city = new City(data.name);
         city.resources = Resource.fromJSON(data.resources);
-        city.buildings = data.buildings.map(b => Building.fromJSON(b));
-        city.adventurers = data.adventurers.map(a => Adventurer.fromJSON(a));
+        
+        // Pour la compatibilité, supporter l'ancien et le nouveau format de bâtiments
+        if (data.buildings && buildingTypes) {
+            city.buildings = data.buildings.map(b => {
+                if (b.buildingTypeId) {
+                    // Nouveau format
+                    return Building.fromJSON(b, buildingTypes);
+                } else {
+                    // Ancien format - convertir ou ignorer
+                    console.warn('Format de bâtiment obsolète détecté, ignoré');
+                    return null;
+                }
+            }).filter(b => b !== null);
+        } else {
+            city.buildings = [];
+        }
+        
+        city.adventurers = data.adventurers ? data.adventurers.map(a => Adventurer.fromJSON(a)) : [];
         city.day = data.day || 1;
         city.isNight = data.isNight || false;
         city.actionPoints = data.actionPoints || { day: 3, night: 2 };

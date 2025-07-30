@@ -1,0 +1,335 @@
+/* === ADMINISTRATION INTERFACE === */
+
+.administration-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 20px;
+    padding: 20px;
+}
+
+/* === SIDEBAR ADMINISTRATION === */
+
+.admin-sidebar {
+    width: 280px;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar .sidebar-header {
+    margin-bottom: 25px;
+    text-align: center;
+    border-bottom: 1px solid #4a4a4a;
+    padding-bottom: 15px;
+}
+
+.admin-sidebar .sidebar-header h3 {
+    color: #d4af37;
+    font-size: 1.4rem;
+    margin: 0 0 8px 0;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.admin-sidebar .sidebar-header p {
+    color: #b8b8b8;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* === MENU VERTICAL === */
+
+.admin-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-menu-btn {
+    background: rgba(60, 60, 60, 0.8);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    color: #e8e6e3;
+    padding: 15px 18px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 50px;
+}
+
+.admin-menu-btn:hover:not(:disabled) {
+    background: rgba(80, 80, 80, 0.9);
+    border-color: #6a6a6a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.admin-menu-btn.active {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #d4af37;
+    color: #d4af37;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+}
+
+.admin-menu-btn:disabled {
+    background: rgba(40, 40, 40, 0.5);
+    border-color: #333;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* === ZONE PRINCIPALE === */
+
+.admin-main {
+    flex: 1;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.admin-content {
+    display: none;
+}
+
+.admin-content.active {
+    display: block;
+}
+
+.admin-content-header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #4a4a4a;
+    padding-bottom: 20px;
+}
+
+.admin-content-header h4 {
+    color: #d4af37;
+    font-size: 1.6rem;
+    margin: 0 0 10px 0;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.admin-content-header p {
+    color: #b8b8b8;
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* === GRILLE DES AMÉLIORATIONS === */
+
+.upgrades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 20px;
+}
+
+.upgrade-card {
+    background: rgba(40, 40, 40, 0.9);
+    border: 2px solid #4a4a4a;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.upgrade-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border-color: #6a6a6a;
+}
+
+.upgrade-card.unlocked {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.upgrade-card.unlocked .upgrade-header {
+    color: #4a7c59;
+}
+
+/* === EN-TÊTE D'AMÉLIORATION === */
+
+.upgrade-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.upgrade-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(60, 60, 60, 0.8);
+    border-radius: 10px;
+    border: 2px solid #4a4a4a;
+}
+
+.upgrade-info h5 {
+    color: #e8e6e3;
+    font-size: 1.2rem;
+    margin: 0 0 5px 0;
+    font-weight: 600;
+}
+
+.upgrade-status {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.upgrade-status.available {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+    border: 1px solid #d4af37;
+}
+
+.upgrade-status.unlocked {
+    background: rgba(74, 124, 89, 0.2);
+    color: #4a7c59;
+    border: 1px solid #4a7c59;
+}
+
+/* === DESCRIPTION ET COÛT === */
+
+.upgrade-description {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.upgrade-cost {
+    margin-bottom: 20px;
+}
+
+.upgrade-cost-label {
+    color: #b8b8b8;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.upgrade-cost-items {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.cost-item {
+    background: rgba(60, 60, 60, 0.8);
+    border: 1px solid #4a4a4a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    color: #e8e6e3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* === ACTIONS D'AMÉLIORATION === */
+
+.upgrade-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.upgrade-btn {
+    background: rgba(212, 175, 55, 0.9);
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    color: #1a1a1a;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.upgrade-btn:hover:not(:disabled) {
+    background: #d4af37;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+}
+
+.upgrade-btn:disabled {
+    background: rgba(100, 100, 100, 0.3);
+    border-color: #666;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.upgrade-btn.unlocked {
+    background: rgba(74, 124, 89, 0.9);
+    border-color: #4a7c59;
+    color: #fff;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 1200px) {
+    .administration-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .admin-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 10px;
+    }
+    
+    .admin-menu-btn {
+        white-space: nowrap;
+        min-width: 200px;
+    }
+    
+    .upgrades-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .administration-container {
+        padding: 15px;
+    }
+    
+    .admin-main {
+        padding: 20px;
+    }
+    
+    .upgrade-card {
+        padding: 15px;
+    }
+    
+    .upgrade-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .upgrade-actions {
+        justify-content: center;
+    }
+}
