@@ -11,6 +11,7 @@ class GameManager {
         this.gameState = 'menu'; // 'menu', 'playing', 'paused'
         this.currentTab = 'batiments';
         this.saveKey = 'grimspire_save';
+        this.gameTimer = null;
         
         // Callbacks pour les mises à jour UI
         this.onStateChange = null;
@@ -39,11 +40,17 @@ class GameManager {
         // Créer le gestionnaire de bâtiments
         this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
         
+        // Configurer les callbacks
+        this.city.setNewDayCallback(this.processNewDay.bind(this));
+        
         // Changer l'état du jeu
         this.gameState = 'playing';
         
         // Sauvegarder automatiquement
         this.autoSave();
+        
+        // Démarrer le timer de jeu
+        this.startGameTimer();
         
         // Notifier les changements
         this.notifyStateChange();
@@ -98,6 +105,12 @@ class GameManager {
                     this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
                 }
                 
+                // Configurer les callbacks
+                this.city.setNewDayCallback(this.processNewDay.bind(this));
+                
+                // Démarrer le timer de jeu si pas déjà démarré
+                this.startGameTimer();
+                
                 this.notifyStateChange();
                 return true;
             }
@@ -136,6 +149,58 @@ class GameManager {
 
     hasSaveData() {
         return localStorage.getItem(this.saveKey) !== null;
+    }
+
+    startGameTimer() {
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+        }
+        
+        // 24h jeu (1 jour) = 1min réel = 60s réel
+        // Donc 1min jeu = 60/1440 = 0.041667s réel ≈ 42ms
+        const gameMinuteInMs = (60 * 1000) / 1440; // ≈ 42ms
+        
+        this.gameTimer = setInterval(() => {
+            if (this.city && !this.city.isPaused) {
+                this.city.advanceTime(1);
+                this.notifyStateChange();
+                
+                // Sauvegarde automatique toutes les heures de jeu
+                if (this.city.currentTime % 60 === 0) {
+                    this.autoSave();
+                }
+            }
+        }, gameMinuteInMs);
+    }
+
+    stopGameTimer() {
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
+    }
+
+    pauseGame() {
+        if (this.city) {
+            this.city.pauseGame();
+            this.notifyStateChange();
+        }
+    }
+
+    resumeGame() {
+        if (this.city) {
+            this.city.resumeGame();
+            this.notifyStateChange();
+        }
+    }
+
+    toggleGamePause() {
+        if (this.city) {
+            this.city.togglePause();
+            this.notifyStateChange();
+            return this.city.isPaused;
+        }
+        return false;
     }
 
     switchTab(tabName) {
@@ -207,12 +272,11 @@ class GameManager {
         return result;
     }
 
-    switchTimePhase() {
+    // Méthode appelée quand un nouveau jour commence (à minuit)
+    processNewDay() {
         if (!this.city) return;
         
-        this.city.switchTimePhase();
-        
-        // Traiter le changement de phase pour les gestionnaires
+        // Traiter le changement de jour pour les gestionnaires
         if (this.adventurerManager) {
             this.adventurerManager.processTurnChange();
         }
@@ -302,6 +366,27 @@ class GameManager {
         };
     }
 
+    getDailyGains() {
+        if (!this.city) return { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
+        
+        const builtBuildings = this.city.getBuiltBuildings();
+        let dailyGain = { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
+        
+        builtBuildings.forEach(building => {
+            const effects = building.effects;
+            
+            if (effects.goldPerTurn) dailyGain.gold += effects.goldPerTurn;
+            if (effects.populationPerTurn) dailyGain.population += effects.populationPerTurn;
+            if (effects.materialsPerTurn) dailyGain.materials += effects.materialsPerTurn;
+            if (effects.magicPerTurn) dailyGain.magic += effects.magicPerTurn;
+            if (effects.reputationPerTurn) dailyGain.reputation += effects.reputationPerTurn;
+        });
+        
+        // Plus de revenu de base - chaque bâtiment génère ses propres ressources
+        
+        return dailyGain;
+    }
+
     getAdventurersInfo() {
         if (!this.city) return [];
         return this.city.adventurers.map(a => a.getDisplayInfo());
@@ -347,9 +432,9 @@ class GameManager {
         
         return {
             day: this.city.day,
-            isNight: this.city.isNight,
-            currentActionPoints: this.city.currentActionPoints,
-            maxActionPoints: this.city.isNight ? this.city.actionPoints.night : this.city.actionPoints.day,
+            currentTime: this.city.currentTime,
+            formattedTime: this.city.getFormattedTime(),
+            isPaused: this.city.isPaused,
             totalBuildings: this.city.buildings.length,
             builtBuildings: builtBuildings.length,
             totalAdventurers: this.city.adventurers.length,
@@ -470,6 +555,7 @@ class GameManager {
     }
 
     resetGame() {
+        this.stopGameTimer();
         this.city = null;
         this.adventurerManager = null;
         this.missionManager = null;

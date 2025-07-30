@@ -93,3 +93,23 @@ Voici les onglets du sous-menu :
 
 Ces sous-onglets ne sont accessibles que si les batiments correspondants ont été construits : forge, alchimiste, enchanteur
 L'onglet industrie doit être grisé si aucun de ses 3 batiments n'a été construit
+
+
+## Phase 7
+il faudrait un affichage permanent quelque
+part du gain d'or par jour, pareil pour 
+la magie, les materiaux etc.
+
+
+## Phase 8
+Suppression du système de points d'action.
+Suppression du bouton pour passer en mode jour nuit.
+Ajout d'une horloge à la place du libellé qui indique le jour ou la nuit.
+Ajout d'un bouton pour mettre en pause le jeu et le défilement de l'horloge.
+24h dans le jeu correspond à 5min dans la vraie vie.
+L'affichage va de 0:00 à 23:59
+Le nombre de jours s'incrément dans on arrive à minuit.
+
+## Phase 9
+Ajout d'un temps de construction, on ne peut construire qu'un seul batiment à la fois au départ. Par la suite ça sera plusieurs batiments.
+

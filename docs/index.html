@@ -43,7 +43,7 @@
                 </div>
                 
                 <div class="version-info">
-                    Version 0.1.0 - Phase 1.1
+                    Version 0.8.0 - Phase 8
                 </div>
             </div>
         </div>
@@ -56,36 +56,50 @@
                     <h2 id="city-name">Grimspire</h2>
                     <div class="time-info">
                         <span id="day-counter">Jour 1</span>
-                        <span id="phase-indicator">Jour</span>
-                        <span id="action-points">3/3 PA</span>
+                        <span id="game-clock">00:00</span>
                     </div>
                 </div>
                 
                 <div class="resources-panel">
                     <div class="resource">
                         <span class="resource-icon">💰</span>
-                        <span id="gold-amount">5000</span>
+                        <div class="resource-info">
+                            <span id="gold-amount">10000</span>
+                            <span id="gold-daily-gain" class="daily-gain">+0/jour</span>
+                        </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">👥</span>
-                        <span id="population-amount">0</span>
+                        <div class="resource-info">
+                            <span id="population-amount">0</span>
+                            <span id="population-daily-gain" class="daily-gain">+0/jour</span>
+                        </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">🔨</span>
-                        <span id="materials-amount">2000</span>
+                        <div class="resource-info">
+                            <span id="materials-amount">2000</span>
+                            <span id="materials-daily-gain" class="daily-gain">+0/jour</span>
+                        </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">✨</span>
-                        <span id="magic-amount">0</span>
+                        <div class="resource-info">
+                            <span id="magic-amount">0</span>
+                            <span id="magic-daily-gain" class="daily-gain">+0/jour</span>
+                        </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">⭐</span>
-                        <span id="reputation-amount">0</span>
+                        <div class="resource-info">
+                            <span id="reputation-amount">0</span>
+                            <span id="reputation-daily-gain" class="daily-gain">+0/jour</span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="game-controls">
-                    <button id="next-phase-btn" class="control-btn">Passer à la Nuit</button>
+                    <button id="pause-game-btn" class="control-btn">⏸️ Pause</button>
                     <button id="save-game-btn" class="control-btn">Sauvegarder</button>
                     <button id="return-menu-btn" class="control-btn">Menu</button>
                 </div>

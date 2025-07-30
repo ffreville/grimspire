@@ -7,7 +7,7 @@ class Mission {
         this.name = name;
         this.type = type; // 'exploration', 'combat', 'diplomatie', 'treasure'
         this.difficulty = difficulty; // 1-5
-        this.duration = duration; // en heures de jeu
+        this.duration = duration; // en jours de jeu (1-7)
         this.description = this.generateDescription();
         
         // État de la mission
@@ -150,7 +150,9 @@ class Mission {
         this.adventurers = selectedAdventurers.map(a => a.id);
         this.status = 'active';
         this.startTime = currentTime;
-        this.endTime = currentTime + (this.duration * 60 * 60 * 1000); // conversion en millisecondes
+        // Conversion : duration en jours de jeu -> millisecondes réelles
+        // 1 jour de jeu = 1 minute réelle = 60000ms
+        this.endTime = currentTime + (this.duration * 60000); 
         this.progress = 0;
 
         return { 
@@ -293,40 +295,39 @@ class Mission {
     }
 
     getFormattedDuration() {
-        const hours = Math.floor(this.duration);
-        const minutes = Math.floor((this.duration % 1) * 60);
-        
-        // Si moins d'1 heure, afficher seulement les minutes
-        if (hours === 0) {
-            return `${minutes}min`;
+        if (this.duration === 1) {
+            return '1 jour';
+        } else {
+            return `${this.duration} jours`;
         }
-        
-        // Si exactement des heures pleines
-        if (minutes === 0) {
-            return `${hours}h`;
-        }
-        
-        // Heures + minutes
-        return `${hours}h${minutes}min`;
     }
 
     getFormattedRemainingTime(currentTime) {
         const remaining = this.getRemainingTime(currentTime);
-        const hours = Math.floor(remaining / (60 * 60 * 1000));
-        const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+        // 1 jour de jeu = 1 minute réelle = 60000ms
+        const remainingDays = remaining / 60000;
         
-        // Si moins d'1 heure, afficher seulement les minutes
-        if (hours === 0) {
-            return `${minutes}min`;
+        if (remainingDays >= 1) {
+            const days = Math.floor(remainingDays);
+            const hours = Math.floor((remainingDays % 1) * 24);
+            
+            if (hours === 0) {
+                return days === 1 ? '1 jour' : `${days} jours`;
+            } else {
+                const dayText = days === 1 ? '1 jour' : `${days} jours`;
+                const hourText = hours === 1 ? '1h' : `${hours}h`;
+                return `${dayText} ${hourText}`;
+            }
+        } else {
+            const hours = Math.floor(remainingDays * 24);
+            const minutes = Math.floor((remainingDays * 24 * 60) % 60);
+            
+            if (hours === 0) {
+                return `${Math.max(1, minutes)}min`;
+            } else {
+                return `${hours}h${minutes > 0 ? `${minutes}min` : ''}`;
+            }
         }
-        
-        // Si exactement des heures pleines
-        if (minutes === 0) {
-            return `${hours}h`;
-        }
-        
-        // Heures + minutes
-        return `${hours}h${minutes}min`;
     }
 
     getDifficultyStars() {

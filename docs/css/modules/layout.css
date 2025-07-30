@@ -59,6 +59,35 @@
     border-radius: 4px;
 }
 
+#game-clock {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: rgba(74, 124, 89, 0.3) !important;
+    border: 1px solid #4a7c59;
+}
+
+/* État de pause du jeu */
+#game-screen.paused {
+    filter: brightness(0.7);
+}
+
+#game-screen.paused .game-header {
+    border-bottom: 2px solid #d4af37;
+    box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+}
+
+#game-screen.paused #game-clock {
+    background: rgba(212, 175, 55, 0.3) !important;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
 /* === PANNEAU RESSOURCES === */
 .resources-panel {
     display: flex;
@@ -80,11 +109,29 @@
     font-size: 1.2rem;
 }
 
-.resource span:last-child {
+.resource-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 60px;
+}
+
+.resource-info span:first-child {
     font-weight: 500;
     color: #e8e6e3;
-    min-width: 40px;
-    text-align: right;
+    font-size: 1rem;
+}
+
+.daily-gain {
+    font-size: 0.75rem;
+    color: #90ee90;
+    font-weight: 400;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.daily-gain.zero {
+    color: #888;
 }
 
 /* === CONTRÔLES DE JEU === */

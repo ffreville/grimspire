@@ -8,9 +8,8 @@ class City {
         this.buildings = [];
         this.adventurers = [];
         this.day = 1;
-        this.isNight = false;
-        this.actionPoints = { day: 3, night: 2 };
-        this.currentActionPoints = this.actionPoints.day;
+        this.currentTime = 0; // Heure actuelle en minutes (0-1439, soit 0:00-23:59)
+        this.isPaused = false;
         
         // Initialiser les bâtiments de base
         this.initializeStartingBuildings();
@@ -69,29 +68,65 @@ class City {
     }
 
     canPerformAction(cost = 1) {
-        return this.currentActionPoints >= cost;
+        // Plus de système de points d'action - toujours autorisé
+        return true;
     }
 
     performAction(cost = 1) {
-        if (this.canPerformAction(cost)) {
-            this.currentActionPoints -= cost;
-            return true;
-        }
-        return false;
+        // Plus de système de points d'action - toujours réussi
+        return true;
     }
 
-    switchTimePhase() {
-        this.isNight = !this.isNight;
+    advanceTime(minutes = 1) {
+        if (this.isPaused) return;
         
-        if (this.isNight) {
-            // Passage au soir
-            this.currentActionPoints = this.actionPoints.night;
-        } else {
-            // Passage au jour (nouveau jour)
+        const previousHour = Math.floor(this.currentTime / 60);
+        this.currentTime += minutes;
+        
+        // Si on dépasse 23:59, nouveau jour
+        if (this.currentTime >= 1440) { // 24 * 60 = 1440 minutes
+            this.currentTime = 0;
             this.day++;
-            this.currentActionPoints = this.actionPoints.day;
             this.processDaily();
+            
+            // Notifier qu'un nouveau jour a commencé
+            if (this.onNewDay) {
+                this.onNewDay();
+            }
         }
+        
+        const currentHour = Math.floor(this.currentTime / 60);
+        
+        // Traitement par heure si nécessaire
+        if (currentHour !== previousHour) {
+            this.processHourly();
+        }
+    }
+
+    setNewDayCallback(callback) {
+        this.onNewDay = callback;
+    }
+
+    pauseGame() {
+        this.isPaused = true;
+    }
+
+    resumeGame() {
+        this.isPaused = false;
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+    }
+
+    getFormattedTime() {
+        const hours = Math.floor(this.currentTime / 60);
+        const minutes = this.currentTime % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    }
+
+    processHourly() {
+        // Traitement par heure si nécessaire dans le futur
     }
 
     processDaily() {
@@ -114,10 +149,7 @@ class City {
             if (effects.reputationPerTurn) dailyGain.reputation += effects.reputationPerTurn;
         });
         
-        // Revenu de base seulement s'il y a des bâtiments construits
-        if (builtBuildings.length > 0) {
-            dailyGain.gold += 50; // Revenu de base
-        }
+        // Plus de revenu de base - chaque bâtiment génère ses propres ressources
         
         this.resources.gain(dailyGain);
         
@@ -144,9 +176,7 @@ class City {
             return { success: false, message: 'Ressources insuffisantes' };
         }
         
-        if (!this.performAction(1)) {
-            return { success: false, message: 'Points d\'action insuffisants' };
-        }
+        // Plus de vérification de points d'action
         
         this.resources.spend(building.upgradeCost);
         building.upgrade();
@@ -166,9 +196,7 @@ class City {
             return { success: false, message: 'Ressources insuffisantes' };
         }
         
-        if (!this.performAction(2)) {
-            return { success: false, message: 'Points d\'action insuffisants' };
-        }
+        // Plus de vérification de points d'action
         
         this.resources.spend(building.upgradeCost);
         building.build();
@@ -183,9 +211,9 @@ class City {
             buildings: this.buildings.map(b => b.getDisplayInfo()),
             adventurers: this.adventurers.map(a => a.getDisplayInfo()),
             day: this.day,
-            isNight: this.isNight,
-            currentActionPoints: this.currentActionPoints,
-            maxActionPoints: this.isNight ? this.actionPoints.night : this.actionPoints.day
+            currentTime: this.currentTime,
+            formattedTime: this.getFormattedTime(),
+            isPaused: this.isPaused
         };
     }
 
@@ -196,9 +224,8 @@ class City {
             buildings: this.buildings.map(b => b.toJSON()),
             adventurers: this.adventurers.map(a => a.toJSON()),
             day: this.day,
-            isNight: this.isNight,
-            actionPoints: this.actionPoints,
-            currentActionPoints: this.currentActionPoints
+            currentTime: this.currentTime,
+            isPaused: this.isPaused
         };
     }
 
@@ -224,9 +251,8 @@ class City {
         
         city.adventurers = data.adventurers ? data.adventurers.map(a => Adventurer.fromJSON(a)) : [];
         city.day = data.day || 1;
-        city.isNight = data.isNight || false;
-        city.actionPoints = data.actionPoints || { day: 3, night: 2 };
-        city.currentActionPoints = data.currentActionPoints || city.actionPoints.day;
+        city.currentTime = data.currentTime || 0;
+        city.isPaused = data.isPaused || false;
         return city;
     }
 }

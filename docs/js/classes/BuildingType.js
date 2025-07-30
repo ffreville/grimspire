@@ -90,7 +90,7 @@ class BuildingType {
             'maison',
             'Maison',
             'residentiel',
-            { population: 10, goldPerTurn: 5 },
+            { population: 10, goldPerTurn: 9 },
             { gold: 200, materials: 50 }
         );
         type.icon = '🏠';
@@ -103,7 +103,7 @@ class BuildingType {
             'taverne',
             'Taverne',
             'residentiel',
-            { population: 5, goldPerTurn: 15, reputation: 2 },
+            { population: 5, goldPerTurn: 19, reputation: 2 },
             { gold: 300, materials: 100 }
         );
         type.icon = '🍺';
@@ -116,7 +116,7 @@ class BuildingType {
             'marche',
             'Marché',
             'commercial',
-            { goldPerTurn: 25, materialsPerTurn: 5 },
+            { goldPerTurn: 29, materialsPerTurn: 5 },
             { gold: 400, materials: 150 }
         );
         type.icon = '🏪';
@@ -129,7 +129,7 @@ class BuildingType {
             'echoppe_artisan',
             "Échoppe d'Artisan",
             'commercial',
-            { materialsPerTurn: 10, goldPerTurn: 10 },
+            { materialsPerTurn: 10, goldPerTurn: 14 },
             { gold: 350, materials: 200 }
         );
         type.icon = '🔨';
@@ -142,7 +142,7 @@ class BuildingType {
             'banque',
             'Banque',
             'commercial',
-            { goldPerTurn: 50, reputation: 5 },
+            { goldPerTurn: 54, reputation: 5 },
             { gold: 800, materials: 300 },
             'bank_unlock'
         );
@@ -156,7 +156,7 @@ class BuildingType {
             'mairie',
             'Mairie',
             'administratif',
-            { reputation: 10, goldPerTurn: 20 },
+            { reputation: 10, goldPerTurn: 24 },
             { gold: 1000, materials: 500 }
         );
         type.icon = '🏛️';
@@ -210,7 +210,7 @@ class BuildingType {
             'guilde_aventuriers',
             'Guilde des Aventuriers',
             'administratif',
-            { reputation: 15, goldPerTurn: 30 },
+            { reputation: 15, goldPerTurn: 34 },
             { gold: 1200, materials: 600 },
             'guild_unlock'
         );
@@ -225,7 +225,7 @@ class BuildingType {
             'prison',
             'Prison',
             'administratif',
-            { reputation: 8, goldPerTurn: 10 },
+            { reputation: 8, goldPerTurn: 14 },
             { gold: 700, materials: 400 },
             'prison_unlock'
         );

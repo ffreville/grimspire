@@ -63,7 +63,7 @@ class GrimspireApp {
 
     initializeGameInterface() {
         // Contrôles de jeu
-        const nextPhaseBtn = document.getElementById('next-phase-btn');
+        const pauseGameBtn = document.getElementById('pause-game-btn');
         const saveGameBtn = document.getElementById('save-game-btn');
         const returnMenuBtn = document.getElementById('return-menu-btn');
 
@@ -82,8 +82,8 @@ class GrimspireApp {
             confirmConstructionBtn.addEventListener('click', this.confirmBuildingConstruction.bind(this));
         }
 
-        if (nextPhaseBtn) {
-            nextPhaseBtn.addEventListener('click', this.nextPhase.bind(this));
+        if (pauseGameBtn) {
+            pauseGameBtn.addEventListener('click', this.togglePause.bind(this));
         }
 
         if (saveGameBtn) {
@@ -279,6 +279,9 @@ class GrimspireApp {
     }
 
     returnToMainMenu() {
+        // Arrêter le timer de jeu
+        this.gameManager.stopGameTimer();
+        
         const mainMenu = document.getElementById('main-menu');
         const gameScreen = document.getElementById('game-screen');
         
@@ -340,13 +343,22 @@ class GrimspireApp {
         // Mettre à jour les informations de la ville
         document.getElementById('city-name').textContent = gameState.name;
         document.getElementById('day-counter').textContent = `Jour ${gameState.day}`;
-        document.getElementById('phase-indicator').textContent = gameState.isNight ? 'Nuit' : 'Jour';
-        document.getElementById('action-points').textContent = `${gameState.currentActionPoints}/${gameState.maxActionPoints} PA`;
+        document.getElementById('game-clock').textContent = gameState.formattedTime;
 
-        // Mettre à jour le bouton de phase
-        const nextPhaseBtn = document.getElementById('next-phase-btn');
-        if (nextPhaseBtn) {
-            nextPhaseBtn.textContent = gameState.isNight ? 'Passer au Jour' : 'Passer à la Nuit';
+        // Mettre à jour le bouton de pause
+        const pauseBtn = document.getElementById('pause-game-btn');
+        if (pauseBtn) {
+            pauseBtn.textContent = gameState.isPaused ? '▶️ Reprendre' : '⏸️ Pause';
+        }
+
+        // Mettre à jour l'indicateur visuel de pause
+        const gameScreen = document.getElementById('game-screen');
+        if (gameScreen) {
+            if (gameState.isPaused) {
+                gameScreen.classList.add('paused');
+            } else {
+                gameScreen.classList.remove('paused');
+            }
         }
 
         this.updateResources(gameState.resources);
@@ -360,6 +372,32 @@ class GrimspireApp {
         document.getElementById('materials-amount').textContent = resources.materials;
         document.getElementById('magic-amount').textContent = resources.magic;
         document.getElementById('reputation-amount').textContent = resources.reputation;
+        
+        // Mettre à jour les gains quotidiens
+        this.updateDailyGains();
+    }
+
+    updateDailyGains() {
+        const dailyGains = this.gameManager.getDailyGains();
+        
+        this.updateDailyGainDisplay('gold', dailyGains.gold);
+        this.updateDailyGainDisplay('population', dailyGains.population);
+        this.updateDailyGainDisplay('materials', dailyGains.materials);
+        this.updateDailyGainDisplay('magic', dailyGains.magic);
+        this.updateDailyGainDisplay('reputation', dailyGains.reputation);
+    }
+
+    updateDailyGainDisplay(resourceType, gain) {
+        const element = document.getElementById(`${resourceType}-daily-gain`);
+        if (!element) return;
+        
+        if (gain > 0) {
+            element.textContent = `+${gain}/jour`;
+            element.className = 'daily-gain';
+        } else {
+            element.textContent = `+0/jour`;
+            element.className = 'daily-gain zero';
+        }
     }
 
     renderBuildings() {
@@ -370,6 +408,9 @@ class GrimspireApp {
         this.renderConstructedBuildings(this.gameManager.getBuildingsInfo());
         this.renderAvailableBuildingTypes(buildingInfo.available);
         this.renderLockedBuildingTypes(buildingInfo.locked);
+        
+        // Mettre à jour les gains quotidiens après changement de bâtiments
+        this.updateDailyGains();
     }
 
     updateBuildingStats(stats) {
@@ -553,9 +594,10 @@ class GrimspireApp {
                 // Traduire les noms d'effets
                 const translations = {
                     'population': 'Population',
-                    'goldPerTurn': 'Or/tour',
-                    'materialsPerTurn': 'Matériaux/tour',
-                    'magicPerTurn': 'Magie/tour',
+                    'goldPerTurn': 'Or/jour',
+                    'materialsPerTurn': 'Matériaux/jour',
+                    'magicPerTurn': 'Magie/jour',
+                    'reputationPerTurn': 'Réputation/jour',
                     'reputation': 'Réputation'
                 };
                 
@@ -588,7 +630,7 @@ class GrimspireApp {
     createConstructedBuildingActions(building) {
         const resources = this.gameManager.getResourcesInfo();
         const canAfford = resources && this.canAffordCost(resources, building.upgradeCost);
-        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(1);
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
         const actions = [];
         
@@ -596,8 +638,8 @@ class GrimspireApp {
             actions.push(`
                 <button class="building-btn primary" 
                         onclick="app.upgradeBuilding('${building.id}')"
-                        ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
-                    Améliorer
+                        ${!canAfford || isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : 'Améliorer'}
                 </button>
             `);
         } else {
@@ -606,12 +648,11 @@ class GrimspireApp {
         
         // Bouton de démolition (sauf pour certains bâtiments protégés)
         if (building.typeId !== 'mairie') {
-            const canDemolish = this.gameManager.city && this.gameManager.city.canPerformAction(1);
             actions.push(`
                 <button class="building-btn danger" 
                         onclick="app.demolishBuilding('${building.id}')"
-                        ${!canDemolish ? 'disabled' : ''}>
-                    Détruire
+                        ${isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : 'Détruire'}
                 </button>
             `);
         }
@@ -627,6 +668,12 @@ class GrimspireApp {
 
     // Nouvelles méthodes pour le système de bâtiments
     openBuildingConstructionModal(buildingTypeId) {
+        // Vérifier si le jeu est en pause
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de construire : jeu en pause' });
+            return;
+        }
+        
         this.currentBuildingTypeId = buildingTypeId;
         const buildingTypesInfo = this.gameManager.getBuildingTypesInfo();
         const buildingType = buildingTypesInfo.all.find(type => type.id === buildingTypeId);
@@ -682,6 +729,11 @@ class GrimspireApp {
     }
 
     upgradeBuilding(buildingId) {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'améliorer : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.upgradeBuilding(buildingId);
         this.showActionResult(result);
         
@@ -691,6 +743,11 @@ class GrimspireApp {
     }
 
     demolishBuilding(buildingId) {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de détruire : jeu en pause' });
+            return;
+        }
+        
         // Demander confirmation
         const building = this.gameManager.getBuildingsInfo().find(b => b.id === buildingId);
         if (!building) return;
@@ -707,9 +764,20 @@ class GrimspireApp {
         }
     }
 
-    nextPhase() {
-        this.gameManager.switchTimePhase();
-        this.renderBuildings(); // Actualise les boutons d'action
+    togglePause() {
+        const isPaused = this.gameManager.toggleGamePause();
+        // L'interface se met automatiquement à jour via le callback updateGameInterface
+        
+        // Actualiser l'affichage des boutons selon le nouvel état
+        if (this.gameManager.currentTab === 'batiments') {
+            this.renderBuildings();
+        } else if (this.gameManager.currentTab === 'guilde') {
+            this.renderGuild();
+        } else if (this.gameManager.currentTab === 'expedition') {
+            this.renderExpeditions();
+        } else if (this.gameManager.currentTab === 'administration') {
+            this.renderAdministration();
+        }
     }
 
     saveGame() {
@@ -789,11 +857,14 @@ class GrimspireApp {
     updateSearchInfo(searchInfo) {
         const searchBtn = document.getElementById('search-adventurers-btn');
         const searchInfoElement = document.getElementById('search-info');
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
         if (searchBtn && searchInfoElement) {
-            searchBtn.disabled = !searchInfo.canSearch;
+            searchBtn.disabled = !searchInfo.canSearch || isPaused;
             
-            if (searchInfo.canSearch) {
+            if (isPaused) {
+                searchInfoElement.textContent = 'Jeu en pause';
+            } else if (searchInfo.canSearch) {
                 searchInfoElement.textContent = `Coût: ${searchInfo.cost.gold}💰`;
             } else {
                 searchInfoElement.textContent = searchInfo.reason;
@@ -925,16 +996,17 @@ class GrimspireApp {
     }
 
     createAdventurerActions(adventurer, isRecruit) {
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
+        
         if (isRecruit) {
             const resources = this.gameManager.getResourcesInfo();
             const canAfford = resources && this.canAffordCost(resources, adventurer.recruitmentCost);
-            const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(1);
 
             return `
                 <button class="adventurer-btn recruit" 
                         onclick="app.recruitAdventurer('${adventurer.id}')"
-                        ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
-                    Recruter
+                        ${!canAfford || isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : 'Recruter'}
                 </button>
             `;
         } else {
@@ -943,8 +1015,9 @@ class GrimspireApp {
             } else {
                 return `
                     <button class="adventurer-btn dismiss" 
-                            onclick="app.dismissAdventurer('${adventurer.id}')">
-                        Renvoyer
+                            onclick="app.dismissAdventurer('${adventurer.id}')"
+                            ${isPaused ? 'disabled' : ''}>
+                        ${isPaused ? 'Jeu en pause' : 'Renvoyer'}
                     </button>
                 `;
             }
@@ -953,6 +1026,11 @@ class GrimspireApp {
 
     // Actions pour l'onglet Guilde
     searchForAdventurers() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de rechercher : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.searchForAdventurers();
         this.showActionResult(result);
         
@@ -962,6 +1040,11 @@ class GrimspireApp {
     }
 
     recruitAdventurer(adventurerId) {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de recruter : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.recruitAdventurer(adventurerId);
         this.showActionResult(result);
         
@@ -971,6 +1054,11 @@ class GrimspireApp {
     }
 
     dismissAdventurer(adventurerId) {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de renvoyer : jeu en pause' });
+            return;
+        }
+        
         // Demander confirmation
         if (!confirm('Êtes-vous sûr de vouloir renvoyer cet aventurier ?')) {
             return;
@@ -1008,11 +1096,14 @@ class GrimspireApp {
     updateRefreshInfo(refreshInfo) {
         const refreshBtn = document.getElementById('refresh-missions-btn');
         const refreshInfoElement = document.getElementById('refresh-info');
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
         if (refreshBtn && refreshInfoElement) {
-            refreshBtn.disabled = !refreshInfo.canRefresh;
+            refreshBtn.disabled = !refreshInfo.canRefresh || isPaused;
             
-            if (refreshInfo.canRefresh) {
+            if (isPaused) {
+                refreshInfoElement.textContent = 'Jeu en pause';
+            } else if (refreshInfo.canRefresh) {
                 refreshInfoElement.textContent = `Coût: ${refreshInfo.cost.gold}💰`;
             } else {
                 refreshInfoElement.textContent = refreshInfo.reason;
@@ -1110,10 +1201,13 @@ class GrimspireApp {
             
             adventurersHtml = this.createMissionAdventurersHtml(mission.adventurers);
         } else if (status === 'available') {
+            const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
             actionsHtml = `
                 <div class="mission-actions">
-                    <button class="mission-btn start" onclick="app.openAdventurerSelection('${mission.id}')">
-                        Lancer Mission
+                    <button class="mission-btn start" 
+                            onclick="app.openAdventurerSelection('${mission.id}')"
+                            ${isPaused ? 'disabled' : ''}>
+                        ${isPaused ? 'Jeu en pause' : 'Lancer Mission'}
                     </button>
                 </div>
             `;
@@ -1226,6 +1320,11 @@ class GrimspireApp {
 
     // Actions pour l'onglet Expéditions
     refreshMissions() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'actualiser : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.refreshMissions();
         this.showActionResult(result);
         
@@ -1235,6 +1334,12 @@ class GrimspireApp {
     }
 
     openAdventurerSelection(missionId) {
+        // Vérifier si le jeu est en pause
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de lancer une mission : jeu en pause' });
+            return;
+        }
+        
         this.currentMissionId = missionId;
         const missionInfo = this.gameManager.getMissionInfo();
         const mission = missionInfo.available.find(m => m.id === missionId);
@@ -1470,18 +1575,23 @@ class GrimspireApp {
 
         const resources = this.gameManager.getResourcesInfo();
         const canAfford = resources && this.canAffordCost(resources, upgrade.cost);
-        const hasActionPoints = this.gameManager.city && this.gameManager.city.canPerformAction(1);
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
 
         return `
             <button class="upgrade-btn" 
                     onclick="app.unlockUpgrade('${upgrade.id}')"
-                    ${!canAfford || !hasActionPoints ? 'disabled' : ''}>
-                Débloquer
+                    ${!canAfford || isPaused ? 'disabled' : ''}>
+                ${isPaused ? 'Jeu en pause' : 'Débloquer'}
             </button>
         `;
     }
 
     unlockUpgrade(upgradeId) {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de débloquer : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.unlockUpgrade(upgradeId);
         this.showActionResult(result);
         
@@ -1672,6 +1782,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // Gestion des erreurs globales
 window.addEventListener('error', (event) => {
     console.error('Erreur JavaScript:', event.error);
+});
+
+// Sauvegarder avant fermeture
+window.addEventListener('beforeunload', (event) => {
+    if (app && app.gameManager) {
+        app.gameManager.stopGameTimer();
+        app.gameManager.autoSave();
+    }
 });
 
 // Export pour utilisation dans d'autres modules

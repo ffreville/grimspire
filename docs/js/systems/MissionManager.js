@@ -78,19 +78,23 @@ class MissionManager {
         // Générer les paramètres de la mission
         const difficulty = Math.ceil(Math.random() * 5); // 1-5
         
-        // Nouvelles durées plus courtes en fractions d'heure
+        // Durées en jours de jeu (1-7 jours)
         const durations = [
-            0.17,  // 10 minutes (0.17h)
-            0.25,  // 15 minutes (0.25h)
-            0.33,  // 20 minutes (0.33h)
-            0.5,   // 30 minutes (0.5h)
-            0.75,  // 45 minutes (0.75h)
-            1.0    // 1 heure (1.0h)
+            1,  // 1 jour
+            2,  // 2 jours
+            3,  // 3 jours
+            4,  // 4 jours
+            5,  // 5 jours
+            6,  // 6 jours
+            7   // 7 jours
         ];
         
         // Sélectionner une durée selon la difficulté (plus difficile = plus long)
-        const durationIndex = Math.min(Math.floor((difficulty - 1) * 1.2), durations.length - 1);
-        const duration = durations[durationIndex];
+        // Difficulté 1 -> 1-2 jours, difficulté 5 -> 5-7 jours
+        const minDuration = difficulty;
+        const maxDuration = Math.min(difficulty + 2, 7);
+        const availableDurations = durations.slice(minDuration - 1, maxDuration);
+        const duration = availableDurations[Math.floor(Math.random() * availableDurations.length)];
         
         // Sélectionner un nom
         const typeNames = this.missionNames[selectedType];
@@ -99,7 +103,7 @@ class MissionManager {
         
         const id = `mission_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
-        return new Mission(id, name, selectedType, difficulty, Math.max(1, duration));
+        return new Mission(id, name, selectedType, difficulty, duration);
     }
 
     generateUniqueName(baseName) {
