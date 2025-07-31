@@ -12,8 +12,8 @@ class BuildingType {
         this.icon = '🏗️'; // Icône par défaut
         this.description = '';
         this.maxLevel = 5; // Niveau maximum par défaut
-        this.baseConstructionTime = 24; // Temps de construction de base en heures de jeu
-        this.baseUpgradeTime = 12; // Temps d'amélioration de base en heures de jeu
+        this.baseConstructionTime = 4; // Temps de construction de base en heures de jeu
+        this.baseUpgradeTime = 4; // Temps d'amélioration de base en heures de jeu
         this.unlocksTab = null; // Nom de l'onglet que ce bâtiment débloque (si applicable)
     }
 

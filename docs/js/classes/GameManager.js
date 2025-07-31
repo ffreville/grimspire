@@ -8,6 +8,7 @@ class GameManager {
         this.missionManager = null;
         this.cityUpgradeManager = null;
         this.buildingManager = null;
+        this.eventManager = null;
         this.gameState = 'menu'; // 'menu', 'playing', 'paused'
         this.currentTab = 'batiments';
         this.saveKey = 'grimspire_save';
@@ -33,12 +34,16 @@ class GameManager {
         
         // Créer le gestionnaire de missions
         this.missionManager = new MissionManager(this.city);
+        this.missionManager.setMissionCompleteCallback(this.onMissionComplete.bind(this));
         
         // Créer le gestionnaire d'améliorations de ville
         this.cityUpgradeManager = new CityUpgradeManager(this.city);
         
         // Créer le gestionnaire de bâtiments
         this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
+        
+        // Créer le gestionnaire d'événements
+        this.eventManager = new EventManager(this.city);
         
         // Configurer les callbacks
         this.city.setNewDayCallback(this.processNewDay.bind(this));
@@ -90,6 +95,7 @@ class GameManager {
                 } else {
                     this.missionManager = new MissionManager(this.city);
                 }
+                this.missionManager.setMissionCompleteCallback(this.onMissionComplete.bind(this));
                 
                 // Recréer le gestionnaire d'améliorations de ville
                 if (parsedData.cityUpgradeManager) {
@@ -103,6 +109,13 @@ class GameManager {
                     this.buildingManager = BuildingManager.fromJSON(parsedData.buildingManager, this.city, this.cityUpgradeManager);
                 } else {
                     this.buildingManager = new BuildingManager(this.city, this.cityUpgradeManager);
+                }
+                
+                // Recréer le gestionnaire d'événements
+                if (parsedData.eventManager) {
+                    this.eventManager = EventManager.fromJSON(parsedData.eventManager, this.city);
+                } else {
+                    this.eventManager = new EventManager(this.city);
                 }
                 
                 // Configurer les callbacks
@@ -130,6 +143,7 @@ class GameManager {
                 missionManager: this.missionManager ? this.missionManager.toJSON() : null,
                 cityUpgradeManager: this.cityUpgradeManager ? this.cityUpgradeManager.toJSON() : null,
                 buildingManager: this.buildingManager ? this.buildingManager.toJSON() : null,
+                eventManager: this.eventManager ? this.eventManager.toJSON() : null,
                 gameState: this.gameState,
                 currentTab: this.currentTab,
                 timestamp: Date.now()
@@ -324,6 +338,11 @@ class GameManager {
         progressResult.completedBuildings.forEach(building => {
             messages.push(`🏗️ ${building.customName} construit avec succès !`);
             
+            // Créer un événement pour la construction terminée
+            if (this.eventManager) {
+                this.eventManager.onBuildingConstructionComplete(building);
+            }
+            
             // Vérifier si le bâtiment débloque un onglet
             if (building.buildingType.unlocksTab) {
                 messages.push(`🎉 Nouvel onglet débloqué : ${building.buildingType.unlocksTab}`);
@@ -333,6 +352,11 @@ class GameManager {
         // Améliorations terminées
         progressResult.completedUpgrades.forEach(building => {
             messages.push(`⬆️ ${building.customName} amélioré au niveau ${building.level} !`);
+            
+            // Créer un événement pour l'amélioration terminée
+            if (this.eventManager) {
+                this.eventManager.onBuildingUpgradeComplete(building);
+            }
         });
         
         // Ici on pourrait déclencher des notifications dans l'interface
@@ -347,11 +371,26 @@ class GameManager {
         // Améliorations de ville terminées
         progressResult.completedUpgrades.forEach(upgrade => {
             messages.push(`🔬 Recherche terminée : ${upgrade.name} débloqué !`);
+            
+            // Créer un événement pour la recherche terminée
+            if (this.eventManager) {
+                this.eventManager.onResearchComplete(upgrade);
+            }
         });
         
         // Ici on pourrait déclencher des notifications dans l'interface
         // Pour l'instant on log juste dans la console
         messages.forEach(msg => console.log(msg));
+    }
+
+    // Gérer les missions terminées
+    onMissionComplete(mission, results) {
+        // Créer un événement pour la mission terminée
+        if (this.eventManager) {
+            this.eventManager.onMissionComplete(mission, results);
+        }
+        
+        console.log(`Mission ${mission.name} terminée: ${results.success ? 'Succès' : 'Échec'}`);
     }
 
     addRandomAdventurer() {
@@ -615,6 +654,58 @@ class GameManager {
         return this.cityUpgradeManager.isUpgradeUnlocked(upgradeId);
     }
 
+    // Méthodes pour l'onglet Événements
+    getEventInfo() {
+        if (!this.eventManager) return null;
+        
+        return {
+            stats: this.eventManager.getEventStats(),
+            events: this.eventManager.getAllEvents()
+        };
+    }
+
+    markEventAsRead(eventId) {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const success = this.eventManager.markAsRead(eventId);
+        if (success) {
+            this.notifyStateChange();
+            this.autoSave();
+            return { success: true, message: 'Événement marqué comme lu' };
+        }
+        return { success: false, message: 'Événement introuvable' };
+    }
+
+    acknowledgeEvent(eventId) {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const success = this.eventManager.acknowledgeEvent(eventId);
+        if (success) {
+            this.notifyStateChange();
+            this.autoSave();
+            return { success: true, message: 'Événement acquitté' };
+        }
+        return { success: false, message: 'Événement introuvable' };
+    }
+
+    markAllEventsAsRead() {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const count = this.eventManager.markAllAsRead();
+        this.notifyStateChange();
+        this.autoSave();
+        return { success: true, message: `${count} événement(s) marqué(s) comme lu(s)` };
+    }
+
+    clearReadEvents() {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const count = this.eventManager.clearReadEvents();
+        this.notifyStateChange();
+        this.autoSave();
+        return { success: true, message: `${count} événement(s) effacé(s)` };
+    }
+
     resetGame() {
         this.stopGameTimer();
         this.city = null;
@@ -622,6 +713,7 @@ class GameManager {
         this.missionManager = null;
         this.cityUpgradeManager = null;
         this.buildingManager = null;
+        this.eventManager = null;
         this.gameState = 'menu';
         this.currentTab = 'batiments';
         localStorage.removeItem(this.saveKey);

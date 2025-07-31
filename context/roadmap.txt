@@ -121,5 +121,12 @@ Il faudrait que l'horloge se mettre à jour 30 min par 30 min pour éviter d'avo
 Le rafraichissement du temps de construction ne fonctionnne pas. Il faut faire aussi 30 min par 30 min.
 
 
+## Phase 11
+Ajout d'un onglet Evènements à gauche de batiment.
+Dans cet onglet, il y aura une liste d'évènement. Par exemple, lorsqu'un batiment est terminé, un évènement est créé pour dire que c'est finis.
+Quand une expédition se termine on créé un évènement.
+Il faut qu'un évènement puisse être acquitté. Et par la suite il faudra pouvoir faire des choix sur des evenements.
+Une petite bulle rouge avec le nombre d'evenements non acquittés doit être visible sur l'onglet.
+
 ## Phase X
 event aléatoire chaque jour

@@ -10,6 +10,7 @@ class MissionManager {
         this.maxAvailableMissions = 5;
         this.refreshCost = { gold: 100 };
         this.refreshCooldown = 0;
+        this.onMissionCompleteCallback = null;
         
         // Types de missions avec probabilités
         this.missionTypes = [
@@ -53,6 +54,11 @@ class MissionManager {
         
         // Générer les missions initiales
         this.generateInitialMissions();
+    }
+
+    // Définir une callback pour les missions terminées
+    setMissionCompleteCallback(callback) {
+        this.onMissionCompleteCallback = callback;
     }
 
     generateInitialMissions() {
@@ -266,6 +272,11 @@ class MissionManager {
     processMissionCompletion(mission) {
         const results = mission.results;
         if (!results) return;
+        
+        // Appeler la callback si elle existe
+        if (this.onMissionCompleteCallback) {
+            this.onMissionCompleteCallback(mission, results);
+        }
         
         // Libérer les aventuriers
         mission.adventurers.forEach(adventurerId => {

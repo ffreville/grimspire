@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="css/modules/administration.css">
     <link rel="stylesheet" href="css/modules/commerce.css">
     <link rel="stylesheet" href="css/modules/industrie.css">
+    <link rel="stylesheet" href="css/modules/events.css">
 </head>
 <body>
     <div id="app">
@@ -107,6 +108,10 @@
             
             <!-- Navigation par onglets -->
             <div class="tabs-navigation">
+                <button class="tab-btn" data-tab="evenements" style="position: relative;">
+                    Événements
+                    <span id="events-notification" class="events-notification" style="display: none;">0</span>
+                </button>
                 <button class="tab-btn active" data-tab="batiments">Bâtiments</button>
                 <button class="tab-btn" data-tab="commerce">Commerce</button>
                 <button class="tab-btn" data-tab="industrie">Industrie</button>
@@ -117,6 +122,56 @@
             
             <!-- Contenu des onglets -->
             <div class="tab-content">
+                <!-- Onglet Événements -->
+                <div id="tab-evenements" class="tab-panel">
+                    <div class="events-container">
+                        <!-- Sidebar gauche avec stats et contrôles -->
+                        <div class="events-sidebar">
+                            <!-- Statistiques des événements -->
+                            <div class="events-stats-sidebar">
+                                <h4>📊 Événements</h4>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Non lus</span>
+                                    <span id="events-unread-count" class="stat-value highlight">0</span>
+                                </div>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Total</span>
+                                    <span id="events-total-count" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Dernière activité</span>
+                                    <span id="events-last-activity" class="stat-value">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Contrôles des événements -->
+                            <div class="events-controls-sidebar">
+                                <h4>⚙️ Actions</h4>
+                                <button id="mark-all-read-btn" class="events-control-btn">
+                                    ✓ Marquer tout comme lu
+                                </button>
+                                <button id="clear-read-events-btn" class="events-control-btn">
+                                    🗑️ Effacer les événements lus
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale -->
+                        <div class="events-main">
+                            <div class="events-header">
+                                <h3 class="events-title">
+                                    📜 Journal des Événements
+                                </h3>
+                                <span class="events-count" id="events-section-count">0 événement</span>
+                            </div>
+                            
+                            <div id="events-list" class="events-grid">
+                                <!-- Les événements seront ajoutés dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Onglet Bâtiments -->
                 <div id="tab-batiments" class="tab-panel active">
                     <div class="buildings-container">
@@ -634,6 +689,7 @@
     <script src="js/systems/AdventurerManager.js"></script>
     <script src="js/systems/MissionManager.js"></script>
     <script src="js/systems/CityUpgradeManager.js"></script>
+    <script src="js/systems/EventManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

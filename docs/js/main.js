@@ -106,6 +106,17 @@ class GrimspireApp {
             refreshMissionsBtn.addEventListener('click', this.refreshMissions.bind(this));
         }
 
+        // Contrôles des événements
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
+        
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', this.markAllEventsAsRead.bind(this));
+        }
+        if (clearReadEventsBtn) {
+            clearReadEventsBtn.addEventListener('click', this.clearReadEvents.bind(this));
+        }
+
         // Modal de sélection d'aventuriers
         const closeModalBtn = document.getElementById('close-modal-btn');
         const cancelMissionBtn = document.getElementById('cancel-mission-btn');
@@ -320,6 +331,8 @@ class GrimspireApp {
             this.renderExpeditions();
         } else if (tabName === 'administration') {
             this.renderAdministration();
+        } else if (tabName === 'evenements') {
+            this.renderEvents();
         }
     }
 
@@ -368,7 +381,12 @@ class GrimspireApp {
             this.renderBuildings();
         } else if (this.gameManager.currentTab === 'administration') {
             this.renderAdministration();
+        } else if (this.gameManager.currentTab === 'evenements') {
+            this.renderEvents();
         }
+        
+        // Mettre à jour la bulle de notification des événements
+        this.updateEventsNotification();
     }
 
     updateResources(resources) {
@@ -1862,6 +1880,190 @@ class GrimspireApp {
                 enchanteursBtn.style.opacity = '0.5';
             }
         }
+    }
+
+    // === MÉTHODES POUR L'ONGLET ÉVÉNEMENTS ===
+
+    renderEvents() {
+        const eventInfo = this.gameManager.getEventInfo();
+        if (!eventInfo) return;
+
+        this.updateEventStats(eventInfo.stats);
+        this.renderEventsList(eventInfo.events);
+        this.updateEventsNotification();
+    }
+
+    updateEventStats(stats) {
+        document.getElementById('events-unread-count').textContent = stats.unreadCount;
+        document.getElementById('events-total-count').textContent = stats.totalCount;
+        document.getElementById('events-last-activity').textContent = stats.lastActivity;
+        document.getElementById('events-section-count').textContent = `${stats.totalCount} événement${stats.totalCount > 1 ? 's' : ''}`;
+    }
+
+    updateEventsNotification() {
+        const eventInfo = this.gameManager.getEventInfo();
+        if (!eventInfo) return;
+
+        const notificationBadge = document.getElementById('events-notification');
+        if (notificationBadge) {
+            const unreadCount = eventInfo.stats.unreadCount;
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.style.display = 'inline-block';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+    }
+
+    renderEventsList(events) {
+        const container = document.getElementById('events-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (events.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <p>📰 Aucun événement pour le moment</p>
+                    <p style="font-size: 0.9rem;">Les événements apparaîtront ici au fur et à mesure</p>
+                </div>
+            `;
+            return;
+        }
+
+        events.forEach(event => {
+            const card = this.createEventCard(event);
+            container.appendChild(card);
+        });
+    }
+
+    createEventCard(event) {
+        const card = document.createElement('div');
+        card.className = `event-card ${event.isRead ? '' : 'unread'}`;
+        card.setAttribute('data-type', event.type);
+
+        card.innerHTML = `
+            <div class="event-header">
+                <div class="event-type">
+                    <span class="event-icon">${event.icon}</span>
+                    <span>${this.getEventTypeName(event.type)}</span>
+                </div>
+                <div class="event-time">
+                    ${event.relativeTime}
+                </div>
+            </div>
+            
+            <h4 class="event-title">${event.title}</h4>
+            <div class="event-description">${event.description}</div>
+            <div class="event-game-time">Jour ${event.gameDay} • ${event.formattedTime}</div>
+            
+            <div class="event-actions">
+                ${this.createEventActions(event)}
+            </div>
+        `;
+
+        return card;
+    }
+
+    getEventTypeName(type) {
+        const typeNames = {
+            construction: 'Construction',
+            construction_complete: 'Construction terminée',
+            upgrade_complete: 'Amélioration terminée',
+            expedition_complete: 'Expédition terminée',
+            expedition_success: 'Mission réussie',
+            expedition_failure: 'Mission échouée',
+            research_complete: 'Recherche terminée',
+            adventurer_recruited: 'Aventurier recruté',
+            adventurer_dismissed: 'Aventurier renvoyé',
+            city_upgrade: 'Amélioration de ville',
+            resource_gain: 'Gain de ressources',
+            random_event: 'Événement aléatoire',
+            danger: 'Danger',
+            celebration: 'Célébration',
+            trade: 'Commerce',
+            discovery: 'Découverte'
+        };
+        return typeNames[type] || 'Événement';
+    }
+
+    createEventActions(event) {
+        const actions = [];
+        
+        if (!event.isRead) {
+            actions.push(`
+                <button class="event-action-btn acknowledge" 
+                        onclick="app.markEventAsRead('${event.id}')">
+                    Marquer comme lu
+                </button>
+            `);
+        }
+        
+        if (!event.isAcknowledged) {
+            actions.push(`
+                <button class="event-action-btn acknowledge" 
+                        onclick="app.acknowledgeEvent('${event.id}')">
+                    Acquitter
+                </button>
+            `);
+        }
+
+        if (event.requiresChoice && event.choices && event.choices.length > 0) {
+            event.choices.forEach(choice => {
+                actions.push(`
+                    <button class="event-action-btn choice" 
+                            onclick="app.makeEventChoice('${event.id}', '${choice.id}')">
+                        ${choice.text}
+                    </button>
+                `);
+            });
+        }
+
+        return actions.join('');
+    }
+
+    // Actions pour l'onglet Événements
+    markEventAsRead(eventId) {
+        const result = this.gameManager.markEventAsRead(eventId);
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderEvents();
+        }
+    }
+
+    acknowledgeEvent(eventId) {
+        const result = this.gameManager.acknowledgeEvent(eventId);
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderEvents();
+        }
+    }
+
+    markAllEventsAsRead() {
+        const result = this.gameManager.markAllEventsAsRead();
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderEvents();
+        }
+    }
+
+    clearReadEvents() {
+        const result = this.gameManager.clearReadEvents();
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderEvents();
+        }
+    }
+
+    makeEventChoice(eventId, choiceId) {
+        // Cette méthode sera implémentée dans les phases futures
+        // pour les événements avec des choix
+        console.log(`Choix ${choiceId} pour l'événement ${eventId}`);
     }
 }
 
