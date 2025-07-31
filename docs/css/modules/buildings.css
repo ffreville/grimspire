@@ -1,5 +1,104 @@
 /* === INTERFACE BÂTIMENTS === */
 
+/* Styles pour les temps de construction */
+.construction-time, .upgrade-time {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(74, 124, 89, 0.2);
+    border-radius: 6px;
+    border: 1px solid #4a7c59;
+    font-size: 0.85rem;
+    color: #e8e6e3;
+}
+
+.construction-time .time-value, .upgrade-time .time-value {
+    color: #4a7c59;
+    font-weight: 500;
+}
+
+/* Styles pour les indications d'onglets débloqués */
+.unlocks-tab {
+    font-size: 0.75rem;
+    color: #d4af37;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Styles pour les statuts de construction/amélioration */
+.construction-status, .upgrade-status, .development-status {
+    margin: 15px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(74, 124, 89, 0.2);
+    border: 1px solid #4a7c59;
+}
+
+.construction-status .status-header, 
+.upgrade-status .status-header,
+.development-status .status-header {
+    font-weight: 500;
+    color: #4a7c59;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(26, 26, 26, 0.8);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #4a4a4a;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4a7c59, #6aa36f);
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    color: #c9c9c9;
+    text-align: center;
+}
+
+/* Classes de statut pour les cartes */
+.building-card.under-construction {
+    border-color: #4a7c59;
+    box-shadow: 0 0 12px rgba(74, 124, 89, 0.3);
+}
+
+.building-card.upgrading {
+    border-color: #d4af37;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+.upgrade-card.under-development {
+    border-color: #8a6ab8;
+    box-shadow: 0 0 12px rgba(138, 106, 184, 0.3);
+}
+
+/* Boutons d'état */
+.building-btn[disabled], .upgrade-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.upgrade-btn.developing {
+    background: linear-gradient(135deg, #8a6ab8, #6a4f88);
+    border-color: #8a6ab8;
+    color: #e8e6e3;
+}
+
+/* === INTERFACE BÂTIMENTS === */
+
 .buildings-container {
     display: flex;
     height: calc(100vh - 200px);

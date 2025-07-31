@@ -362,6 +362,13 @@ class GrimspireApp {
         }
 
         this.updateResources(gameState.resources);
+        
+        // Mettre à jour l'affichage selon l'onglet actuel pour les barres de progression
+        if (this.gameManager.currentTab === 'batiments') {
+            this.renderBuildings();
+        } else if (this.gameManager.currentTab === 'administration') {
+            this.renderAdministration();
+        }
     }
 
     updateResources(resources) {
@@ -489,10 +496,38 @@ class GrimspireApp {
 
     createConstructedBuildingCard(building) {
         const card = document.createElement('div');
-        card.className = 'building-card';
+        card.className = `building-card ${building.isUnderConstruction ? 'under-construction' : ''} ${building.isUpgrading ? 'upgrading' : ''}`;
         
         const effects = this.formatEffects(building.effects);
         const cost = this.formatCost(building.upgradeCost);
+        
+        // Affichage du statut de construction/amélioration
+        let statusHtml = '';
+        if (building.isUnderConstruction) {
+            statusHtml = `
+                <div class="construction-status">
+                    <div class="status-header">🏗️ En construction</div>
+                    <div class="progress-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${building.constructionProgress}%"></div>
+                        </div>
+                        <span class="progress-text">${building.constructionProgress}% - ${building.remainingConstructionTime} restant</span>
+                    </div>
+                </div>
+            `;
+        } else if (building.isUpgrading) {
+            statusHtml = `
+                <div class="upgrade-status">
+                    <div class="status-header">⬆️ Amélioration vers niveau ${building.upgradeTargetLevel}</div>
+                    <div class="progress-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${building.upgradeProgress}%"></div>
+                        </div>
+                        <span class="progress-text">${building.upgradeProgress}% - ${building.remainingUpgradeTime} restant</span>
+                    </div>
+                </div>
+            `;
+        }
         
         card.innerHTML = `
             <div class="building-header">
@@ -500,19 +535,24 @@ class GrimspireApp {
                 <div class="building-info">
                     <h4>${building.customName}</h4>
                     <div class="building-type">${building.typeName}</div>
+                    ${building.unlocksTab ? `<div class="unlocks-tab">🎯 Débloque: ${building.unlocksTab}</div>` : ''}
                 </div>
                 <span class="building-level">Niv. ${building.level}/${building.maxLevel}</span>
             </div>
             <div class="building-district">District: ${building.district}</div>
             
-            <div class="building-effects">
-                <h4>Effets actuels:</h4>
-                <div class="effects-list">
-                    ${effects}
-                </div>
-            </div>
+            ${statusHtml}
             
-            ${building.level < building.maxLevel ? `
+            ${building.built ? `
+                <div class="building-effects">
+                    <h4>Effets actuels:</h4>
+                    <div class="effects-list">
+                        ${effects}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${building.level < building.maxLevel && building.built && !building.isUpgrading ? `
                 <div class="building-cost">
                     <strong>Coût amélioration:</strong>
                     <div class="cost-list">
@@ -550,6 +590,7 @@ class GrimspireApp {
                 <div class="building-type-info">
                     <h5>${buildingType.name}</h5>
                     <div class="unlock-status ${statusClass}">${statusText}</div>
+                    ${buildingType.unlocksTab ? `<div class="unlocks-tab">🎯 Débloque: ${buildingType.unlocksTab}</div>` : ''}
                 </div>
             </div>
             
@@ -569,6 +610,11 @@ class GrimspireApp {
                 <div class="cost-list">
                     ${baseCost}
                 </div>
+            </div>
+            
+            <div class="construction-time">
+                <strong>Temps de construction:</strong>
+                <span class="time-value">${buildingType.baseConstructionTime}h</span>
             </div>
             
             ${isLocked && buildingType.unlockRequirement ? `
@@ -634,7 +680,16 @@ class GrimspireApp {
         
         const actions = [];
         
-        if (building.level < building.maxLevel) {
+        // Si le bâtiment est en construction
+        if (building.isUnderConstruction) {
+            actions.push(`<button class="building-btn" disabled>En construction</button>`);
+        }
+        // Si le bâtiment est en amélioration
+        else if (building.isUpgrading) {
+            actions.push(`<button class="building-btn" disabled>Amélioration en cours</button>`);
+        }
+        // Si le bâtiment est construit et peut être amélioré
+        else if (building.built && building.level < building.maxLevel) {
             actions.push(`
                 <button class="building-btn primary" 
                         onclick="app.upgradeBuilding('${building.id}')"
@@ -642,12 +697,14 @@ class GrimspireApp {
                     ${isPaused ? 'Jeu en pause' : 'Améliorer'}
                 </button>
             `);
-        } else {
+        }
+        // Si le bâtiment est au niveau maximum
+        else if (building.built) {
             actions.push(`<button class="building-btn" disabled>Niveau Max</button>`);
         }
         
-        // Bouton de démolition (sauf pour certains bâtiments protégés)
-        if (building.typeId !== 'mairie') {
+        // Bouton de démolition (sauf pour certains bâtiments protégés et en construction/amélioration)
+        if (building.typeId !== 'mairie' && !building.isUnderConstruction && !building.isUpgrading) {
             actions.push(`
                 <button class="building-btn danger" 
                         onclick="app.demolishBuilding('${building.id}')"
@@ -1534,11 +1591,37 @@ class GrimspireApp {
 
     createUpgradeCard(upgrade) {
         const card = document.createElement('div');
-        card.className = `upgrade-card ${upgrade.unlocked ? 'unlocked' : ''}`;
+        card.className = `upgrade-card ${upgrade.unlocked ? 'unlocked' : ''} ${upgrade.isUnderDevelopment ? 'under-development' : ''}`;
 
         const costHtml = this.formatCost(upgrade.cost);
-        const statusClass = upgrade.unlocked ? 'unlocked' : 'available';
-        const statusText = upgrade.unlocked ? 'Débloqué' : 'Disponible';
+        let statusClass, statusText;
+        
+        if (upgrade.unlocked) {
+            statusClass = 'unlocked';
+            statusText = 'Débloqué';
+        } else if (upgrade.isUnderDevelopment) {
+            statusClass = 'developing';
+            statusText = 'En recherche';
+        } else {
+            statusClass = 'available';
+            statusText = 'Disponible';
+        }
+
+        // Affichage du statut de recherche
+        let statusHtml = '';
+        if (upgrade.isUnderDevelopment) {
+            statusHtml = `
+                <div class="development-status">
+                    <div class="status-header">🔬 Recherche en cours</div>
+                    <div class="progress-info">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${upgrade.developmentProgress}%"></div>
+                        </div>
+                        <span class="progress-text">${upgrade.developmentProgress}% - ${upgrade.remainingTime} restant</span>
+                    </div>
+                </div>
+            `;
+        }
 
         card.innerHTML = `
             <div class="upgrade-header">
@@ -1553,11 +1636,18 @@ class GrimspireApp {
                 ${upgrade.description}
             </div>
             
+            ${statusHtml}
+            
             <div class="upgrade-cost">
                 <div class="upgrade-cost-label">Coût:</div>
                 <div class="upgrade-cost-items">
                     ${costHtml}
                 </div>
+            </div>
+            
+            <div class="upgrade-time">
+                <strong>Temps de recherche:</strong>
+                <span class="time-value">${upgrade.constructionTime}h</span>
             </div>
             
             <div class="upgrade-actions">
@@ -1573,6 +1663,10 @@ class GrimspireApp {
             return `<button class="upgrade-btn unlocked" disabled>Débloqué</button>`;
         }
 
+        if (upgrade.isUnderDevelopment) {
+            return `<button class="upgrade-btn developing" disabled>Recherche en cours</button>`;
+        }
+
         const resources = this.gameManager.getResourcesInfo();
         const canAfford = resources && this.canAffordCost(resources, upgrade.cost);
         const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
@@ -1581,7 +1675,7 @@ class GrimspireApp {
             <button class="upgrade-btn" 
                     onclick="app.unlockUpgrade('${upgrade.id}')"
                     ${!canAfford || isPaused ? 'disabled' : ''}>
-                ${isPaused ? 'Jeu en pause' : 'Débloquer'}
+                ${isPaused ? 'Jeu en pause' : 'Rechercher'}
             </button>
         `;
     }

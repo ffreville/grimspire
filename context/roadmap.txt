@@ -112,4 +112,14 @@ Le nombre de jours s'incrément dans on arrive à minuit.
 
 ## Phase 9
 Ajout d'un temps de construction, on ne peut construire qu'un seul batiment à la fois au départ. Par la suite ça sera plusieurs batiments.
+Le temps de construction se compte en heures de jeu et non dans la vraie vie.
+Le temps de construction est aussi utilisé pour les améliorations.
+Il faut indiquer dans la liste des batiments à construire quels sont les batiments qui débloquent des onglets.
 
+## Phase 10
+Il faudrait que l'horloge se mettre à jour 30 min par 30 min pour éviter d'avoir un gros défilement.
+Le rafraichissement du temps de construction ne fonctionnne pas. Il faut faire aussi 30 min par 30 min.
+
+
+## Phase X
+event aléatoire chaque jour

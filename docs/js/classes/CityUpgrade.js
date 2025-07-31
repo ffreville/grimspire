@@ -12,12 +12,22 @@ class CityUpgrade {
         this.category = 'city'; // Type d'amélioration
         this.icon = '🏗️'; // Icône par défaut
         this.effects = {}; // Effets de l'amélioration (si nécessaire)
+        
+        // Système de temps de construction
+        this.constructionTime = 6; // Temps de recherche en heures de jeu (par défaut)
+        this.isUnderDevelopment = false;
+        this.developmentStartTime = null;
+        this.developmentProgress = 0; // En minutes de jeu
     }
 
     canUnlock(cityUpgrades, cityResources) {
-        // Vérifier si déjà débloqué
+        // Vérifier si déjà débloqué ou en cours de développement
         if (this.unlocked) {
             return { canUnlock: false, reason: 'Déjà débloqué' };
+        }
+        
+        if (this.isUnderDevelopment) {
+            return { canUnlock: false, reason: 'Recherche en cours' };
         }
 
         // Vérifier les ressources
@@ -36,13 +46,65 @@ class CityUpgrade {
         return { canUnlock: true };
     }
 
+    startDevelopment() {
+        if (!this.isUnderDevelopment && !this.unlocked) {
+            this.isUnderDevelopment = true;
+            this.developmentStartTime = Date.now();
+            this.developmentProgress = 0;
+            return true;
+        }
+        return false;
+    }
+
     unlock() {
         this.unlocked = true;
+        this.isUnderDevelopment = false;
+        this.developmentProgress = this.constructionTime * 60; // Marquer comme terminé
         return {
             success: true,
             message: `${this.name} débloqué !`,
             upgrade: this.getDisplayInfo()
         };
+    }
+
+    // Méthodes de progression temporelle
+    advanceProgress(gameMinutesElapsed) {
+        if (this.isUnderDevelopment && !this.unlocked) {
+            this.developmentProgress += gameMinutesElapsed;
+            const totalDuration = this.constructionTime * 60; // Convertir heures en minutes
+            
+            if (this.developmentProgress >= totalDuration) {
+                this.completeDevelopment();
+                return { completed: true };
+            }
+            return { completed: false, progress: this.getProgressPercentage() };
+        }
+        return null;
+    }
+
+    completeDevelopment() {
+        this.isUnderDevelopment = false;
+        this.unlocked = true;
+        this.developmentProgress = this.constructionTime * 60;
+    }
+
+    getProgressPercentage() {
+        if (!this.isUnderDevelopment) return this.unlocked ? 100 : 0;
+        const totalDuration = this.constructionTime * 60;
+        return Math.min(100, Math.round((this.developmentProgress / totalDuration) * 100));
+    }
+
+    getRemainingTime() {
+        if (!this.isUnderDevelopment) return 0;
+        const totalDuration = this.constructionTime * 60;
+        return Math.max(0, totalDuration - this.developmentProgress);
+    }
+
+    getFormattedRemainingTime() {
+        const remaining = this.getRemainingTime();
+        const hours = Math.floor(remaining / 60);
+        const minutes = remaining % 60;
+        return `${hours}h${minutes.toString().padStart(2, '0')}m`;
     }
 
     getDisplayInfo() {
@@ -55,7 +117,11 @@ class CityUpgrade {
             unlocked: this.unlocked,
             category: this.category,
             icon: this.icon,
-            effects: this.effects
+            effects: this.effects,
+            constructionTime: this.constructionTime,
+            isUnderDevelopment: this.isUnderDevelopment,
+            developmentProgress: this.getProgressPercentage(),
+            remainingTime: this.getFormattedRemainingTime()
         };
     }
 
@@ -69,7 +135,11 @@ class CityUpgrade {
             unlocked: this.unlocked,
             category: this.category,
             icon: this.icon,
-            effects: this.effects
+            effects: this.effects,
+            constructionTime: this.constructionTime,
+            isUnderDevelopment: this.isUnderDevelopment,
+            developmentStartTime: this.developmentStartTime,
+            developmentProgress: this.developmentProgress
         };
     }
 
@@ -86,6 +156,10 @@ class CityUpgrade {
         upgrade.category = data.category || 'city';
         upgrade.icon = data.icon || '🏗️';
         upgrade.effects = data.effects || {};
+        upgrade.constructionTime = data.constructionTime || 6;
+        upgrade.isUnderDevelopment = data.isUnderDevelopment || false;
+        upgrade.developmentStartTime = data.developmentStartTime || null;
+        upgrade.developmentProgress = data.developmentProgress || 0;
         
         return upgrade;
     }

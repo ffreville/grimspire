@@ -6,6 +6,8 @@ class BuildingManager {
         this.city = city;
         this.cityUpgradeManager = cityUpgradeManager;
         this.buildingTypes = [];
+        this.constructionQueue = []; // Queue des constructions en attente
+        this.maxConcurrentConstructions = 1; // Nombre max de constructions simultanées
         this.initializeBuildingTypes();
     }
 
@@ -93,6 +95,12 @@ class BuildingManager {
             return { canConstruct: false, reason: 'Points d\'action insuffisants (2 requis)' };
         }
 
+        // Vérifier la limite de constructions simultanées
+        const currentConstructions = this.getCurrentConstructions().length;
+        if (currentConstructions >= this.maxConcurrentConstructions) {
+            return { canConstruct: false, reason: `Construction limitée à ${this.maxConcurrentConstructions} bâtiment(s) simultané(s)` };
+        }
+
         // Vérifications spéciales pour certains bâtiments uniques
         if (typeId === 'guilde_aventuriers' || typeId === 'mairie') {
             const existingUnique = this.city.buildings.find(b => b.buildingType.id === typeId);
@@ -121,19 +129,16 @@ class BuildingManager {
             ? customName.trim() 
             : this.generateDefaultBuildingName(buildingType);
 
-        // Créer le bâtiment
+        // Créer le bâtiment en construction
         const buildingId = `building_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const building = new Building(buildingId, finalName, buildingType, 1);
+        const building = new Building(buildingId, finalName, buildingType, 1, true); // true = démarrer construction
 
-        // Ajouter à la ville
+        // Ajouter à la ville  
         this.city.addBuilding(building);
-        
-        // Appliquer immédiatement les effets du bâtiment
-        this.applyBuildingEffects(building);
 
         return {
             success: true,
-            message: `${finalName} construit avec succès !`,
+            message: `Construction de ${finalName} commencée ! Durée : ${buildingType.getConstructionTimeAtLevel(1)}h`,
             building: building.getDisplayInfo()
         };
     }
@@ -174,21 +179,32 @@ class BuildingManager {
         this.city.resources.spend(upgradeCost);
         this.city.performAction(1);
 
-        // Améliorer le bâtiment
-        const oldLevel = building.level;
-        const oldEffects = { ...building.effects };
-        building.upgrade();
-        
-        // Appliquer la différence d'effets entre ancien et nouveau niveau
-        this.applyBuildingEffectsDifference(oldEffects, building.effects);
+        // Démarrer l'amélioration avec le nouveau système
+        const started = building.startUpgrade();
+        if (started) {
+            const upgradeTime = building.buildingType.getUpgradeTimeToLevel(building.upgradeTargetLevel);
+            return {
+                success: true,
+                message: `Amélioration de ${building.customName} vers le niveau ${building.upgradeTargetLevel} commencée ! Durée : ${upgradeTime}h`,
+                building: building.getDisplayInfo()
+            };
+        } else {
+            // Fallback sur l'ancien système si le nouveau échoue
+            const oldLevel = building.level;
+            const oldEffects = { ...building.effects };
+            building.upgrade();
+            
+            // Appliquer la différence d'effets entre ancien et nouveau niveau
+            this.applyBuildingEffectsDifference(oldEffects, building.effects);
 
-        return {
-            success: true,
-            message: `${building.customName} amélioré au niveau ${building.level} !`,
-            building: building.getDisplayInfo(),
-            oldLevel,
-            newLevel: building.level
-        };
+            return {
+                success: true,
+                message: `${building.customName} amélioré au niveau ${building.level} !`,
+                building: building.getDisplayInfo(),
+                oldLevel,
+                newLevel: building.level
+            };
+        }
     }
 
     canDemolishBuilding(buildingId) {
@@ -273,6 +289,44 @@ class BuildingManager {
         };
     }
 
+    // Obtenir les constructions en cours
+    getCurrentConstructions() {
+        return this.city.buildings.filter(b => b.isUnderConstruction);
+    }
+
+    // Obtenir les améliorations en cours
+    getCurrentUpgrades() {
+        return this.city.buildings.filter(b => b.isUpgrading);
+    }
+
+    // Traitement temporel pour faire avancer les constructions et améliorations
+    processTimeProgress(gameMinutesElapsed) {
+        const completedBuildings = [];
+        const completedUpgrades = [];
+
+        this.city.buildings.forEach(building => {
+            const result = building.advanceProgress(gameMinutesElapsed);
+            if (result && result.completed) {
+                if (result.type === 'construction') {
+                    completedBuildings.push(building);
+                    // Appliquer les effets du bâtiment nouvellement construit
+                    this.applyBuildingEffects(building);
+                } else if (result.type === 'upgrade') {
+                    completedUpgrades.push(building);
+                    // Appliquer les nouveaux effets de l'amélioration
+                    this.applyBuildingEffects(building);
+                }
+            }
+        });
+
+        return {
+            completedBuildings,
+            completedUpgrades,
+            currentConstructions: this.getCurrentConstructions().length,
+            currentUpgrades: this.getCurrentUpgrades().length
+        };
+    }
+
     // Appliquer les effets d'un bâtiment aux ressources de la ville
     applyBuildingEffects(building) {
         const effects = building.effects;
@@ -312,7 +366,9 @@ class BuildingManager {
     // Sérialisation pour la sauvegarde
     toJSON() {
         return {
-            buildingTypes: this.buildingTypes.map(type => type.toJSON())
+            buildingTypes: this.buildingTypes.map(type => type.toJSON()),
+            constructionQueue: this.constructionQueue,
+            maxConcurrentConstructions: this.maxConcurrentConstructions
         };
     }
 
@@ -324,6 +380,9 @@ class BuildingManager {
                 BuildingType.fromJSON(typeData)
             );
         }
+        
+        manager.constructionQueue = data.constructionQueue || [];
+        manager.maxConcurrentConstructions = data.maxConcurrentConstructions || 1;
         
         return manager;
     }

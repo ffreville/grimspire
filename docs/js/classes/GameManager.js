@@ -156,21 +156,44 @@ class GameManager {
             clearInterval(this.gameTimer);
         }
         
-        // 24h jeu (1 jour) = 1min réel = 60s réel
-        // Donc 1min jeu = 60/1440 = 0.041667s réel ≈ 42ms
-        const gameMinuteInMs = (60 * 1000) / 1440; // ≈ 42ms
+        // 24h jeu (1 jour) = 5min réel = 300s réel
+        // Donc 15min jeu = 300/96 = 3.125s réel
+        // L'horloge se met à jour par incréments de 15 minutes
+        const gameQuarterHourInMs = (5 * 60 * 1000) / 96; // ≈ 3125ms = 3.125s
         
         this.gameTimer = setInterval(() => {
             if (this.city && !this.city.isPaused) {
-                this.city.advanceTime(1);
+                // Avancer le temps de 15 minutes
+                this.city.advanceTime(15);
+                
+                // Avancer la progression des constructions et améliorations (15 min par 15 min)
+                if (this.buildingManager) {
+                    const buildingProgressResult = this.buildingManager.processTimeProgress(15);
+                    
+                    // Notifier les constructions/améliorations terminées
+                    if (buildingProgressResult.completedBuildings.length > 0 || buildingProgressResult.completedUpgrades.length > 0) {
+                        this.handleCompletedConstructions(buildingProgressResult);
+                    }
+                }
+
+                // Avancer la progression des améliorations de ville (15 min par 15 min)
+                if (this.cityUpgradeManager) {
+                    const upgradeProgressResult = this.cityUpgradeManager.processTimeProgress(15);
+                    
+                    // Notifier les améliorations de ville terminées
+                    if (upgradeProgressResult.completedUpgrades.length > 0) {
+                        this.handleCompletedUpgrades(upgradeProgressResult);
+                    }
+                }
+                
                 this.notifyStateChange();
                 
-                // Sauvegarde automatique toutes les heures de jeu
-                if (this.city.currentTime % 60 === 0) {
+                // Sauvegarde automatique toutes les 2 heures de jeu (120 minutes)
+                if (this.city.currentTime % 120 === 0) {
                     this.autoSave();
                 }
             }
-        }, gameMinuteInMs);
+        }, gameQuarterHourInMs);
     }
 
     stopGameTimer() {
@@ -291,6 +314,44 @@ class GameManager {
         
         this.notifyStateChange();
         this.autoSave();
+    }
+
+    // Gérer les constructions et améliorations terminées
+    handleCompletedConstructions(progressResult) {
+        const messages = [];
+        
+        // Constructions terminées
+        progressResult.completedBuildings.forEach(building => {
+            messages.push(`🏗️ ${building.customName} construit avec succès !`);
+            
+            // Vérifier si le bâtiment débloque un onglet
+            if (building.buildingType.unlocksTab) {
+                messages.push(`🎉 Nouvel onglet débloqué : ${building.buildingType.unlocksTab}`);
+            }
+        });
+        
+        // Améliorations terminées
+        progressResult.completedUpgrades.forEach(building => {
+            messages.push(`⬆️ ${building.customName} amélioré au niveau ${building.level} !`);
+        });
+        
+        // Ici on pourrait déclencher des notifications dans l'interface
+        // Pour l'instant on log juste dans la console
+        messages.forEach(msg => console.log(msg));
+    }
+
+    // Gérer les améliorations de ville terminées
+    handleCompletedUpgrades(progressResult) {
+        const messages = [];
+        
+        // Améliorations de ville terminées
+        progressResult.completedUpgrades.forEach(upgrade => {
+            messages.push(`🔬 Recherche terminée : ${upgrade.name} débloqué !`);
+        });
+        
+        // Ici on pourrait déclencher des notifications dans l'interface
+        // Pour l'instant on log juste dans la console
+        messages.forEach(msg => console.log(msg));
     }
 
     addRandomAdventurer() {

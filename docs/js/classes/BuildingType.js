@@ -12,6 +12,9 @@ class BuildingType {
         this.icon = '🏗️'; // Icône par défaut
         this.description = '';
         this.maxLevel = 5; // Niveau maximum par défaut
+        this.baseConstructionTime = 24; // Temps de construction de base en heures de jeu
+        this.baseUpgradeTime = 12; // Temps d'amélioration de base en heures de jeu
+        this.unlocksTab = null; // Nom de l'onglet que ce bâtiment débloque (si applicable)
     }
 
     isUnlocked(cityUpgradeManager) {
@@ -38,6 +41,16 @@ class BuildingType {
         return cost;
     }
 
+    getConstructionTimeAtLevel(level = 1) {
+        // Le temps de construction augmente légèrement avec le niveau (pour les améliorations)
+        return Math.floor(this.baseConstructionTime * Math.pow(1.2, level - 1));
+    }
+
+    getUpgradeTimeToLevel(level) {
+        // Temps d'amélioration vers le niveau donné
+        return Math.floor(this.baseUpgradeTime * Math.pow(1.3, level - 2));
+    }
+
     getDisplayInfo(cityUpgradeManager = null) {
         return {
             id: this.id,
@@ -49,6 +62,9 @@ class BuildingType {
             icon: this.icon,
             description: this.description,
             maxLevel: this.maxLevel,
+            baseConstructionTime: this.baseConstructionTime,
+            baseUpgradeTime: this.baseUpgradeTime,
+            unlocksTab: this.unlocksTab,
             unlocked: cityUpgradeManager ? this.isUnlocked(cityUpgradeManager) : true
         };
     }
@@ -63,7 +79,10 @@ class BuildingType {
             unlockRequirement: this.unlockRequirement,
             icon: this.icon,
             description: this.description,
-            maxLevel: this.maxLevel
+            maxLevel: this.maxLevel,
+            baseConstructionTime: this.baseConstructionTime,
+            baseUpgradeTime: this.baseUpgradeTime,
+            unlocksTab: this.unlocksTab
         };
     }
 
@@ -80,6 +99,9 @@ class BuildingType {
         buildingType.icon = data.icon || '🏗️';
         buildingType.description = data.description || '';
         buildingType.maxLevel = data.maxLevel || 5;
+        buildingType.baseConstructionTime = data.baseConstructionTime || 4;
+        buildingType.baseUpgradeTime = data.baseUpgradeTime || 4;
+        buildingType.unlocksTab = data.unlocksTab || null;
         
         return buildingType;
     }
@@ -121,6 +143,8 @@ class BuildingType {
         );
         type.icon = '🏪';
         type.description = 'Centre commercial pour le négoce de marchandises';
+        type.baseConstructionTime = 8;
+        type.unlocksTab = 'commerce';
         return type;
     }
 
@@ -161,6 +185,9 @@ class BuildingType {
         );
         type.icon = '🏛️';
         type.description = 'Centre administratif de votre cité';
+        type.baseConstructionTime = 8; // Plus long car c'est un bâtiment important
+        type.baseUpgradeTime = 8;
+        type.unlocksTab = 'administration';
         return type;
     }
 
@@ -174,6 +201,8 @@ class BuildingType {
         );
         type.icon = '⚒️';
         type.description = "Forge pour la production d'équipements et d'outils";
+        type.baseConstructionTime = 8;
+        type.unlocksTab = 'industrie';
         return type;
     }
 

@@ -126,7 +126,14 @@ class City {
     }
 
     processHourly() {
-        // Traitement par heure si nécessaire dans le futur
+        // Traitement par heure : progression des constructions
+        this.processBuildingProgress();
+    }
+
+    // Nouveau : traitement des constructions/améliorations
+    processBuildingProgress() {
+        // Cette méthode sera appelée par le GameManager qui a accès au BuildingManager
+        // Elle est définie ici pour maintenir la structure mais sera déléguée
     }
 
     processDaily() {

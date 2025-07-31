@@ -112,13 +112,20 @@ class CityUpgradeManager {
         this.city.resources.spend(upgrade.cost);
         this.city.performAction(1);
 
-        // Débloquer l'amélioration
-        const result = upgrade.unlock();
-
-        // Appliquer les effets de l'amélioration (si nécessaire)
-        this.applyUpgradeEffects(upgrade);
-
-        return result;
+        // Démarrer le développement
+        const started = upgrade.startDevelopment();
+        if (started) {
+            return {
+                success: true,
+                message: `Recherche de ${upgrade.name} commencée ! Durée : ${upgrade.constructionTime}h`,
+                upgrade: upgrade.getDisplayInfo()
+            };
+        } else {
+            // Fallback sur l'ancien système si le nouveau échoue
+            const result = upgrade.unlock();
+            this.applyUpgradeEffects(upgrade);
+            return result;
+        }
     }
 
     applyUpgradeEffects(upgrade) {
@@ -170,6 +177,30 @@ class CityUpgradeManager {
             unlocked,
             available,
             progress: Math.round((unlocked / total) * 100)
+        };
+    }
+
+    // Obtenir les améliorations en cours de développement
+    getCurrentDevelopments() {
+        return this.upgrades.filter(u => u.isUnderDevelopment);
+    }
+
+    // Traitement temporel pour faire avancer les recherches
+    processTimeProgress(gameMinutesElapsed) {
+        const completedUpgrades = [];
+
+        this.upgrades.forEach(upgrade => {
+            const result = upgrade.advanceProgress(gameMinutesElapsed);
+            if (result && result.completed) {
+                completedUpgrades.push(upgrade);
+                // Appliquer les effets de l'amélioration nouvellement débloquée
+                this.applyUpgradeEffects(upgrade);
+            }
+        });
+
+        return {
+            completedUpgrades,
+            currentDevelopments: this.getCurrentDevelopments().length
         };
     }
 
