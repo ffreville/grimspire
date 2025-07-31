@@ -1,0 +1,340 @@
+/* === ONGLET SUCCÈS === */
+.achievements-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    gap: 0;
+}
+
+/* === SIDEBAR SUCCÈS === */
+.achievements-sidebar {
+    width: 280px;
+    background: rgba(0, 0, 0, 0.4);
+    border-right: 2px solid rgba(139, 90, 60, 0.3);
+    padding: 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.achievements-stats-sidebar {
+    margin-bottom: 25px;
+}
+
+.achievements-stats-sidebar h4 {
+    color: #d4af37;
+    margin: 0 0 15px 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* === ZONE PRINCIPALE SUCCÈS === */
+.achievements-main {
+    flex: 1;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.achievements-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(139, 90, 60, 0.3);
+}
+
+.achievements-title {
+    color: #d4af37;
+    font-size: 1.2rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.achievements-count {
+    color: #c9c9c9;
+    font-size: 0.9rem;
+    background: rgba(139, 90, 60, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* === GRILLE SUCCÈS === */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 15px;
+}
+
+/* Messages vides */
+.achievements-grid div[style*="text-align: center"] {
+    grid-column: 1 / -1;
+    padding: 40px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border: 1px dashed rgba(139, 90, 60, 0.2);
+    text-align: center;
+}
+
+/* === CARTES SUCCÈS === */
+.achievement-card {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b5a3c;
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-card:hover {
+    border-color: #d4af37;
+    box-shadow: 0 4px 15px rgba(139, 90, 60, 0.3);
+    transform: translateY(-2px);
+}
+
+.achievement-card.unlocked {
+    border-color: #4a7c59;
+    background: rgba(74, 124, 89, 0.1);
+    border-left: 4px solid #4a7c59;
+}
+
+.achievement-card.unlocked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #4a7c59 0%, transparent 100%);
+}
+
+.achievement-card.locked {
+    opacity: 0.6;
+    border-color: #666;
+}
+
+/* === EN-TÊTE SUCCÈS === */
+.achievement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.achievement-icon {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: rgba(139, 90, 60, 0.2);
+    border-radius: 50%;
+    border: 2px solid rgba(139, 90, 60, 0.3);
+}
+
+.achievement-card.unlocked .achievement-icon {
+    background: rgba(74, 124, 89, 0.2);
+    border-color: #4a7c59;
+    color: #4a7c59;
+}
+
+.achievement-status {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #c9c9c9;
+    white-space: nowrap;
+}
+
+.achievement-status.unlocked {
+    background: rgba(74, 124, 89, 0.3);
+    color: #4a7c59;
+    border: 1px solid #4a7c59;
+}
+
+.achievement-status.locked {
+    background: rgba(102, 102, 102, 0.3);
+    color: #999;
+}
+
+/* === CONTENU SUCCÈS === */
+.achievement-info {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.achievement-name {
+    color: #d4af37;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.achievement-card.locked .achievement-name {
+    color: #999;
+}
+
+.achievement-description {
+    color: #e8e6e3;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.achievement-card.locked .achievement-description {
+    color: #aaa;
+}
+
+.achievement-requirement {
+    color: #c9c9c9;
+    font-size: 0.8rem;
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.achievement-card.locked .achievement-requirement {
+    color: #888;
+}
+
+.achievement-unlock-date {
+    color: #999;
+    font-size: 0.75rem;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border-left: 2px solid rgba(139, 90, 60, 0.5);
+    font-family: 'Courier New', monospace;
+}
+
+.achievement-card.unlocked .achievement-unlock-date {
+    color: #4a7c59;
+    border-left-color: #4a7c59;
+}
+
+/* === PROGRESSION SUCCÈS === */
+.achievement-progress {
+    margin: 10px 0;
+}
+
+.achievement-progress-bar {
+    background: rgba(139, 90, 60, 0.3);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.achievement-progress-fill {
+    background: linear-gradient(90deg, #4a7c59 0%, #5a8c69 100%);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.achievement-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #c9c9c9;
+    margin-bottom: 4px;
+}
+
+/* === CATÉGORIES DE SUCCÈS === */
+.achievement-card[data-category="construction"] {
+    border-left-color: #8b5a3c;
+}
+
+.achievement-card[data-category="exploration"] {
+    border-left-color: #6c4a7c;
+}
+
+.achievement-card[data-category="management"] {
+    border-left-color: #4a7c79;
+}
+
+.achievement-card[data-category="combat"] {
+    border-left-color: #c94a4a;
+}
+
+.achievement-card[data-category="economy"] {
+    border-left-color: #d4af37;
+}
+
+/* === RÉCOMPENSES === */
+.achievement-rewards {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+}
+
+.achievement-rewards-label {
+    color: #d4af37;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.achievement-rewards-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.achievement-reward-item {
+    background: rgba(212, 175, 55, 0.2);
+    color: #d4af37;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+/* === SUCCÈS SECRETS === */
+.achievement-card.secret {
+    background: rgba(50, 50, 100, 0.1);
+    border-color: #6c4a7c;
+}
+
+.achievement-card.secret .achievement-name {
+    color: #8a7ca8;
+}
+
+.achievement-card.secret.locked .achievement-name {
+    color: #666;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .achievements-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .achievements-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid rgba(139, 90, 60, 0.3);
+    }
+    
+    .achievements-main {
+        padding: 15px;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .achievement-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+}

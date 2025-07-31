@@ -12,8 +12,8 @@ class BuildingType {
         this.icon = '🏗️'; // Icône par défaut
         this.description = '';
         this.maxLevel = 5; // Niveau maximum par défaut
-        this.baseConstructionTime = 4; // Temps de construction de base en heures de jeu
-        this.baseUpgradeTime = 4; // Temps d'amélioration de base en heures de jeu
+        this.baseConstructionTime = 1; // Temps de construction de base en heures de jeu
+        this.baseUpgradeTime = 1; // Temps d'amélioration de base en heures de jeu
         this.unlocksTab = null; // Nom de l'onglet que ce bâtiment débloque (si applicable)
     }
 
@@ -143,7 +143,7 @@ class BuildingType {
         );
         type.icon = '🏪';
         type.description = 'Centre commercial pour le négoce de marchandises';
-        type.baseConstructionTime = 8;
+        type.baseConstructionTime = 1;
         type.unlocksTab = 'commerce';
         return type;
     }
@@ -158,6 +158,7 @@ class BuildingType {
         );
         type.icon = '🔨';
         type.description = "Atelier d'artisan produisant des biens de qualité";
+        type.unlocksTab = 'commerce';
         return type;
     }
 
@@ -185,8 +186,8 @@ class BuildingType {
         );
         type.icon = '🏛️';
         type.description = 'Centre administratif de votre cité';
-        type.baseConstructionTime = 8; // Plus long car c'est un bâtiment important
-        type.baseUpgradeTime = 8;
+        type.baseConstructionTime = 1; // Plus long car c'est un bâtiment important
+        type.baseUpgradeTime = 1;
         type.unlocksTab = 'administration';
         return type;
     }
@@ -217,6 +218,7 @@ class BuildingType {
         );
         type.icon = '🧪';
         type.description = 'Laboratoire alchimique produisant des substances magiques';
+        type.unlocksTab = 'industrie';
         return type;
     }
 
@@ -231,6 +233,7 @@ class BuildingType {
         );
         type.icon = '✨';
         type.description = "Atelier d'enchantement pour améliorer les équipements";
+        type.unlocksTab = 'industrie';
         return type;
     }
 
@@ -246,6 +249,7 @@ class BuildingType {
         type.icon = '⚔️';
         type.description = 'Quartier général pour recruter et gérer les aventuriers';
         type.maxLevel = 3; // Moins de niveaux car c'est un bâtiment unique
+        type.unlocksTab = 'guilde et expéditions'
         return type;
     }
 

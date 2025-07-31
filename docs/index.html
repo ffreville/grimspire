@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/modules/commerce.css">
     <link rel="stylesheet" href="css/modules/industrie.css">
     <link rel="stylesheet" href="css/modules/events.css">
+    <link rel="stylesheet" href="css/modules/achievements.css">
 </head>
 <body>
     <div id="app">
@@ -118,6 +119,7 @@
                 <button class="tab-btn" data-tab="administration" style="opacity: 0.5; cursor: not-allowed;" disabled>Administration</button>
                 <button class="tab-btn" data-tab="guilde" style="opacity: 0.5; cursor: not-allowed;" disabled>Guilde</button>
                 <button class="tab-btn" data-tab="expedition" style="opacity: 0.5; cursor: not-allowed;" disabled>Expéditions</button>
+                <button class="tab-btn" data-tab="succes">Succès</button>
             </div>
             
             <!-- Contenu des onglets -->
@@ -421,6 +423,49 @@
                     </div>
                 </div>
                 
+                <!-- Onglet Succès -->
+                <div id="tab-succes" class="tab-panel">
+                    <div class="achievements-container">
+                        <!-- Sidebar gauche avec statistiques -->
+                        <div class="achievements-sidebar">
+                            <!-- Statistiques des succès -->
+                            <div class="achievements-stats-sidebar">
+                                <h4>🏆 Succès</h4>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Débloqués</span>
+                                    <span id="achievements-unlocked-count" class="stat-value highlight">0</span>
+                                </div>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Total</span>
+                                    <span id="achievements-total-count" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Progression</span>
+                                    <span id="achievements-progress" class="stat-value">0%</span>
+                                </div>
+                                <div class="stat-item-sidebar">
+                                    <span class="stat-label">Dernière réussite</span>
+                                    <span id="achievements-last-unlock" class="stat-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone principale -->
+                        <div class="achievements-main">
+                            <div class="achievements-header">
+                                <h3 class="achievements-title">
+                                    🏆 Liste des Succès
+                                </h3>
+                                <span class="achievements-count" id="achievements-section-count">0 succès</span>
+                            </div>
+                            
+                            <div id="achievements-list" class="achievements-grid">
+                                <!-- Les succès seront ajoutés dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="tab-administration" class="tab-panel">
                     <div class="administration-container">
                         <!-- Sidebar gauche avec menu vertical -->
@@ -681,6 +726,7 @@
     <script src="js/classes/BuildingType.js"></script>
     <script src="js/classes/Building.js"></script>
     <script src="js/classes/Adventurer.js"></script>
+    <script src="js/classes/Achievement.js"></script>
     <script src="js/classes/City.js"></script>
     <script src="js/classes/Mission.js"></script>
     <script src="js/classes/CityUpgrade.js"></script>
@@ -690,6 +736,7 @@
     <script src="js/systems/MissionManager.js"></script>
     <script src="js/systems/CityUpgradeManager.js"></script>
     <script src="js/systems/EventManager.js"></script>
+    <script src="js/systems/AchievementManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

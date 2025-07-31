@@ -128,5 +128,12 @@ Quand une expédition se termine on créé un évènement.
 Il faut qu'un évènement puisse être acquitté. Et par la suite il faudra pouvoir faire des choix sur des evenements.
 Une petite bulle rouge avec le nombre d'evenements non acquittés doit être visible sur l'onglet.
 
+#Phase 12
+Il faut qu'on puisse faire qu'une seule recherche en même temps dans l'onglet administration.
+Dans l'onglet evenements, on ne doit pas pouvoir cliquer sur les boutons si le jeu est en pause.
+Si tu peux ajouter un nouvel onglet tout à droite : Succès .
+Ce sera la liste des succès que l'on arrive à faire.
+
+
 ## Phase X
 event aléatoire chaque jour

@@ -89,6 +89,16 @@ class CityUpgradeManager {
             return { canUnlock: false, reason: 'Amélioration introuvable' };
         }
 
+        // Vérifier qu'il n'y a pas déjà une recherche en cours
+        const currentDevelopments = this.getCurrentDevelopments();
+        if (currentDevelopments.length > 0) {
+            const currentResearch = currentDevelopments[0];
+            return { 
+                canUnlock: false, 
+                reason: `Une recherche est déjà en cours : ${currentResearch.name}` 
+            };
+        }
+
         return upgrade.canUnlock(this.upgrades, this.city.resources);
     }
 

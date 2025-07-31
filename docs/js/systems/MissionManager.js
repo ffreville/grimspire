@@ -101,7 +101,7 @@ class MissionManager {
         const maxDuration = Math.min(difficulty + 2, 7);
         const availableDurations = durations.slice(minDuration - 1, maxDuration);
         const duration = availableDurations[Math.floor(Math.random() * availableDurations.length)];
-        
+
         // Sélectionner un nom
         const typeNames = this.missionNames[selectedType];
         const baseName = typeNames[Math.floor(Math.random() * typeNames.length)];

@@ -307,14 +307,27 @@ class GrimspireApp {
         // Vérifier si l'onglet est désactivé
         const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
         if (tabButton && tabButton.disabled) {
-            let requiredUpgrade = '';
-            if (tabName === 'guilde' || tabName === 'expedition' || tabName === 'guerre') {
-                requiredUpgrade = 'Débloquer la guilde des aventuriers';
+            let requiredAction = '';
+            if (tabName === 'guilde' || tabName === 'expedition') {
+                const isGuildUnlocked = this.gameManager.isUpgradeUnlocked('guild_unlock');
+                const hasGuildBuilding = this.gameManager.hasGuildBuilding();
+                
+                if (!isGuildUnlocked) {
+                    requiredAction = 'Débloquer la guilde des aventuriers dans l\'onglet Administration';
+                } else if (!hasGuildBuilding) {
+                    requiredAction = 'Construire le bâtiment Guilde des Aventuriers';
+                }
+            } else if (tabName === 'administration') {
+                requiredAction = 'Construire une Mairie';
+            } else if (tabName === 'commerce') {
+                requiredAction = 'Construire un bâtiment commercial (Marché, Échoppe d\'artisan, ou Banque)';
+            } else if (tabName === 'industrie') {
+                requiredAction = 'Construire un bâtiment industriel (Forge, Alchimiste, ou Enchanteur)';
             }
             
             this.showActionResult({
                 success: false,
-                message: `Onglet verrouillé. Requis: ${requiredUpgrade}`
+                message: `Onglet verrouillé. ${requiredAction}`
             });
             return;
         }
@@ -333,6 +346,8 @@ class GrimspireApp {
             this.renderAdministration();
         } else if (tabName === 'evenements') {
             this.renderEvents();
+        } else if (tabName === 'succes') {
+            this.renderAchievements();
         }
     }
 
@@ -601,6 +616,7 @@ class GrimspireApp {
         const baseCost = this.formatCost(buildingType.baseCost);
         const statusClass = isLocked ? 'locked' : 'available';
         const statusText = isLocked ? 'Verrouillé' : 'Disponible';
+        
         
         card.innerHTML = `
             <div class="building-type-header">
@@ -1721,8 +1737,9 @@ class GrimspireApp {
         const commerceTab = document.querySelector('[data-tab="commerce"]');
         const industrieTab = document.querySelector('[data-tab="industrie"]');
 
-        // Vérifier si la guilde est débloquée
+        // Vérifier si la guilde est débloquée ET construite
         const isGuildUnlocked = this.gameManager.isUpgradeUnlocked('guild_unlock');
+        const hasGuildBuilding = this.gameManager.hasGuildBuilding();
         
         // Vérifier si une mairie est construite
         const hasCityHall = this.gameManager.hasCityHall();
@@ -1734,7 +1751,7 @@ class GrimspireApp {
         const industrialBuildings = this.gameManager.hasIndustrialBuildings();
         
         if (guildTab) {
-            if (isGuildUnlocked) {
+            if (isGuildUnlocked && hasGuildBuilding) {
                 guildTab.disabled = false;
                 guildTab.style.opacity = '1';
                 guildTab.style.cursor = 'pointer';
@@ -1746,7 +1763,7 @@ class GrimspireApp {
         }
 
         if (expeditionTab) {
-            if (isGuildUnlocked) {
+            if (isGuildUnlocked && hasGuildBuilding) {
                 expeditionTab.disabled = false;
                 expeditionTab.style.opacity = '1';
                 expeditionTab.style.cursor = 'pointer';
@@ -1882,6 +1899,126 @@ class GrimspireApp {
         }
     }
 
+    // === MÉTHODES POUR L'ONGLET SUCCÈS ===
+
+    renderAchievements() {
+        const achievementInfo = this.gameManager.getAchievementInfo();
+        if (!achievementInfo) return;
+
+        this.updateAchievementStats(achievementInfo.stats);
+        this.renderAchievementsList(achievementInfo.achievements);
+    }
+
+    updateAchievementStats(stats) {
+        document.getElementById('achievements-unlocked-count').textContent = stats.unlocked;
+        document.getElementById('achievements-total-count').textContent = stats.total;
+        document.getElementById('achievements-progress').textContent = `${stats.progress}%`;
+        document.getElementById('achievements-last-unlock').textContent = stats.lastUnlock;
+        document.getElementById('achievements-section-count').textContent = `${stats.total} succès`;
+    }
+
+    renderAchievementsList(achievements) {
+        const container = document.getElementById('achievements-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (achievements.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #999;">
+                    <p>🏆 Aucun succès disponible pour le moment</p>
+                    <p style="font-size: 0.9rem;">Les succès apparaîtront au fur et à mesure de votre progression</p>
+                </div>
+            `;
+            return;
+        }
+
+        achievements.forEach(achievement => {
+            const card = this.createAchievementCard(achievement);
+            container.appendChild(card);
+        });
+    }
+
+    createAchievementCard(achievement) {
+        const card = document.createElement('div');
+        card.className = `achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+        card.setAttribute('data-category', achievement.category);
+
+        const rewardsHtml = this.createAchievementRewardsHtml(achievement.rewards);
+        const progressHtml = achievement.maxProgress > 1 ? this.createAchievementProgressHtml(achievement) : '';
+
+        card.innerHTML = `
+            <div class="achievement-header">
+                <div class="achievement-icon">${achievement.icon}</div>
+                <div class="achievement-info">
+                    <h4 class="achievement-name">${achievement.isSecret && !achievement.unlocked ? '???' : achievement.name}</h4>
+                    <div class="achievement-description">
+                        ${achievement.isSecret && !achievement.unlocked ? 'Succès secret non découvert' : achievement.description}
+                    </div>
+                    <div class="achievement-requirement">
+                        ${achievement.isSecret && !achievement.unlocked ? '???' : achievement.requirement}
+                    </div>
+                </div>
+                <div class="achievement-status ${achievement.unlocked ? 'unlocked' : 'locked'}">
+                    ${achievement.unlocked ? 'Débloqué' : 'Verrouillé'}
+                </div>
+            </div>
+            
+            ${progressHtml}
+            
+            ${achievement.unlocked && achievement.formattedUnlockDate ? `
+                <div class="achievement-unlock-date">
+                    Débloqué le ${achievement.formattedUnlockDate}
+                </div>
+            ` : ''}
+            
+            ${rewardsHtml}
+        `;
+
+        return card;
+    }
+
+    createAchievementRewardsHtml(rewards) {
+        if (!rewards || Object.keys(rewards).length === 0) {
+            return '';
+        }
+
+        const rewardItems = Object.entries(rewards).map(([resource, amount]) => {
+            const icons = {
+                'gold': '💰',
+                'reputation': '⭐',
+                'materials': '🔨',
+                'magic': '✨',
+                'population': '👥'
+            };
+            
+            return `<span class="achievement-reward-item">${icons[resource] || resource}: +${amount}</span>`;
+        }).join('');
+
+        return `
+            <div class="achievement-rewards">
+                <div class="achievement-rewards-label">Récompenses:</div>
+                <div class="achievement-rewards-list">
+                    ${rewardItems}
+                </div>
+            </div>
+        `;
+    }
+
+    createAchievementProgressHtml(achievement) {
+        return `
+            <div class="achievement-progress">
+                <div class="achievement-progress-text">
+                    <span>Progression</span>
+                    <span>${achievement.progress}/${achievement.maxProgress}</span>
+                </div>
+                <div class="achievement-progress-bar">
+                    <div class="achievement-progress-fill" style="width: ${achievement.progressPercent}%"></div>
+                </div>
+            </div>
+        `;
+    }
+
     // === MÉTHODES POUR L'ONGLET ÉVÉNEMENTS ===
 
     renderEvents() {
@@ -1891,6 +2028,7 @@ class GrimspireApp {
         this.updateEventStats(eventInfo.stats);
         this.renderEventsList(eventInfo.events);
         this.updateEventsNotification();
+        this.updateEventsControlButtons();
     }
 
     updateEventStats(stats) {
@@ -1913,6 +2051,21 @@ class GrimspireApp {
             } else {
                 notificationBadge.style.display = 'none';
             }
+        }
+    }
+
+    updateEventsControlButtons() {
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
+        
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
+        
+        if (markAllReadBtn) {
+            markAllReadBtn.disabled = isPaused;
+        }
+        
+        if (clearReadEventsBtn) {
+            clearReadEventsBtn.disabled = isPaused;
         }
     }
 
@@ -1990,12 +2143,14 @@ class GrimspireApp {
 
     createEventActions(event) {
         const actions = [];
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
         if (!event.isRead) {
             actions.push(`
                 <button class="event-action-btn acknowledge" 
-                        onclick="app.markEventAsRead('${event.id}')">
-                    Marquer comme lu
+                        onclick="app.markEventAsRead('${event.id}')"
+                        ${isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : 'Marquer comme lu'}
                 </button>
             `);
         }
@@ -2003,8 +2158,9 @@ class GrimspireApp {
         if (!event.isAcknowledged) {
             actions.push(`
                 <button class="event-action-btn acknowledge" 
-                        onclick="app.acknowledgeEvent('${event.id}')">
-                    Acquitter
+                        onclick="app.acknowledgeEvent('${event.id}')"
+                        ${isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : 'Acquitter'}
                 </button>
             `);
         }
@@ -2013,8 +2169,9 @@ class GrimspireApp {
             event.choices.forEach(choice => {
                 actions.push(`
                     <button class="event-action-btn choice" 
-                            onclick="app.makeEventChoice('${event.id}', '${choice.id}')">
-                        ${choice.text}
+                            onclick="app.makeEventChoice('${event.id}', '${choice.id}')"
+                            ${isPaused ? 'disabled' : ''}>
+                        ${isPaused ? 'Jeu en pause' : choice.text}
                     </button>
                 `);
             });
@@ -2043,6 +2200,11 @@ class GrimspireApp {
     }
 
     markAllEventsAsRead() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de marquer les événements : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.markAllEventsAsRead();
         this.showActionResult(result);
         
@@ -2052,6 +2214,11 @@ class GrimspireApp {
     }
 
     clearReadEvents() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'effacer les événements : jeu en pause' });
+            return;
+        }
+        
         const result = this.gameManager.clearReadEvents();
         this.showActionResult(result);
         

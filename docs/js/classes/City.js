@@ -11,6 +11,9 @@ class City {
         this.currentTime = 0; // Heure actuelle en minutes (0-1439, soit 0:00-23:59)
         this.isPaused = false;
         
+        // Initialiser les gestionnaires
+        this.achievementManager = new AchievementManager(this);
+        
         // Initialiser les bâtiments de base
         this.initializeStartingBuildings();
     }

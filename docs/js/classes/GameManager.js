@@ -60,6 +60,9 @@ class GameManager {
         // Notifier les changements
         this.notifyStateChange();
         
+        // Vérifier les succès après initialisation
+        this.checkAchievements();
+        
         return this.city.getGameState();
     }
 
@@ -436,6 +439,11 @@ class GameManager {
         return this.city.buildings.some(building => building.buildingType.id === 'mairie');
     }
 
+    hasGuildBuilding() {
+        if (!this.city) return false;
+        return this.city.buildings.some(building => building.buildingType.id === 'guilde_aventuriers');
+    }
+
     hasCommercialBuildings() {
         if (!this.city) return { hasAny: false, marche: false, artisan: false, banque: false };
         
@@ -704,6 +712,28 @@ class GameManager {
         this.notifyStateChange();
         this.autoSave();
         return { success: true, message: `${count} événement(s) effacé(s)` };
+    }
+
+    // Méthodes pour l'onglet Succès
+    getAchievementInfo() {
+        if (!this.city || !this.city.achievementManager) return null;
+        
+        return {
+            stats: this.city.achievementManager.getAchievementStats(),
+            achievements: this.city.achievementManager.getAllAchievements()
+        };
+    }
+
+    checkAchievements() {
+        if (!this.city || !this.city.achievementManager) return [];
+        
+        const newlyUnlocked = this.city.achievementManager.checkAchievements();
+        if (newlyUnlocked.length > 0) {
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        
+        return newlyUnlocked;
     }
 
     resetGame() {

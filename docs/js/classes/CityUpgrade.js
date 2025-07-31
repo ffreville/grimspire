@@ -14,7 +14,7 @@ class CityUpgrade {
         this.effects = {}; // Effets de l'amélioration (si nécessaire)
         
         // Système de temps de construction
-        this.constructionTime = 6; // Temps de recherche en heures de jeu (par défaut)
+        this.constructionTime = 1; // Temps de recherche en heures de jeu (par défaut)
         this.isUnderDevelopment = false;
         this.developmentStartTime = null;
         this.developmentProgress = 0; // En minutes de jeu
