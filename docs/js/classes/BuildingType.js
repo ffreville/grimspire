@@ -112,7 +112,7 @@ class BuildingType {
             'maison',
             'Maison',
             'residentiel',
-            { population: 10, goldPerTurn: 9 },
+            { population: 10, goldPerHour: 3 },
             { gold: 200, materials: 50 }
         );
         type.icon = '🏠';
@@ -125,7 +125,7 @@ class BuildingType {
             'taverne',
             'Taverne',
             'residentiel',
-            { population: 5, goldPerTurn: 19, reputation: 2 },
+            { population: 5, goldPerHour: 3, reputation: 2 },
             { gold: 300, materials: 100 }
         );
         type.icon = '🍺';
@@ -138,7 +138,7 @@ class BuildingType {
             'marche',
             'Marché',
             'commercial',
-            { goldPerTurn: 29, materialsPerTurn: 5 },
+            { goldPerHour: 6, materialsPerHour: 3 },
             { gold: 400, materials: 150 }
         );
         type.icon = '🏪';
@@ -153,7 +153,7 @@ class BuildingType {
             'echoppe_artisan',
             "Échoppe d'Artisan",
             'commercial',
-            { materialsPerTurn: 10, goldPerTurn: 14 },
+            { materialsPerHour: 3, goldPerHour: 3 },
             { gold: 350, materials: 200 }
         );
         type.icon = '🔨';
@@ -167,7 +167,7 @@ class BuildingType {
             'banque',
             'Banque',
             'commercial',
-            { goldPerTurn: 54, reputation: 5 },
+            { goldPerHour: 9, reputation: 5 },
             { gold: 800, materials: 300 },
             'bank_unlock'
         );
@@ -181,7 +181,7 @@ class BuildingType {
             'mairie',
             'Mairie',
             'administratif',
-            { reputation: 10, goldPerTurn: 24 },
+            { reputation: 10, goldPerHour: 6 },
             { gold: 1000, materials: 500 }
         );
         type.icon = '🏛️';
@@ -197,7 +197,7 @@ class BuildingType {
             'forge',
             'Forge',
             'industriel',
-            { materialsPerTurn: 15, magicPerTurn: 2 },
+            { materialsPerHour: 3, magicPerHour: 3 },
             { gold: 500, materials: 300 }
         );
         type.icon = '⚒️';
@@ -212,7 +212,7 @@ class BuildingType {
             'alchimiste',
             'Alchimiste',
             'industriel',
-            { magicPerTurn: 10, materialsPerTurn: 5 },
+            { magicPerHour: 3, materialsPerHour: 3 },
             { gold: 600, materials: 200, magic: 50 },
             'alchemist_unlock'
         );
@@ -227,7 +227,7 @@ class BuildingType {
             'enchanteur',
             'Enchanteur',
             'industriel',
-            { magicPerTurn: 15, reputation: 3 },
+            { magicPerHour: 3, reputation: 3 },
             { gold: 800, materials: 300, magic: 100 },
             'enchanter_unlock'
         );
@@ -242,7 +242,7 @@ class BuildingType {
             'guilde_aventuriers',
             'Guilde des Aventuriers',
             'administratif',
-            { reputation: 15, goldPerTurn: 34 },
+            { reputation: 15, goldPerHour: 6 },
             { gold: 1200, materials: 600 },
             'guild_unlock'
         );
@@ -258,7 +258,7 @@ class BuildingType {
             'prison',
             'Prison',
             'administratif',
-            { reputation: 8, goldPerTurn: 14 },
+            { reputation: 8, goldPerHour: 3 },
             { gold: 700, materials: 400 },
             'prison_unlock'
         );

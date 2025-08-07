@@ -26,10 +26,14 @@ class Achievement {
         // Logique de vérification selon l'ID du succès
         switch (this.id) {
             case 'first_building':
-                shouldUnlock = gameState.buildings && gameState.buildings.length > 0;
+                // Vérifier qu'il y a au moins un bâtiment construit (built: true)
+                shouldUnlock = gameState.buildings && gameState.buildings.some(b => b.built === true);
                 break;
             case 'city_hall':
-                shouldUnlock = gameState.buildings && gameState.buildings.some(b => b.buildingType.id === 'mairie');
+                // Vérifier qu'une mairie est construite
+                shouldUnlock = gameState.buildings && gameState.buildings.some(b => 
+                    b.buildingType && b.buildingType.id === 'mairie' && b.built === true
+                );
                 break;
             case 'first_adventurer':
                 shouldUnlock = gameState.adventurers && gameState.adventurers.length > 0;
@@ -44,7 +48,8 @@ class Achievement {
                 shouldUnlock = gameState.day >= 7;
                 break;
             case 'builder':
-                shouldUnlock = gameState.buildings && gameState.buildings.length >= 5;
+                // Vérifier qu'il y a au moins 5 bâtiments construits
+                shouldUnlock = gameState.buildings && gameState.buildings.filter(b => b.built === true).length >= 5;
                 break;
             case 'guild_master':
                 shouldUnlock = gameState.adventurers && gameState.adventurers.length >= 10;

@@ -26,6 +26,12 @@ class GrimspireApp {
         // Navigation commerce
         this.initializeCommerceNavigation();
         
+        // Contrôles des actions de marché
+        this.initializeMarketActions();
+        
+        // Contrôles des actions d'artisans
+        this.initializeArtisanActions();
+        
         // Navigation industrie
         this.initializeIndustrieNavigation();
     }
@@ -183,10 +189,8 @@ class GrimspireApp {
         const commerceMenuButtons = document.querySelectorAll('.commerce-menu-btn');
         commerceMenuButtons.forEach(button => {
             button.addEventListener('click', (e) => {
-                if (!e.target.disabled) {
-                    const commerceTab = e.target.getAttribute('data-commerce-tab');
-                    this.switchCommerceTab(commerceTab);
-                }
+                const commerceTab = e.target.getAttribute('data-commerce-tab');
+                this.switchCommerceTab(commerceTab);
             });
         });
     }
@@ -203,16 +207,49 @@ class GrimspireApp {
             content.classList.remove('active');
         });
         document.getElementById(`commerce-${commerceTabName}`)?.classList.add('active');
+        
+        // Si on affiche l'onglet marché, mettre à jour les actions
+        if (commerceTabName === 'marche') {
+            this.renderMarketActions();
+        } else if (commerceTabName === 'artisans') {
+            this.renderArtisanActions();
+        }
+    }
+
+    initializeMarketActions() {
+        // Bouton pour envoyer un négociateur
+        const sendNegotiatorBtn = document.getElementById('send-negotiator-btn');
+        if (sendNegotiatorBtn) {
+            sendNegotiatorBtn.addEventListener('click', () => this.sendNegotiator());
+        }
+
+        // Bouton pour envoyer un émissaire
+        const sendEmissaryBtn = document.getElementById('send-emissary-btn');
+        if (sendEmissaryBtn) {
+            sendEmissaryBtn.addEventListener('click', () => this.sendEmissary());
+        }
+    }
+
+    initializeArtisanActions() {
+        // Bouton pour lancer le travail de nuit
+        const startNightWorkBtn = document.getElementById('start-night-work-btn');
+        if (startNightWorkBtn) {
+            startNightWorkBtn.addEventListener('click', () => this.startNightWork());
+        }
+
+        // Bouton pour lancer les soldes
+        const startClearanceBtn = document.getElementById('start-clearance-btn');
+        if (startClearanceBtn) {
+            startClearanceBtn.addEventListener('click', () => this.startClearance());
+        }
     }
 
     initializeIndustrieNavigation() {
         const industrieMenuButtons = document.querySelectorAll('.industrie-menu-btn');
         industrieMenuButtons.forEach(button => {
             button.addEventListener('click', (e) => {
-                if (!e.target.disabled) {
-                    const industrieTab = e.target.getAttribute('data-industrie-tab');
-                    this.switchIndustrieTab(industrieTab);
-                }
+                const industrieTab = e.target.getAttribute('data-industrie-tab');
+                this.switchIndustrieTab(industrieTab);
             });
         });
     }
@@ -344,6 +381,8 @@ class GrimspireApp {
             this.renderExpeditions();
         } else if (tabName === 'administration') {
             this.renderAdministration();
+        } else if (tabName === 'commerce') {
+            this.renderCommerce();
         } else if (tabName === 'evenements') {
             this.renderEvents();
         } else if (tabName === 'succes') {
@@ -372,6 +411,11 @@ class GrimspireApp {
         document.getElementById('city-name').textContent = gameState.name;
         document.getElementById('day-counter').textContent = `Jour ${gameState.day}`;
         document.getElementById('game-clock').textContent = gameState.formattedTime;
+        
+        // Mettre à jour l'affichage des saisons
+        if (gameState.season) {
+            this.updateSeasonDisplay(gameState.season);
+        }
 
         // Mettre à jour le bouton de pause
         const pauseBtn = document.getElementById('pause-game-btn');
@@ -396,8 +440,23 @@ class GrimspireApp {
             this.renderBuildings();
         } else if (this.gameManager.currentTab === 'administration') {
             this.renderAdministration();
+        } else if (this.gameManager.currentTab === 'commerce') {
+            this.renderCommerce();
         } else if (this.gameManager.currentTab === 'evenements') {
             this.renderEvents();
+        }
+        
+        // Mettre à jour les actions du marché et des artisans si on est dans l'onglet commerce
+        if (this.gameManager.currentTab === 'commerce') {
+            const activeCommerceBtn = document.querySelector('.commerce-menu-btn.active');
+            if (activeCommerceBtn) {
+                const commerceTab = activeCommerceBtn.getAttribute('data-commerce-tab');
+                if (commerceTab === 'marche') {
+                    this.renderMarketActions();
+                } else if (commerceTab === 'artisans') {
+                    this.renderArtisanActions();
+                }
+            }
         }
         
         // Mettre à jour la bulle de notification des événements
@@ -413,30 +472,51 @@ class GrimspireApp {
         document.getElementById('magic-amount').textContent = resources.magic;
         document.getElementById('reputation-amount').textContent = resources.reputation;
         
-        // Mettre à jour les gains quotidiens
-        this.updateDailyGains();
+        // Mettre à jour les gains horaires
+        this.updateHourlyGains();
     }
 
-    updateDailyGains() {
-        const dailyGains = this.gameManager.getDailyGains();
+    updateHourlyGains() {
+        const hourlyGains = this.gameManager.getHourlyGains();
         
-        this.updateDailyGainDisplay('gold', dailyGains.gold);
-        this.updateDailyGainDisplay('population', dailyGains.population);
-        this.updateDailyGainDisplay('materials', dailyGains.materials);
-        this.updateDailyGainDisplay('magic', dailyGains.magic);
-        this.updateDailyGainDisplay('reputation', dailyGains.reputation);
+        this.updateHourlyGainDisplay('gold', hourlyGains.gold);
+        this.updateHourlyGainDisplay('population', hourlyGains.population);
+        this.updateHourlyGainDisplay('materials', hourlyGains.materials);
+        this.updateHourlyGainDisplay('magic', hourlyGains.magic);
+        this.updateHourlyGainDisplay('reputation', hourlyGains.reputation);
     }
 
-    updateDailyGainDisplay(resourceType, gain) {
-        const element = document.getElementById(`${resourceType}-daily-gain`);
+    updateHourlyGainDisplay(resourceType, gain) {
+        const element = document.getElementById(`${resourceType}-hourly-gain`);
         if (!element) return;
         
         if (gain > 0) {
-            element.textContent = `+${gain}/jour`;
-            element.className = 'daily-gain';
+            element.textContent = `+${gain}/heure`;
+            element.className = 'hourly-gain';
         } else {
-            element.textContent = `+0/jour`;
-            element.className = 'daily-gain zero';
+            element.textContent = `+0/heure`;
+            element.className = 'hourly-gain zero';
+        }
+    }
+
+    updateSeasonDisplay(seasonInfo) {
+        // Mettre à jour l'icône de saison
+        const seasonIcon = document.getElementById('season-icon');
+        if (seasonIcon) {
+            seasonIcon.textContent = seasonInfo.icon;
+        }
+        
+        // Mettre à jour le texte de saison
+        const seasonText = document.getElementById('season-text');
+        if (seasonText) {
+            seasonText.textContent = seasonInfo.formattedText;
+        }
+        
+        // Mettre à jour la couleur de la bordure de saison
+        const seasonInfoElement = document.querySelector('.season-info');
+        if (seasonInfoElement && seasonInfo.color) {
+            seasonInfoElement.style.setProperty('--season-color', seasonInfo.color);
+            seasonInfoElement.style.borderLeftColor = seasonInfo.color;
         }
     }
 
@@ -449,8 +529,8 @@ class GrimspireApp {
         this.renderAvailableBuildingTypes(buildingInfo.available);
         this.renderLockedBuildingTypes(buildingInfo.locked);
         
-        // Mettre à jour les gains quotidiens après changement de bâtiments
-        this.updateDailyGains();
+        // Mettre à jour les gains horaires après changement de bâtiments
+        this.updateHourlyGains();
     }
 
     updateBuildingStats(stats) {
@@ -674,10 +754,10 @@ class GrimspireApp {
                 // Traduire les noms d'effets
                 const translations = {
                     'population': 'Population',
-                    'goldPerTurn': 'Or/jour',
-                    'materialsPerTurn': 'Matériaux/jour',
-                    'magicPerTurn': 'Magie/jour',
-                    'reputationPerTurn': 'Réputation/jour',
+                    'goldPerHour': 'Or/heure',
+                    'materialsPerHour': 'Matériaux/heure',
+                    'magicPerHour': 'Magie/heure',
+                    'reputationPerHour': 'Réputation/heure',
                     'reputation': 'Réputation'
                 };
                 
@@ -868,6 +948,8 @@ class GrimspireApp {
             this.renderExpeditions();
         } else if (this.gameManager.currentTab === 'administration') {
             this.renderAdministration();
+        } else if (this.gameManager.currentTab === 'commerce') {
+            this.renderCommerce();
         }
     }
 
@@ -1821,39 +1903,21 @@ class GrimspireApp {
         const banqueBtn = document.querySelector('[data-commerce-tab="banque"]');
 
         if (marcheBtn) {
-            if (commercialBuildings.marche) {
-                marcheBtn.disabled = false;
-                marcheBtn.textContent = '🏪 Marché';
-                marcheBtn.style.opacity = '1';
-            } else {
-                marcheBtn.disabled = true;
-                marcheBtn.textContent = '🔒 Marché';
-                marcheBtn.style.opacity = '0.5';
-            }
+            marcheBtn.disabled = false; // Toujours cliquable
+            marcheBtn.textContent = '🏪 Marché';
+            marcheBtn.classList.remove('locked');
         }
 
         if (artisansBtn) {
-            if (commercialBuildings.artisan) {
-                artisansBtn.disabled = false;
-                artisansBtn.textContent = '🔨 Artisans';
-                artisansBtn.style.opacity = '1';
-            } else {
-                artisansBtn.disabled = true;
-                artisansBtn.textContent = '🔒 Artisans';
-                artisansBtn.style.opacity = '0.5';
-            }
+            artisansBtn.disabled = false; // Toujours cliquable
+            artisansBtn.textContent = '🔨 Artisans';
+            artisansBtn.classList.remove('locked');
         }
 
         if (banqueBtn) {
-            if (commercialBuildings.banque) {
-                banqueBtn.disabled = false;
-                banqueBtn.textContent = '🏦 Banque';
-                banqueBtn.style.opacity = '1';
-            } else {
-                banqueBtn.disabled = true;
-                banqueBtn.textContent = '🔒 Banque';
-                banqueBtn.style.opacity = '0.5';
-            }
+            banqueBtn.disabled = false; // Toujours cliquable
+            banqueBtn.textContent = '🏦 Banque';
+            banqueBtn.classList.remove('locked');
         }
     }
 
@@ -1863,39 +1927,301 @@ class GrimspireApp {
         const enchanteursBtn = document.querySelector('[data-industrie-tab="enchanteurs"]');
 
         if (forgeBtn) {
-            if (industrialBuildings.forge) {
-                forgeBtn.disabled = false;
-                forgeBtn.textContent = '⚒️ Forge';
-                forgeBtn.style.opacity = '1';
-            } else {
-                forgeBtn.disabled = true;
-                forgeBtn.textContent = '🔒 Forge';
-                forgeBtn.style.opacity = '0.5';
-            }
+            forgeBtn.disabled = false; // Toujours cliquable
+            forgeBtn.textContent = '⚒️ Forge';
+            forgeBtn.classList.remove('locked');
         }
 
         if (alchimistesBtn) {
-            if (industrialBuildings.alchimiste) {
-                alchimistesBtn.disabled = false;
-                alchimistesBtn.textContent = '🧪 Alchimistes';
-                alchimistesBtn.style.opacity = '1';
-            } else {
-                alchimistesBtn.disabled = true;
-                alchimistesBtn.textContent = '🔒 Alchimistes';
-                alchimistesBtn.style.opacity = '0.5';
-            }
+            alchimistesBtn.disabled = false; // Toujours cliquable
+            alchimistesBtn.textContent = '🧪 Alchimistes';
+            alchimistesBtn.classList.remove('locked');
         }
 
         if (enchanteursBtn) {
-            if (industrialBuildings.enchanteur) {
-                enchanteursBtn.disabled = false;
-                enchanteursBtn.textContent = '✨ Enchanteurs';
-                enchanteursBtn.style.opacity = '1';
-            } else {
-                enchanteursBtn.disabled = true;
-                enchanteursBtn.textContent = '🔒 Enchanteurs';
-                enchanteursBtn.style.opacity = '0.5';
+            enchanteursBtn.disabled = false; // Toujours cliquable
+            enchanteursBtn.textContent = '✨ Enchanteurs';
+            enchanteursBtn.classList.remove('locked');
+        }
+    }
+
+    // === MÉTHODES POUR L'ONGLET COMMERCE ===
+
+    renderCommerce() {
+        // Mettre à jour l'affichage selon le sous-onglet actuel
+        const activeCommerceBtn = document.querySelector('.commerce-menu-btn.active');
+        if (activeCommerceBtn) {
+            const commerceTab = activeCommerceBtn.getAttribute('data-commerce-tab');
+            if (commerceTab === 'marche') {
+                this.renderMarketActions();
+            } else if (commerceTab === 'artisans') {
+                this.renderArtisanActions();
             }
+        }
+    }
+
+    renderMarketActions() {
+        const marketInfo = this.gameManager.getMarketInfo();
+        if (!marketInfo) return;
+
+        // Gérer l'affichage selon si un marché est construit ou non
+        const lockedMessage = document.getElementById('marche-locked-message');
+        const actionsSection = document.getElementById('marche-actions-section');
+
+        if (marketInfo.hasMarket) {
+            if (lockedMessage) lockedMessage.style.display = 'none';
+            if (actionsSection) actionsSection.style.display = 'block';
+            
+            // Mettre à jour l'état des actions
+            this.updateMarketActionStatus('negotiator', marketInfo.negotiatorStatus);
+            this.updateMarketActionStatus('emissary', marketInfo.emissaryStatus);
+        } else {
+            if (lockedMessage) lockedMessage.style.display = 'block';
+            if (actionsSection) actionsSection.style.display = 'none';
+        }
+    }
+
+    updateMarketActionStatus(actionType, status) {
+        const btnId = actionType === 'negotiator' ? 'send-negotiator-btn' : 'send-emissary-btn';
+        const statusId = actionType === 'negotiator' ? 'negotiator-status' : 'emissary-status';
+        
+        const button = document.getElementById(btnId);
+        const statusContainer = document.getElementById(statusId);
+        
+        if (!button || !statusContainer) return;
+
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
+        
+        // Vérifier si l'autre action est en cours
+        const marketInfo = this.gameManager.getMarketInfo();
+        const otherActionType = actionType === 'negotiator' ? 'emissary' : 'negotiator';
+        const otherStatus = actionType === 'negotiator' ? marketInfo.emissaryStatus : marketInfo.negotiatorStatus;
+        const isOtherActionActive = otherStatus && otherStatus.isActive;
+
+        if (status && status.isActive) {
+            // Action en cours
+            button.disabled = true;
+            button.textContent = 'En cours';
+            
+            // Afficher le temps restant
+            let remainingText = '';
+            if (status.remainingHours > 0) {
+                if (status.remainingMins > 0) {
+                    remainingText = `${status.remainingHours}h ${status.remainingMins}m restant`;
+                } else {
+                    remainingText = `${status.remainingHours}h restant`;
+                }
+            } else if (status.remainingMins > 0) {
+                remainingText = `${status.remainingMins}m restant`;
+            } else {
+                remainingText = 'Se termine bientôt';
+            }
+                
+            statusContainer.innerHTML = `
+                <div class="action-progress-text">Action en cours</div>
+                <div class="action-time-remaining">${remainingText}</div>
+            `;
+            statusContainer.classList.add('action-in-progress');
+        } else {
+            // Action disponible ou bloquée
+            let buttonText = '';
+            let disabled = isPaused || isOtherActionActive;
+            
+            if (isPaused) {
+                buttonText = 'Jeu en pause';
+            } else if (isOtherActionActive) {
+                buttonText = 'Autre action en cours';
+            } else {
+                buttonText = actionType === 'negotiator' ? 'Envoyer négociateur' : 'Envoyer émissaire';
+            }
+            
+            button.disabled = disabled;
+            button.textContent = buttonText;
+            
+            statusContainer.innerHTML = `
+                <button id="${btnId}" class="action-btn primary" ${disabled ? 'disabled' : ''}>
+                    ${buttonText}
+                </button>
+            `;
+            statusContainer.classList.remove('action-in-progress');
+            
+            // Re-attacher l'événement click
+            const newButton = document.getElementById(btnId);
+            if (newButton) {
+                newButton.addEventListener('click', () => {
+                    if (actionType === 'negotiator') {
+                        this.sendNegotiator();
+                    } else {
+                        this.sendEmissary();
+                    }
+                });
+            }
+        }
+    }
+
+    renderArtisanActions() {
+        const artisanInfo = this.gameManager.getArtisanInfo();
+        if (!artisanInfo) return;
+
+        // Gérer l'affichage selon si une échoppe d'artisan est construite ou non
+        const lockedMessage = document.getElementById('artisans-locked-message');
+        const actionsSection = document.getElementById('artisans-actions-section');
+
+        if (artisanInfo.hasArtisan) {
+            if (lockedMessage) lockedMessage.style.display = 'none';
+            if (actionsSection) actionsSection.style.display = 'block';
+            
+            // Mettre à jour l'état des actions
+            this.updateArtisanActionStatus('nightWork', artisanInfo.nightWorkStatus);
+            this.updateArtisanActionStatus('clearance', artisanInfo.clearanceStatus);
+        } else {
+            if (lockedMessage) lockedMessage.style.display = 'block';
+            if (actionsSection) actionsSection.style.display = 'none';
+        }
+    }
+
+    updateArtisanActionStatus(actionType, status) {
+        const btnId = actionType === 'nightWork' ? 'start-night-work-btn' : 'start-clearance-btn';
+        const statusId = actionType === 'nightWork' ? 'night-work-status' : 'clearance-status';
+        
+        const button = document.getElementById(btnId);
+        const statusContainer = document.getElementById(statusId);
+        
+        if (!button || !statusContainer) return;
+
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
+        
+        // Vérifier si l'autre action est en cours (exclusivité)
+        const artisanInfo = this.gameManager.getArtisanInfo();
+        const otherActionType = actionType === 'nightWork' ? 'clearance' : 'nightWork';
+        const otherStatus = actionType === 'nightWork' ? artisanInfo.clearanceStatus : artisanInfo.nightWorkStatus;
+        const isOtherActionActive = otherStatus && otherStatus.isActive;
+
+        if (status && status.isActive) {
+            // Action en cours
+            button.disabled = true;
+            button.textContent = 'En cours';
+            
+            // Afficher le temps restant
+            let remainingText = '';
+            if (status.remainingDays > 0) {
+                if (status.remainingHours > 0) {
+                    remainingText = `${status.remainingDays}j ${status.remainingHours}h restant`;
+                } else {
+                    remainingText = `${status.remainingDays}j restant`;
+                }
+            } else if (status.remainingHours > 0) {
+                remainingText = `${status.remainingHours}h restant`;
+            } else {
+                remainingText = 'Se termine bientôt';
+            }
+            
+            // Afficher l'état de l'effet
+            let effectText = '';
+            if (status.isEffectActive) {
+                effectText = actionType === 'nightWork' ? 
+                    '✨ Effet actif: matériaux x2' : 
+                    '✨ Effet actif: or x2';
+            }
+            
+            statusContainer.innerHTML = `
+                <div class="action-progress-text">Action en cours</div>
+                <div class="action-time-remaining">${remainingText}</div>
+                ${effectText ? `<div class="action-effect-active" style="color: #4CAF50; font-size: 12px; margin-top: 5px;">${effectText}</div>` : ''}
+            `;
+            statusContainer.classList.add('action-in-progress');
+        } else {
+            // Action disponible ou bloquée
+            let buttonText = '';
+            let disabled = isPaused || isOtherActionActive;
+            
+            if (isPaused) {
+                buttonText = 'Jeu en pause';
+            } else if (isOtherActionActive) {
+                buttonText = 'Autre action en cours';
+            } else {
+                buttonText = actionType === 'nightWork' ? 
+                    'Lancer le travail de nuit' : 
+                    'Lancer les soldes';
+            }
+            
+            button.disabled = disabled;
+            button.textContent = buttonText;
+            
+            statusContainer.innerHTML = `
+                <button id="${btnId}" class="action-btn primary" ${disabled ? 'disabled' : ''}>
+                    ${buttonText}
+                </button>
+            `;
+            statusContainer.classList.remove('action-in-progress');
+            
+            // Re-attacher l'événement click
+            const newButton = document.getElementById(btnId);
+            if (newButton) {
+                newButton.addEventListener('click', () => {
+                    if (actionType === 'nightWork') {
+                        this.startNightWork();
+                    } else {
+                        this.startClearance();
+                    }
+                });
+            }
+        }
+    }
+
+    sendNegotiator() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'envoyer un négociateur : jeu en pause' });
+            return;
+        }
+        
+        const result = this.gameManager.startMarketAction('negotiator');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderMarketActions();
+        }
+    }
+
+    sendEmissary() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'envoyer un émissaire : jeu en pause' });
+            return;
+        }
+        
+        const result = this.gameManager.startMarketAction('emissary');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderMarketActions();
+        }
+    }
+
+    startNightWork() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de lancer le travail de nuit : jeu en pause' });
+            return;
+        }
+        
+        const result = this.gameManager.startArtisanAction('nightWork');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderArtisanActions();
+        }
+    }
+
+    startClearance() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de lancer les soldes : jeu en pause' });
+            return;
+        }
+        
+        const result = this.gameManager.startArtisanAction('clearance');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderArtisanActions();
         }
     }
 

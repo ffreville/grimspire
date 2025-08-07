@@ -47,6 +47,8 @@ class GameManager {
         
         // Configurer les callbacks
         this.city.setNewDayCallback(this.processNewDay.bind(this));
+        this.city.setMarketActionCallback(this.onMarketActionCompleted.bind(this));
+        this.city.setArtisanActionCallback(this.onArtisanActionCompleted.bind(this));
         
         // Changer l'état du jeu
         this.gameState = 'playing';
@@ -123,6 +125,8 @@ class GameManager {
                 
                 // Configurer les callbacks
                 this.city.setNewDayCallback(this.processNewDay.bind(this));
+                this.city.setMarketActionCallback(this.onMarketActionCompleted.bind(this));
+                this.city.setArtisanActionCallback(this.onArtisanActionCompleted.bind(this));
                 
                 // Démarrer le timer de jeu si pas déjà démarré
                 this.startGameTimer();
@@ -200,6 +204,14 @@ class GameManager {
                     // Notifier les améliorations de ville terminées
                     if (upgradeProgressResult.completedUpgrades.length > 0) {
                         this.handleCompletedUpgrades(upgradeProgressResult);
+                    }
+                }
+                
+                // Vérifier les événements programmés (à chaque avancement de 15 minutes)
+                if (this.eventManager) {
+                    const triggeredEvents = this.eventManager.checkScheduledEvents();
+                    if (triggeredEvents.length > 0) {
+                        console.log(`${triggeredEvents.length} événement(s) aléatoire(s) déclenché(s)`);
                     }
                 }
                 
@@ -329,6 +341,11 @@ class GameManager {
             this.cityUpgradeManager.processTurnChange();
         }
         
+        // Programmer des événements aléatoires pour le nouveau jour
+        if (this.eventManager) {
+            this.eventManager.generateDailyRandomEvents();
+        }
+        
         this.notifyStateChange();
         this.autoSave();
     }
@@ -365,6 +382,11 @@ class GameManager {
         // Ici on pourrait déclencher des notifications dans l'interface
         // Pour l'instant on log juste dans la console
         messages.forEach(msg => console.log(msg));
+        
+        // Vérifier les succès après les constructions/améliorations terminées
+        if (progressResult.completedBuildings.length > 0 || progressResult.completedUpgrades.length > 0) {
+            this.checkAchievements();
+        }
     }
 
     // Gérer les améliorations de ville terminées
@@ -384,6 +406,11 @@ class GameManager {
         // Ici on pourrait déclencher des notifications dans l'interface
         // Pour l'instant on log juste dans la console
         messages.forEach(msg => console.log(msg));
+        
+        // Vérifier les succès après les améliorations de ville terminées
+        if (progressResult.completedUpgrades.length > 0) {
+            this.checkAchievements();
+        }
     }
 
     // Gérer les missions terminées
@@ -394,6 +421,9 @@ class GameManager {
         }
         
         console.log(`Mission ${mission.name} terminée: ${results.success ? 'Succès' : 'Échec'}`);
+        
+        // Vérifier les succès après une mission terminée
+        this.checkAchievements();
     }
 
     addRandomAdventurer() {
@@ -474,25 +504,32 @@ class GameManager {
         };
     }
 
-    getDailyGains() {
+    getHourlyGains() {
         if (!this.city) return { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
         
         const builtBuildings = this.city.getBuiltBuildings();
-        let dailyGain = { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
+        let hourlyGain = { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
         
         builtBuildings.forEach(building => {
             const effects = building.effects;
             
-            if (effects.goldPerTurn) dailyGain.gold += effects.goldPerTurn;
-            if (effects.populationPerTurn) dailyGain.population += effects.populationPerTurn;
-            if (effects.materialsPerTurn) dailyGain.materials += effects.materialsPerTurn;
-            if (effects.magicPerTurn) dailyGain.magic += effects.magicPerTurn;
-            if (effects.reputationPerTurn) dailyGain.reputation += effects.reputationPerTurn;
+            if (effects.goldPerHour) hourlyGain.gold += effects.goldPerHour;
+            if (effects.populationPerHour) hourlyGain.population += effects.populationPerHour;
+            if (effects.materialsPerHour) hourlyGain.materials += effects.materialsPerHour;
+            if (effects.magicPerHour) hourlyGain.magic += effects.magicPerHour;
+            if (effects.reputationPerHour) hourlyGain.reputation += effects.reputationPerHour;
         });
         
-        // Plus de revenu de base - chaque bâtiment génère ses propres ressources
+        // Appliquer les effets des actions d'artisans actives
+        const artisanEffects = this.city.getActiveArtisanEffects();
+        if (artisanEffects.doubleMaterials) {
+            hourlyGain.materials *= 2;
+        }
+        if (artisanEffects.doubleGold) {
+            hourlyGain.gold *= 2;
+        }
         
-        return dailyGain;
+        return hourlyGain;
     }
 
     getAdventurersInfo() {
@@ -712,6 +749,163 @@ class GameManager {
         this.notifyStateChange();
         this.autoSave();
         return { success: true, message: `${count} événement(s) effacé(s)` };
+    }
+
+    processEventChoice(eventId, choiceId) {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const result = this.eventManager.processEventChoice(eventId, choiceId);
+        if (result.success) {
+            this.notifyResourcesChange();
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
+    // === MÉTHODES POUR LES ACTIONS DU MARCHÉ ===
+
+    startMarketAction(actionType) {
+        if (!this.city) {
+            return { success: false, message: 'Pas de ville active' };
+        }
+
+        // Vérifier qu'un marché est construit
+        if (!this.hasMarketBuilding()) {
+            return { success: false, message: 'Aucun marché construit' };
+        }
+
+        const result = this.city.startMarketAction(actionType);
+        
+        if (result.success) {
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        
+        return result;
+    }
+
+    // === MÉTHODES POUR LES ACTIONS DES ARTISANS ===
+
+    startArtisanAction(actionType) {
+        if (!this.city) {
+            return { success: false, message: 'Pas de ville active' };
+        }
+
+        // Vérifier qu'une échoppe d'artisan est construite
+        if (!this.hasArtisanBuilding()) {
+            return { success: false, message: 'Aucune échoppe d\'artisan construite' };
+        }
+
+        const result = this.city.startArtisanAction(actionType);
+        
+        if (result.success) {
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        
+        return result;
+    }
+
+    getMarketInfo() {
+        if (!this.city) return null;
+        
+        const hasMarket = this.hasMarketBuilding();
+        
+        return {
+            hasMarket,
+            negotiatorStatus: this.city.getMarketActionStatus('negotiator'),
+            emissaryStatus: this.city.getMarketActionStatus('emissary')
+        };
+    }
+
+    getArtisanInfo() {
+        if (!this.city) return null;
+        
+        const hasArtisan = this.hasArtisanBuilding();
+        
+        return {
+            hasArtisan,
+            nightWorkStatus: this.city.getArtisanActionStatus('nightWork'),
+            clearanceStatus: this.city.getArtisanActionStatus('clearance')
+        };
+    }
+
+    hasMarketBuilding() {
+        if (!this.city) return false;
+        
+        return this.city.buildings.some(building => 
+            building.buildingType.id === 'marche' && building.built
+        );
+    }
+
+    hasArtisanBuilding() {
+        if (!this.city) return false;
+        
+        return this.city.buildings.some(building => 
+            building.buildingType.id === 'echoppe_artisan' && building.built
+        );
+    }
+
+    onMarketActionCompleted(actionResult) {
+        // Créer un événement pour l'action terminée
+        if (this.eventManager) {
+            let eventTitle = '';
+            let eventIcon = '';
+            
+            if (actionResult.type === 'negotiator') {
+                eventTitle = 'Négociateur de retour';
+                eventIcon = '👔';
+            } else if (actionResult.type === 'emissary') {
+                eventTitle = 'Émissaire de retour';
+                eventIcon = '📢';
+            }
+            
+            const rewardText = Object.entries(actionResult.reward)
+                .map(([resource, amount]) => {
+                    const icons = { gold: '💰', materials: '🔨', magic: '✨', reputation: '⭐' };
+                    return `${icons[resource] || resource}: +${amount}`;
+                })
+                .join(', ');
+            
+            this.eventManager.createEvent(
+                'market_action_complete',
+                eventTitle,
+                `${actionResult.message}. Vous avez reçu: ${rewardText}`,
+                {
+                    icon: eventIcon,
+                    actionType: actionResult.type,
+                    reward: actionResult.reward
+                }
+            );
+        }
+    }
+
+    onArtisanActionCompleted(actionResult) {
+        // Créer un événement pour l'action terminée
+        if (this.eventManager) {
+            let eventTitle = '';
+            let eventIcon = '';
+            
+            if (actionResult.type === 'nightWork') {
+                eventTitle = 'Travail de nuit terminé';
+                eventIcon = '🌙';
+            } else if (actionResult.type === 'clearance') {
+                eventTitle = 'Soldes terminées';
+                eventIcon = '💸';
+            }
+            
+            this.eventManager.createEvent(
+                'artisan_action_complete',
+                eventTitle,
+                `${actionResult.message}. L'effet durera 1 jour.`,
+                {
+                    icon: eventIcon,
+                    actionType: actionResult.type,
+                    effect: actionResult.effect
+                }
+            );
+        }
     }
 
     // Méthodes pour l'onglet Succès

@@ -51,6 +51,11 @@
     color: #87ceeb;
 }
 
+.commerce-menu-btn.locked {
+    opacity: 0.5;
+    color: #666;
+}
+
 .commerce-menu-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -110,4 +115,161 @@
 
 .locked-message p {
     margin: 0;
+}
+
+/* === ACTIONS DU MARCHÉ === */
+
+.marche-actions {
+    padding: 20px 0;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 800px;
+}
+
+.market-action-card {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #555;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.market-action-card:hover {
+    border-color: #666;
+    background: rgba(35, 35, 35, 0.9);
+}
+
+.action-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.action-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(70, 130, 180, 0.2);
+    border-radius: 8px;
+    border: 1px solid #4682b4;
+}
+
+.action-info h5 {
+    color: #fff;
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.action-info p {
+    color: #ccc;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.action-details {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(20, 20, 20, 0.5);
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.action-duration,
+.action-reward {
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.action-duration:last-child,
+.action-reward:last-child {
+    margin-bottom: 0;
+}
+
+.action-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #4682b4, #5a9fd4);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-width: 150px;
+}
+
+.action-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a9fd4, #4682b4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(70, 130, 180, 0.3);
+}
+
+.action-btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.action-in-progress {
+    background: rgba(139, 90, 60, 0.2);
+    border-color: #8b5a3c;
+}
+
+.action-progress-text {
+    color: #ddd;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.action-time-remaining {
+    color: #8b5a3c;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* === ACTIONS DES ARTISANS === */
+
+.artisans-actions {
+    padding: 20px 0;
+}
+
+.artisan-action-card {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #555;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.artisan-action-card:hover {
+    border-color: #666;
+    background: rgba(35, 35, 35, 0.9);
+}
+
+.action-effect {
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 5px;
 }

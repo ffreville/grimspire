@@ -134,6 +134,52 @@ Dans l'onglet evenements, on ne doit pas pouvoir cliquer sur les boutons si le j
 Si tu peux ajouter un nouvel onglet tout à droite : Succès .
 Ce sera la liste des succès que l'on arrive à faire.
 
+## Phase 13
+
+tu peux ajouter un système de saison ? 10 jour par saison. Pour l'instant c'est       │
+ uniquement visuel. On ajoutera des mécaniques par la suite
+
+Phase 14 - Correction de bugs
+- Quand on construit le premier batiment, le succes "Premier pas" ne se débloque 
+- Quand on construie la mairie, le succes "Fondateur" ne se débloque pas
+
+Phase 15
+Système d'evenement aléatoires journaliers. Chaque evenement a des repercutions.
+Il ne doit pas y en avoir beaucoup chaque jour. Je dirai entre 4 et 5.
+Pour l'instant, ne créé qu'un seul evenement qui s'appelle "Don d'un cityoen" et qui consiste à gagner 5 golds.
+
+Phase 16 
+- Les evenements arrivent 4 par 4, tu peux corriger ça ? Il doit y en avoir 4 dans la journée au max mais ils ne doivent pas arriver en même temps.
+- Si tu peux faire afficher une popup quand un evenement aleatoire arrive.
+
+Phase 17
+Ajout d'evenements aleatoires avec le besoin de faire un choix.
+Pour l'instant on peut mettre deux evenements de ce type là.
+Pour le premier, c'est un conflit entre un commerçant et un habitant.
+Si on aide l'habitant on gagne en reputation et on perd de l'argent. Si on aide le commercant on gagne de l'argent et on perd en reputation.
+Pour le second, c'est une demande d'argent pour une fête dans la ville.
+Si on dit oui on perd de l'argent mais on gagne de la reputation, si on dit non c'est l'inverse.
+
+Phase 18
+Dans le menu commerce, sous menu marché, il y a la possibilité de pouvoir configurer l'ensemble des marchés.
+Pour cela, il y a 2 boutons qui permettent de lancer 2 actions différentes. 
+- Envoyer un négociateur dans les autres cités pour récupérer de nouveaux produits à vendre
+- Envoyer un émissaire dans les autres cités pour faire de la pub pour les marchés.
+Les deux actions durent 3 jours. Une fois l'action lancée, les boutons sont grisés et un message doit être affiché pour dire l'aciton en cours et combien de temps il reste.
+Une fois l'action terminée, un evenement doit être créé. 
+Quand l'action 1 est terminée, on gagne des matériaux. Quand l'action 2 est terminée, on gagne de l'or.
+Ces deux gains doivent être indiqués dans l'evenement reçu.
+
+Phase 19
+Dans le menu commerce, sous menu artisants, il y a possibilité de pouvoir faire des actions avec les artisans.
+Pour cela, il y a 2 boutons qui permettent de lancer 2 actions différentes : 
+- Travailler la nuit : permet de doubler le nombre de matériaux par jour pendant 1 jour.
+- Solder la marchandises : permet de doubler le nombre de golds pendant 1 jour.
+Les deux actions durent 2 jours. Il ne peut y avoir qu'une seule action de lancée à la fois.
+
+Phase 20 - Changement des gains
+Il faudrait passer sur des gains par heure et non par jour. De plus, il faudrait du coup baisser un petit peu les gains des batiments.
+
 
 ## Phase X
 event aléatoire chaque jour

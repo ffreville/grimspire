@@ -57,8 +57,14 @@
                 <div class="city-info">
                     <h2 id="city-name">Grimspire</h2>
                     <div class="time-info">
-                        <span id="day-counter">Jour 1</span>
-                        <span id="game-clock">00:00</span>
+                        <div>
+                            <span id="day-counter">Jour 1</span>
+                            <span id="game-clock">00:00</span>
+                        </div>
+                        <div class="season-info">
+                            <span id="season-icon">🌸</span>
+                            <span id="season-text">Printemps - Jour 1/10</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -67,35 +73,35 @@
                         <span class="resource-icon">💰</span>
                         <div class="resource-info">
                             <span id="gold-amount">10000</span>
-                            <span id="gold-daily-gain" class="daily-gain">+0/jour</span>
+                            <span id="gold-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">👥</span>
                         <div class="resource-info">
                             <span id="population-amount">0</span>
-                            <span id="population-daily-gain" class="daily-gain">+0/jour</span>
+                            <span id="population-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">🔨</span>
                         <div class="resource-info">
                             <span id="materials-amount">2000</span>
-                            <span id="materials-daily-gain" class="daily-gain">+0/jour</span>
+                            <span id="materials-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">✨</span>
                         <div class="resource-info">
                             <span id="magic-amount">0</span>
-                            <span id="magic-daily-gain" class="daily-gain">+0/jour</span>
+                            <span id="magic-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                     <div class="resource">
                         <span class="resource-icon">⭐</span>
                         <div class="resource-info">
                             <span id="reputation-amount">0</span>
-                            <span id="reputation-daily-gain" class="daily-gain">+0/jour</span>
+                            <span id="reputation-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                 </div>
@@ -331,8 +337,53 @@
                                     <h4>Marché</h4>
                                     <p>Centre du négoce et des échanges</p>
                                 </div>
-                                <div class="locked-message">
+                                <div class="locked-message" id="marche-locked-message">
                                     <p>🔒 Construisez un marché pour débloquer cette section</p>
+                                </div>
+                                
+                                <!-- Section des actions du marché -->
+                                <div class="marche-actions" id="marche-actions-section" style="display: none;">
+                                    <div class="actions-grid">
+                                        <!-- Action Négociateur -->
+                                        <div class="market-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">👔</div>
+                                                <div class="action-info">
+                                                    <h5>Envoyer un négociateur</h5>
+                                                    <p>Rechercher de nouveaux produits dans les autres cités</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 8 heures</div>
+                                                <div class="action-reward">Récompense: Matériaux</div>
+                                            </div>
+                                            <div class="action-status" id="negotiator-status">
+                                                <button id="send-negotiator-btn" class="action-btn primary">
+                                                    Envoyer négociateur
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Action Émissaire -->
+                                        <div class="market-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">📢</div>
+                                                <div class="action-info">
+                                                    <h5>Envoyer un émissaire</h5>
+                                                    <p>Faire la promotion de vos marchés dans les autres cités</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 8 heures</div>
+                                                <div class="action-reward">Récompense: Or</div>
+                                            </div>
+                                            <div class="action-status" id="emissary-status">
+                                                <button id="send-emissary-btn" class="action-btn primary">
+                                                    Envoyer émissaire
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -342,8 +393,53 @@
                                     <h4>Artisans</h4>
                                     <p>Production de biens artisanaux</p>
                                 </div>
-                                <div class="locked-message">
+                                <div class="locked-message" id="artisans-locked-message">
                                     <p>🔒 Construisez une échoppe d'artisan pour débloquer cette section</p>
+                                </div>
+                                
+                                <!-- Section des actions des artisans -->
+                                <div class="artisans-actions" id="artisans-actions-section" style="display: none;">
+                                    <div class="actions-grid">
+                                        <!-- Action Travailler la nuit -->
+                                        <div class="artisan-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">🌙</div>
+                                                <div class="action-info">
+                                                    <h5>Travailler la nuit</h5>
+                                                    <p>Augmenter la production de matériaux</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 8 heures</div>
+                                                <div class="action-effect">Effet: Double les matériaux pendant 1 jour</div>
+                                            </div>
+                                            <div class="action-status" id="night-work-status">
+                                                <button id="start-night-work-btn" class="action-btn primary">
+                                                    Lancer le travail de nuit
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Action Solder la marchandise -->
+                                        <div class="artisan-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">💸</div>
+                                                <div class="action-info">
+                                                    <h5>Solder la marchandise</h5>
+                                                    <p>Vendre rapidement les stocks à prix réduit</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 8 heures</div>
+                                                <div class="action-effect">Effet: Double l'or pendant 1 jour</div>
+                                            </div>
+                                            <div class="action-status" id="clearance-status">
+                                                <button id="start-clearance-btn" class="action-btn primary">
+                                                    Lancer les soldes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -727,6 +823,7 @@
     <script src="js/classes/Building.js"></script>
     <script src="js/classes/Adventurer.js"></script>
     <script src="js/classes/Achievement.js"></script>
+    <script src="js/classes/Season.js"></script>
     <script src="js/classes/City.js"></script>
     <script src="js/classes/Mission.js"></script>
     <script src="js/classes/CityUpgrade.js"></script>

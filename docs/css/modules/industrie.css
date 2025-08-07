@@ -51,6 +51,11 @@
     color: #deb887;
 }
 
+.industrie-menu-btn.locked {
+    opacity: 0.5;
+    color: #666;
+}
+
 .industrie-menu-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;

@@ -11,8 +11,41 @@ class City {
         this.currentTime = 0; // Heure actuelle en minutes (0-1439, soit 0:00-23:59)
         this.isPaused = false;
         
+        // Actions du marché
+        this.marketActions = {
+            negotiator: {
+                isActive: false,
+                startTime: null,
+                duration: 8 * 60 // 8 heures en minutes (8h * 60min)
+            },
+            emissary: {
+                isActive: false,
+                startTime: null,
+                duration: 8 * 60 // 8 heures en minutes (8h * 60min)
+            }
+        };
+        
+        // Actions des artisans
+        this.artisanActions = {
+            nightWork: {
+                isActive: false,
+                startTime: null,
+                duration: 2 * 24 * 60, // 2 jours en minutes (2 jours * 24h * 60min)
+                effectStartTime: null,
+                effectDuration: 1 * 24 * 60 // 1 jour d'effet en minutes
+            },
+            clearance: {
+                isActive: false,
+                startTime: null,
+                duration: 2 * 24 * 60, // 2 jours en minutes (2 jours * 24h * 60min)
+                effectStartTime: null,
+                effectDuration: 1 * 24 * 60 // 1 jour d'effet en minutes
+            }
+        };
+        
         // Initialiser les gestionnaires
         this.achievementManager = new AchievementManager(this);
+        this.seasonManager = new Season();
         
         // Initialiser les bâtiments de base
         this.initializeStartingBuildings();
@@ -110,6 +143,14 @@ class City {
         this.onNewDay = callback;
     }
 
+    setMarketActionCallback(callback) {
+        this.onMarketActionCompleted = callback;
+    }
+
+    setArtisanActionCallback(callback) {
+        this.onArtisanActionCompleted = callback;
+    }
+
     pauseGame() {
         this.isPaused = true;
     }
@@ -129,8 +170,29 @@ class City {
     }
 
     processHourly() {
-        // Traitement par heure : progression des constructions
+        // Traitement par heure : génération de ressources et progression des constructions
+        this.generateHourlyResources();
         this.processBuildingProgress();
+        
+        // Vérifier les actions du marché à chaque heure
+        const completedMarketActions = this.processMarketActionCompletion();
+        
+        // Notifier le GameManager des actions du marché terminées (sera géré par le callback)
+        if (completedMarketActions.length > 0 && this.onMarketActionCompleted) {
+            completedMarketActions.forEach(action => {
+                this.onMarketActionCompleted(action);
+            });
+        }
+
+        // Vérifier les actions des artisans à chaque heure
+        const completedArtisanActions = this.processArtisanActionCompletion();
+        
+        // Notifier le GameManager des actions des artisans terminées (sera géré par le callback)
+        if (completedArtisanActions.length > 0 && this.onArtisanActionCompleted) {
+            completedArtisanActions.forEach(action => {
+                this.onArtisanActionCompleted(action);
+            });
+        }
     }
 
     // Nouveau : traitement des constructions/améliorations
@@ -140,30 +202,36 @@ class City {
     }
 
     processDaily() {
-        // Traitement quotidien : génération de ressources
-        this.generateDailyResources();
+        // Traitement quotidien : guérison des aventuriers
         this.healAllAdventurers();
     }
 
-    generateDailyResources() {
+    generateHourlyResources() {
         const builtBuildings = this.getBuiltBuildings();
-        let dailyGain = { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
+        let hourlyGain = { gold: 0, population: 0, materials: 0, magic: 0, reputation: 0 };
         
         builtBuildings.forEach(building => {
             const effects = building.effects;
             
-            if (effects.goldPerTurn) dailyGain.gold += effects.goldPerTurn;
-            if (effects.populationPerTurn) dailyGain.population += effects.populationPerTurn;
-            if (effects.materialsPerTurn) dailyGain.materials += effects.materialsPerTurn;
-            if (effects.magicPerTurn) dailyGain.magic += effects.magicPerTurn;
-            if (effects.reputationPerTurn) dailyGain.reputation += effects.reputationPerTurn;
+            if (effects.goldPerHour) hourlyGain.gold += effects.goldPerHour;
+            if (effects.populationPerHour) hourlyGain.population += effects.populationPerHour;
+            if (effects.materialsPerHour) hourlyGain.materials += effects.materialsPerHour;
+            if (effects.magicPerHour) hourlyGain.magic += effects.magicPerHour;
+            if (effects.reputationPerHour) hourlyGain.reputation += effects.reputationPerHour;
         });
         
-        // Plus de revenu de base - chaque bâtiment génère ses propres ressources
+        // Appliquer les effets des actions d'artisans actives
+        const artisanEffects = this.getActiveArtisanEffects();
+        if (artisanEffects.doubleMaterials) {
+            hourlyGain.materials *= 2;
+        }
+        if (artisanEffects.doubleGold) {
+            hourlyGain.gold *= 2;
+        }
         
-        this.resources.gain(dailyGain);
+        this.resources.gain(hourlyGain);
         
-        return dailyGain;
+        return hourlyGain;
     }
 
     healAllAdventurers() {
@@ -214,6 +282,222 @@ class City {
         return { success: true, message: `${building.name} construit avec succès` };
     }
 
+    getSeasonInfo() {
+        return this.seasonManager.getSeasonDisplay(this.day);
+    }
+
+    // === ACTIONS DU MARCHÉ ===
+
+    startMarketAction(actionType) {
+        if (!['negotiator', 'emissary'].includes(actionType)) {
+            return { success: false, message: 'Action inconnue' };
+        }
+
+        const action = this.marketActions[actionType];
+        if (action.isActive) {
+            return { success: false, message: 'Cette action est déjà en cours' };
+        }
+
+        // Vérifier qu'aucune autre action du marché n'est en cours
+        const otherAction = actionType === 'negotiator' ? this.marketActions.emissary : this.marketActions.negotiator;
+        if (otherAction.isActive) {
+            const otherActionName = actionType === 'negotiator' ? 'émissaire' : 'négociateur';
+            return { success: false, message: `Un ${otherActionName} est déjà en mission. Attendez son retour.` };
+        }
+
+        // Démarrer l'action
+        action.isActive = true;
+        action.startTime = this.day * 1440 + this.currentTime; // Convertir en temps absolu en minutes
+
+        return { success: true, message: `${actionType === 'negotiator' ? 'Négociateur' : 'Émissaire'} envoyé avec succès` };
+    }
+
+    getMarketActionStatus(actionType) {
+        if (!['negotiator', 'emissary'].includes(actionType)) {
+            return null;
+        }
+
+        const action = this.marketActions[actionType];
+        if (!action.isActive) {
+            return { isActive: false };
+        }
+
+        const currentTime = this.day * 1440 + this.currentTime; // Temps absolu actuel en minutes
+        const elapsedMinutes = currentTime - action.startTime;
+        const remainingMinutes = Math.max(0, action.duration - elapsedMinutes);
+        const isCompleted = elapsedMinutes >= action.duration;
+
+        // Convertir en heures et minutes pour l'affichage
+        const remainingHours = Math.floor(remainingMinutes / 60);
+        const remainingMins = remainingMinutes % 60;
+
+        return {
+            isActive: true,
+            elapsedMinutes,
+            remainingMinutes,
+            remainingHours,
+            remainingMins,
+            isCompleted,
+            startTime: action.startTime
+        };
+    }
+
+    processMarketActionCompletion() {
+        const completedActions = [];
+
+        // Vérifier le négociateur
+        const negotiatorStatus = this.getMarketActionStatus('negotiator');
+        if (negotiatorStatus && negotiatorStatus.isCompleted && this.marketActions.negotiator.isActive) {
+            // Action terminée - donner les récompenses
+            const reward = { materials: 100 }; // Gain de matériaux
+            this.resources.gain(reward);
+            
+            // Réinitialiser l'action
+            this.marketActions.negotiator.isActive = false;
+            this.marketActions.negotiator.startTime = null;
+            
+            completedActions.push({
+                type: 'negotiator',
+                reward,
+                message: 'Le négociateur est revenu avec de nouveaux matériaux'
+            });
+        }
+
+        // Vérifier l'émissaire
+        const emissaryStatus = this.getMarketActionStatus('emissary');
+        if (emissaryStatus && emissaryStatus.isCompleted && this.marketActions.emissary.isActive) {
+            // Action terminée - donner les récompenses
+            const reward = { gold: 200 }; // Gain d'or
+            this.resources.gain(reward);
+            
+            // Réinitialiser l'action
+            this.marketActions.emissary.isActive = false;
+            this.marketActions.emissary.startTime = null;
+            
+            completedActions.push({
+                type: 'emissary',
+                reward,
+                message: 'L\'émissaire a attiré de nouveaux clients vers vos marchés'
+            });
+        }
+
+        return completedActions;
+    }
+
+    // === ACTIONS DES ARTISANS ===
+
+    startArtisanAction(actionType) {
+        if (!['nightWork', 'clearance'].includes(actionType)) {
+            return { success: false, message: 'Action inconnue' };
+        }
+
+        const action = this.artisanActions[actionType];
+        if (action.isActive) {
+            return { success: false, message: 'Cette action est déjà en cours' };
+        }
+
+        // Vérifier qu'aucune autre action des artisans n'est en cours (exclusivité)
+        const otherActionType = actionType === 'nightWork' ? 'clearance' : 'nightWork';
+        const otherAction = this.artisanActions[otherActionType];
+        if (otherAction.isActive) {
+            const otherActionName = actionType === 'nightWork' ? 'soldes' : 'travail de nuit';
+            return { success: false, message: `Les ${otherActionName} sont déjà en cours. Attendez leur fin.` };
+        }
+
+        // Démarrer l'action
+        action.isActive = true;
+        action.startTime = this.day * 1440 + this.currentTime; // Convertir en temps absolu en minutes
+        // Lancer l'effet immédiatement
+        action.effectStartTime = this.day * 1440 + this.currentTime;
+
+        return { success: true, message: `${actionType === 'nightWork' ? 'Travail de nuit' : 'Soldes'} lancé avec succès` };
+    }
+
+    getArtisanActionStatus(actionType) {
+        if (!['nightWork', 'clearance'].includes(actionType)) {
+            return null;
+        }
+
+        const action = this.artisanActions[actionType];
+        if (!action.isActive) {
+            return { isActive: false };
+        }
+
+        const currentTime = this.day * 1440 + this.currentTime; // Temps absolu actuel en minutes
+        const elapsedMinutes = currentTime - action.startTime;
+        const remainingMinutes = Math.max(0, action.duration - elapsedMinutes);
+        const isCompleted = elapsedMinutes >= action.duration;
+
+        // Convertir en jours et heures pour l'affichage
+        const remainingDays = Math.floor(remainingMinutes / (24 * 60));
+        const remainingHours = Math.floor((remainingMinutes % (24 * 60)) / 60);
+
+        return {
+            isActive: true,
+            elapsedMinutes,
+            remainingMinutes,
+            remainingDays,
+            remainingHours,
+            isCompleted,
+            startTime: action.startTime,
+            effectStartTime: action.effectStartTime,
+            isEffectActive: this.isArtisanEffectActive(actionType)
+        };
+    }
+
+    isArtisanEffectActive(actionType) {
+        if (!['nightWork', 'clearance'].includes(actionType)) {
+            return false;
+        }
+
+        const action = this.artisanActions[actionType];
+        if (!action.effectStartTime) {
+            return false;
+        }
+
+        const currentTime = this.day * 1440 + this.currentTime;
+        const effectElapsed = currentTime - action.effectStartTime;
+        
+        return effectElapsed < action.effectDuration;
+    }
+
+    getActiveArtisanEffects() {
+        return {
+            doubleMaterials: this.isArtisanEffectActive('nightWork'),
+            doubleGold: this.isArtisanEffectActive('clearance')
+        };
+    }
+
+    processArtisanActionCompletion() {
+        const completedActions = [];
+
+        // Vérifier le travail de nuit
+        const nightWorkStatus = this.getArtisanActionStatus('nightWork');
+        if (nightWorkStatus && this.artisanActions.nightWork.isActive) {
+            // Vérifier si l'effet est terminé
+            if (!this.isArtisanEffectActive('nightWork')) {
+                // Réinitialiser l'action
+                this.artisanActions.nightWork.isActive = false;
+                this.artisanActions.nightWork.startTime = null;
+                this.artisanActions.nightWork.effectStartTime = null;
+            }
+        }
+
+        // Vérifier les soldes
+        const clearanceStatus = this.getArtisanActionStatus('clearance');
+        if (clearanceStatus && this.artisanActions.clearance.isActive) {
+            // Vérifier si l'effet est terminé
+            if (!this.isArtisanEffectActive('clearance')) {
+                // Réinitialiser l'action
+                this.artisanActions.clearance.isActive = false;
+                this.artisanActions.clearance.startTime = null;
+                this.artisanActions.clearance.effectStartTime = null;
+            }
+        }
+
+        return completedActions;
+    }
+
     getGameState() {
         return {
             name: this.name,
@@ -223,7 +507,8 @@ class City {
             day: this.day,
             currentTime: this.currentTime,
             formattedTime: this.getFormattedTime(),
-            isPaused: this.isPaused
+            isPaused: this.isPaused,
+            season: this.getSeasonInfo()
         };
     }
 
@@ -235,7 +520,10 @@ class City {
             adventurers: this.adventurers.map(a => a.toJSON()),
             day: this.day,
             currentTime: this.currentTime,
-            isPaused: this.isPaused
+            isPaused: this.isPaused,
+            marketActions: this.marketActions,
+            artisanActions: this.artisanActions,
+            seasonManager: this.seasonManager.toJSON()
         };
     }
 
@@ -263,6 +551,22 @@ class City {
         city.day = data.day || 1;
         city.currentTime = data.currentTime || 0;
         city.isPaused = data.isPaused || false;
+        
+        // Restaurer les actions du marché
+        if (data.marketActions) {
+            city.marketActions = data.marketActions;
+        }
+        
+        // Restaurer les actions des artisans
+        if (data.artisanActions) {
+            city.artisanActions = data.artisanActions;
+        }
+        
+        // Restaurer le gestionnaire de saisons
+        if (data.seasonManager) {
+            city.seasonManager = Season.fromJSON(data.seasonManager);
+        }
+        
         return city;
     }
 }
