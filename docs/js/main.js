@@ -6,8 +6,12 @@
 class GrimspireApp {
     constructor() {
         this.gameManager = new GameManager();
+        this.audioManager = new AudioManager();
         this.currentScreen = 'menu';
         this.initializeEventListeners();
+        
+        // Démarrer la musique de titre quand on est sur le menu
+        this.initializeAudio();
     }
 
     initializeEventListeners() {
@@ -37,6 +41,33 @@ class GrimspireApp {
         
         // Navigation industrie
         this.initializeIndustrieNavigation();
+    }
+
+    initializeAudio() {
+        // Les navigateurs modernes bloquent l'autoplay audio
+        // On démarre la musique seulement après une première interaction utilisateur
+        this.audioInitialized = false;
+        
+        // Ajouter un écouteur global pour la première interaction
+        const startAudioOnFirstClick = () => {
+            if (!this.audioInitialized) {
+                this.audioManager.playMusic('title');
+                this.audioInitialized = true;
+                
+                // Cacher l'indicateur audio
+                const audioHint = document.getElementById('audio-hint');
+                if (audioHint) {
+                    audioHint.style.display = 'none';
+                }
+                
+                // Retirer l'écouteur après la première utilisation
+                document.removeEventListener('click', startAudioOnFirstClick);
+                document.removeEventListener('keydown', startAudioOnFirstClick);
+            }
+        };
+        
+        document.addEventListener('click', startAudioOnFirstClick);
+        document.addEventListener('keydown', startAudioOnFirstClick);
     }
 
     initializeMainMenu() {
@@ -74,6 +105,7 @@ class GrimspireApp {
         // Contrôles de jeu
         const pauseGameBtn = document.getElementById('pause-game-btn');
         const saveGameBtn = document.getElementById('save-game-btn');
+        const audioToggleBtn = document.getElementById('audio-toggle-btn');
         const returnMenuBtn = document.getElementById('return-menu-btn');
 
         // Contrôles des bâtiments
@@ -97,6 +129,10 @@ class GrimspireApp {
 
         if (saveGameBtn) {
             saveGameBtn.addEventListener('click', this.saveGame.bind(this));
+        }
+
+        if (audioToggleBtn) {
+            audioToggleBtn.addEventListener('click', this.openAudioSettings.bind(this));
         }
 
         if (returnMenuBtn) {
@@ -143,6 +179,25 @@ class GrimspireApp {
         }
         if (startMissionBtn) {
             startMissionBtn.addEventListener('click', this.confirmStartMission.bind(this));
+        }
+
+        // Modal des paramètres audio
+        const closeAudioModalBtn = document.getElementById('close-audio-modal-btn');
+        const audioSettingsOkBtn = document.getElementById('audio-settings-ok-btn');
+        const musicToggleBtn = document.getElementById('music-toggle');
+        const volumeSlider = document.getElementById('volume-slider');
+
+        if (closeAudioModalBtn) {
+            closeAudioModalBtn.addEventListener('click', this.closeAudioSettings.bind(this));
+        }
+        if (audioSettingsOkBtn) {
+            audioSettingsOkBtn.addEventListener('click', this.closeAudioSettings.bind(this));
+        }
+        if (musicToggleBtn) {
+            musicToggleBtn.addEventListener('click', this.toggleMusic.bind(this));
+        }
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', this.updateVolume.bind(this));
         }
 
         // Callbacks du GameManager
@@ -346,6 +401,9 @@ class GrimspireApp {
             mainMenu.classList.remove('active');
             gameScreen.classList.add('active');
             this.currentScreen = 'game';
+            
+            // Changer vers la musique de jeu
+            this.audioManager.playMusic('game');
         }
     }
 
@@ -360,6 +418,17 @@ class GrimspireApp {
             gameScreen.classList.remove('active');
             mainMenu.classList.add('active');
             this.currentScreen = 'menu';
+            
+            // Changer vers la musique de titre
+            this.audioManager.playMusic('title');
+            
+            // S'assurer que l'indicateur audio est caché si l'audio est déjà initialisé
+            if (this.audioInitialized) {
+                const audioHint = document.getElementById('audio-hint');
+                if (audioHint) {
+                    audioHint.style.display = 'none';
+                }
+            }
         }
     }
 
@@ -962,6 +1031,14 @@ class GrimspireApp {
 
     togglePause() {
         const isPaused = this.gameManager.toggleGamePause();
+        
+        // Gérer la pause/reprise de la musique
+        if (isPaused) {
+            this.audioManager.pauseMusic();
+        } else {
+            this.audioManager.resumeMusic();
+        }
+        
         // L'interface se met automatiquement à jour via le callback updateGameInterface
         
         // Actualiser l'affichage des boutons selon le nouvel état
@@ -984,6 +1061,95 @@ class GrimspireApp {
         } else {
             this.showActionResult({ success: false, message: 'Erreur de sauvegarde' });
         }
+    }
+
+    toggleAudio() {
+        const isMuted = this.audioManager.toggleMute();
+        const audioBtn = document.getElementById('audio-toggle-btn');
+        
+        if (audioBtn) {
+            audioBtn.textContent = isMuted ? '🔇 Audio' : '🔊 Audio';
+        }
+        
+        this.showActionResult({ 
+            success: true, 
+            message: isMuted ? 'Audio désactivé' : 'Audio activé' 
+        });
+    }
+
+    openAudioSettings() {
+        const modal = document.getElementById('audio-settings-modal');
+        const musicToggle = document.getElementById('music-toggle');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeDisplay = document.getElementById('volume-display');
+
+        // Mettre à jour l'état des contrôles selon l'état actuel
+        const audioStatus = this.audioManager.getStatus();
+        const currentVolume = Math.round(audioStatus.volume * 100);
+        
+        // Mettre à jour le bouton de musique
+        if (musicToggle) {
+            if (audioStatus.isMuted) {
+                musicToggle.textContent = 'Désactivée';
+                musicToggle.className = 'toggle-btn disabled';
+            } else {
+                musicToggle.textContent = 'Activée';
+                musicToggle.className = 'toggle-btn enabled';
+            }
+        }
+
+        // Mettre à jour le slider de volume
+        if (volumeSlider && volumeDisplay) {
+            volumeSlider.value = currentVolume;
+            volumeDisplay.textContent = currentVolume + '%';
+        }
+
+        // Afficher la modal
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+
+    closeAudioSettings() {
+        const modal = document.getElementById('audio-settings-modal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    toggleMusic() {
+        const isMuted = this.audioManager.toggleMute();
+        const musicToggle = document.getElementById('music-toggle');
+        const audioBtn = document.getElementById('audio-toggle-btn');
+        
+        // Mettre à jour le bouton de la modal
+        if (musicToggle) {
+            if (isMuted) {
+                musicToggle.textContent = 'Désactivée';
+                musicToggle.className = 'toggle-btn disabled';
+            } else {
+                musicToggle.textContent = 'Activée';
+                musicToggle.className = 'toggle-btn enabled';
+            }
+        }
+
+        // Mettre à jour le bouton principal
+        if (audioBtn) {
+            audioBtn.textContent = isMuted ? '🔇 Audio' : '🔊 Audio';
+        }
+    }
+
+    updateVolume(event) {
+        const volume = parseInt(event.target.value) / 100;
+        const volumeDisplay = document.getElementById('volume-display');
+
+        // Mettre à jour l'affichage du pourcentage
+        if (volumeDisplay) {
+            volumeDisplay.textContent = event.target.value + '%';
+        }
+
+        // Mettre à jour le volume dans l'AudioManager
+        this.audioManager.setMusicVolume(volume);
     }
 
     showActionResult(result) {

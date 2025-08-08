@@ -26,8 +26,12 @@
         <!-- Menu Principal -->
         <div id="main-menu" class="screen active">
             <div class="menu-container">
+                <div class="logo-container">
+                    <img src="art/logo.png" alt="Grimspire Logo" class="game-logo">
+                </div>
                 <h1 class="game-title">GRIMSPIRE</h1>
                 <p class="game-subtitle">Gestionnaire de Cité Aventurière</p>
+                <p id="audio-hint" class="audio-hint">🔊 Cliquez n'importe où pour activer l'audio</p>
                 
                 <div class="menu-buttons">
                     <button id="new-game-btn" class="menu-button primary">
@@ -55,15 +59,20 @@
             <!-- En-tête du jeu -->
             <div class="game-header">
                 <div class="city-info">
-                    <h2 id="city-name">Grimspire</h2>
-                    <div class="time-info">
-                        <div>
-                            <span id="day-counter">Jour 1</span>
-                            <span id="game-clock">00:00</span>
-                        </div>
-                        <div class="season-info">
-                            <span id="season-icon">🌸</span>
-                            <span id="season-text">Printemps - Jour 1/10</span>
+                    <div class="city-header">
+                        <img src="art/logo.png" alt="Grimspire Logo" class="game-header-logo">
+                        <div class="city-details">
+                            <h2 id="city-name">Grimspire</h2>
+                            <div class="time-info">
+                                <div>
+                                    <span id="day-counter">Jour 1</span>
+                                    <span id="game-clock">00:00</span>
+                                </div>
+                                <div class="season-info">
+                                    <span id="season-icon">🌸</span>
+                                    <span id="season-text">Printemps - Jour 1/10</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,6 +118,7 @@
                 <div class="game-controls">
                     <button id="pause-game-btn" class="control-btn">⏸️ Pause</button>
                     <button id="save-game-btn" class="control-btn">Sauvegarder</button>
+                    <button id="audio-toggle-btn" class="control-btn">🔊 Audio</button>
                     <button id="return-menu-btn" class="control-btn">Menu</button>
                 </div>
             </div>
@@ -822,6 +832,34 @@
                     </div>
                 </div>
                 
+                <!-- Modal des paramètres audio -->
+                <div id="audio-settings-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>🔊 Paramètres Audio</h3>
+                            <button id="close-audio-modal-btn" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="audio-settings">
+                                <div class="audio-setting-item">
+                                    <label for="music-toggle">Musique :</label>
+                                    <button id="music-toggle" class="toggle-btn enabled">Activée</button>
+                                </div>
+                                <div class="audio-setting-item">
+                                    <label for="volume-slider">Volume :</label>
+                                    <div class="volume-control">
+                                        <input type="range" id="volume-slider" min="0" max="100" value="50">
+                                        <span id="volume-display">50%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="audio-settings-ok-btn" class="modal-btn primary">OK</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Modal de sélection d'aventuriers -->
                 <div id="adventurer-selection-modal" class="modal">
                     <div class="modal-content">
@@ -883,6 +921,7 @@
     <script src="js/systems/CityUpgradeManager.js"></script>
     <script src="js/systems/EventManager.js"></script>
     <script src="js/systems/AchievementManager.js"></script>
+    <script src="js/systems/AudioManager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

@@ -28,8 +28,20 @@
         font-size: 1rem;
     }
     
+    .game-logo {
+        max-width: 250px;
+    }
+    
     .game-header {
         padding: 10px 15px;
+    }
+    
+    .game-header-logo {
+        height: 40px;
+    }
+    
+    .city-header {
+        gap: 10px;
     }
     
     .resources-panel {

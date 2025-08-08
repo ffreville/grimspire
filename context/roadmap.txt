@@ -191,5 +191,9 @@ L'effet de l'action dure 1 jour et se lance une fois l'action terminée.
 A la fin de la premiere action, il y a 50% de chances pour que le nombre de golds donnés par une banque soit doublé pendant 1 jours.
 A la fin de la seconde action, il y a 25% de chances pour que le nombre de golds donnés par la banque soit quintuplé pendant 1 jour ou 70% de chances que ça soit divisé par 2 pendant 1 jour.
 
+Phase 22
+Affichage d'un menu quand on clique sur le bouton audio en haut à droite.
+Dans ce menu, possibilité de désactiver la musique, et de modifier le volume.
+
 ## Phase X
 event aléatoire chaque jour

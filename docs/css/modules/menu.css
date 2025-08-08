@@ -9,20 +9,50 @@
     backdrop-filter: blur(10px);
 }
 
+.logo-container {
+    margin-bottom: 20px;
+}
+
+.game-logo {
+    max-width: 300px;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease;
+}
+
+.game-logo:hover {
+    transform: scale(1.05);
+}
+
 .game-title {
-    font-size: 4rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: #d4af37;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
     margin-bottom: 10px;
     letter-spacing: 3px;
+    opacity: 0.8;
 }
 
 .game-subtitle {
     font-size: 1.2rem;
     color: #c9c9c9;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     font-style: italic;
+}
+
+.audio-hint {
+    font-size: 0.9rem;
+    color: #d4af37;
+    margin-bottom: 40px;
+    opacity: 0.8;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
 }
 
 /* === BOUTONS MENU === */
