@@ -31,6 +31,9 @@ class GrimspireApp {
         
         // Contrôles des actions d'artisans
         this.initializeArtisanActions();
+
+        // Contrôles des actions de banque
+        this.initializeBankActions();
         
         // Navigation industrie
         this.initializeIndustrieNavigation();
@@ -113,9 +116,13 @@ class GrimspireApp {
         }
 
         // Contrôles des événements
+        const acknowledgeAllEventsBtn = document.getElementById('acknowledge-all-events-btn');
         const markAllReadBtn = document.getElementById('mark-all-read-btn');
         const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
         
+        if (acknowledgeAllEventsBtn) {
+            acknowledgeAllEventsBtn.addEventListener('click', this.acknowledgeAllEvents.bind(this));
+        }
         if (markAllReadBtn) {
             markAllReadBtn.addEventListener('click', this.markAllEventsAsRead.bind(this));
         }
@@ -208,11 +215,13 @@ class GrimspireApp {
         });
         document.getElementById(`commerce-${commerceTabName}`)?.classList.add('active');
         
-        // Si on affiche l'onglet marché, mettre à jour les actions
+        // Si on affiche l'onglet correspondant, mettre à jour les actions
         if (commerceTabName === 'marche') {
             this.renderMarketActions();
         } else if (commerceTabName === 'artisans') {
             this.renderArtisanActions();
+        } else if (commerceTabName === 'banque') {
+            this.renderBankActions();
         }
     }
 
@@ -241,6 +250,20 @@ class GrimspireApp {
         const startClearanceBtn = document.getElementById('start-clearance-btn');
         if (startClearanceBtn) {
             startClearanceBtn.addEventListener('click', () => this.startClearance());
+        }
+    }
+
+    initializeBankActions() {
+        // Bouton pour lancer l'investissement commercial
+        const startInvestmentBtn = document.getElementById('start-investment-btn');
+        if (startInvestmentBtn) {
+            startInvestmentBtn.addEventListener('click', () => this.startInvestment());
+        }
+
+        // Bouton pour lancer le financement d'expédition
+        const startExpeditionFundingBtn = document.getElementById('start-expedition-funding-btn');
+        if (startExpeditionFundingBtn) {
+            startExpeditionFundingBtn.addEventListener('click', () => this.startExpeditionFunding());
         }
     }
 
@@ -455,6 +478,8 @@ class GrimspireApp {
                     this.renderMarketActions();
                 } else if (commerceTab === 'artisans') {
                     this.renderArtisanActions();
+                } else if (commerceTab === 'banque') {
+                    this.renderBankActions();
                 }
             }
         }
@@ -1956,6 +1981,8 @@ class GrimspireApp {
                 this.renderMarketActions();
             } else if (commerceTab === 'artisans') {
                 this.renderArtisanActions();
+            } else if (commerceTab === 'banque') {
+                this.renderBankActions();
             }
         }
     }
@@ -2225,6 +2252,105 @@ class GrimspireApp {
         }
     }
 
+    // === MÉTHODES POUR LES ACTIONS DE BANQUE ===
+
+    startInvestment() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de lancer l\'investissement : jeu en pause' });
+            return;
+        }
+
+        const result = this.gameManager.startBankAction('investment');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderBankActions();
+        }
+    }
+
+    startExpeditionFunding() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible de lancer le financement : jeu en pause' });
+            return;
+        }
+
+        const result = this.gameManager.startBankAction('expeditionFunding');
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderBankActions();
+        }
+    }
+
+    renderBankActions() {
+        const bankInfo = this.gameManager.getBankInfo();
+        if (!bankInfo) return;
+
+        // Gérer l'affichage selon si une banque est construite ou non
+        const lockedMessage = document.getElementById('banque-locked-message');
+        const actionsSection = document.getElementById('banque-actions-section');
+
+        if (bankInfo.hasBank) {
+            if (lockedMessage) lockedMessage.style.display = 'none';
+            if (actionsSection) actionsSection.style.display = 'block';
+            
+            // Mettre à jour l'état des actions
+            this.updateBankActionStatus('investment', bankInfo.investmentStatus);
+            this.updateBankActionStatus('expeditionFunding', bankInfo.expeditionFundingStatus);
+        } else {
+            if (lockedMessage) lockedMessage.style.display = 'block';
+            if (actionsSection) actionsSection.style.display = 'none';
+        }
+    }
+
+    updateBankActionStatus(actionType, status) {
+        const statusElement = document.getElementById(`${actionType === 'investment' ? 'investment' : 'expedition-funding'}-status`);
+        if (!statusElement) return;
+
+        const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
+
+        if (!status || !status.isActive) {
+            // Action non active - afficher le bouton
+            const actionName = actionType === 'investment' ? 
+                'Lancer l\'investissement (2 jours)' : 
+                'Financer l\'expédition (2 jours)';
+                
+            statusElement.innerHTML = `
+                <button id="start-${actionType === 'investment' ? 'investment' : 'expedition-funding'}-btn" 
+                        class="action-btn primary" ${isPaused ? 'disabled' : ''}>
+                    ${isPaused ? 'Jeu en pause' : actionName}
+                </button>
+            `;
+
+            // Réattacher l'événement
+            const newButton = statusElement.querySelector('button');
+            if (newButton) {
+                newButton.addEventListener('click', () => {
+                    if (actionType === 'investment') {
+                        this.startInvestment();
+                    } else {
+                        this.startExpeditionFunding();
+                    }
+                });
+            }
+        } else {
+            // Action active - afficher le statut
+            const days = Math.floor(status.timeRemaining / (24 * 60));
+            const hours = Math.floor((status.timeRemaining % (24 * 60)) / 60);
+            const actionName = actionType === 'investment' ? 'Investissement' : 'Financement d\'expédition';
+            
+            statusElement.innerHTML = `
+                <div class="action-in-progress">
+                    <p><strong>${actionName} en cours...</strong></p>
+                    <p>Temps restant : ${days}j ${hours}h</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(status.progress * 100).toFixed(1)}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
     // === MÉTHODES POUR L'ONGLET SUCCÈS ===
 
     renderAchievements() {
@@ -2383,8 +2509,13 @@ class GrimspireApp {
     updateEventsControlButtons() {
         const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
+        const acknowledgeAllEventsBtn = document.getElementById('acknowledge-all-events-btn');
         const markAllReadBtn = document.getElementById('mark-all-read-btn');
         const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
+        
+        if (acknowledgeAllEventsBtn) {
+            acknowledgeAllEventsBtn.disabled = isPaused;
+        }
         
         if (markAllReadBtn) {
             markAllReadBtn.disabled = isPaused;
@@ -2492,18 +2623,54 @@ class GrimspireApp {
         }
 
         if (event.requiresChoice && event.choices && event.choices.length > 0) {
-            event.choices.forEach(choice => {
+            // Si un choix a été fait, afficher le choix sélectionné
+            if (event.choiceMade && event.choiceText) {
                 actions.push(`
-                    <button class="event-action-btn choice" 
-                            onclick="app.makeEventChoice('${event.id}', '${choice.id}')"
-                            ${isPaused ? 'disabled' : ''}>
-                        ${isPaused ? 'Jeu en pause' : choice.text}
-                    </button>
+                    <div class="event-choice-made">
+                        ✓ Choix fait : ${event.choiceText}
+                    </div>
                 `);
-            });
+            } else {
+                // Sinon, afficher les boutons de choix
+                event.choices.forEach(choice => {
+                    // Construire l'affichage des effets
+                    let effectsText = '';
+                    if (choice.effects) {
+                        const effects = [];
+                        Object.entries(choice.effects).forEach(([resource, value]) => {
+                            const sign = value > 0 ? '+' : '';
+                            const resourceName = this.getResourceName(resource);
+                            effects.push(`${sign}${value} ${resourceName}`);
+                        });
+                        if (effects.length > 0) {
+                            effectsText = `<div class="choice-effects">${effects.join(', ')}</div>`;
+                        }
+                    }
+
+                    actions.push(`
+                        <button class="event-action-btn choice" 
+                                onclick="app.makeEventChoice('${event.id}', '${choice.id}')"
+                                ${isPaused ? 'disabled' : ''}>
+                            <div class="choice-text">${isPaused ? 'Jeu en pause' : choice.text}</div>
+                            ${effectsText}
+                        </button>
+                    `);
+                });
+            }
         }
 
         return actions.join('');
+    }
+
+    getResourceName(resource) {
+        const resourceNames = {
+            'gold': 'Or',
+            'population': 'Population',
+            'materials': 'Matériaux',
+            'magic': 'Magie',
+            'reputation': 'Réputation'
+        };
+        return resourceNames[resource] || resource;
     }
 
     // Actions pour l'onglet Événements
@@ -2518,6 +2685,20 @@ class GrimspireApp {
 
     acknowledgeEvent(eventId) {
         const result = this.gameManager.acknowledgeEvent(eventId);
+        this.showActionResult(result);
+        
+        if (result.success) {
+            this.renderEvents();
+        }
+    }
+
+    acknowledgeAllEvents() {
+        if (this.gameManager.city && this.gameManager.city.isPaused) {
+            this.showActionResult({ success: false, message: 'Impossible d\'acquitter les événements : jeu en pause' });
+            return;
+        }
+        
+        const result = this.gameManager.acknowledgeAllEvents();
         this.showActionResult(result);
         
         if (result.success) {
@@ -2554,9 +2735,20 @@ class GrimspireApp {
     }
 
     makeEventChoice(eventId, choiceId) {
-        // Cette méthode sera implémentée dans les phases futures
-        // pour les événements avec des choix
-        console.log(`Choix ${choiceId} pour l'événement ${eventId}`);
+        const result = this.gameManager.makeEventChoice(eventId, choiceId);
+        
+        if (result.success) {
+            // Mettre à jour l'affichage des événements
+            this.renderEvents();
+            
+            // Mettre à jour les ressources si elles ont changé
+            this.updateResources();
+            
+            // Afficher le résultat du choix
+            this.showActionResult(result);
+        } else {
+            this.showActionResult(result);
+        }
     }
 }
 

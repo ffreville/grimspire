@@ -155,6 +155,9 @@
                             <!-- Contrôles des événements -->
                             <div class="events-controls-sidebar">
                                 <h4>⚙️ Actions</h4>
+                                <button id="acknowledge-all-events-btn" class="events-control-btn">
+                                    ✅ Acquitter tous les événements
+                                </button>
                                 <button id="mark-all-read-btn" class="events-control-btn">
                                     ✓ Marquer tout comme lu
                                 </button>
@@ -449,8 +452,54 @@
                                     <h4>Banque</h4>
                                     <p>Services financiers et investissements</p>
                                 </div>
-                                <div class="locked-message">
+                                
+                                <div id="banque-locked-message" class="locked-message">
                                     <p>🔒 Construisez une banque pour débloquer cette section</p>
+                                </div>
+                                
+                                <!-- Section des actions des banques -->
+                                <div class="banque-actions" id="banque-actions-section" style="display: none;">
+                                    <div class="actions-grid">
+                                        <!-- Action Investissement commercial -->
+                                        <div class="bank-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">💼</div>
+                                                <div class="action-info">
+                                                    <h5>Investir dans un commerce</h5>
+                                                    <p>Investissement sécurisé dans les commerces locaux</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 2 jours</div>
+                                                <div class="action-effect">Effet: 50% de chances de doubler l'or pendant 1 jour</div>
+                                            </div>
+                                            <div class="action-status" id="investment-status">
+                                                <button id="start-investment-btn" class="action-btn primary">
+                                                    Lancer l'investissement
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Action Financement d'expédition -->
+                                        <div class="bank-action-card">
+                                            <div class="action-header">
+                                                <div class="action-icon">⚔️</div>
+                                                <div class="action-info">
+                                                    <h5>Financer une expédition indépendante</h5>
+                                                    <p>Financement risqué d'aventuriers indépendants</p>
+                                                </div>
+                                            </div>
+                                            <div class="action-details">
+                                                <div class="action-duration">Durée: 2 jours</div>
+                                                <div class="action-effect">Effet: 25% gros succès (×5 or) / 70% échec (÷2 or) pendant 1 jour</div>
+                                            </div>
+                                            <div class="action-status" id="expedition-funding-status">
+                                                <button id="start-expedition-funding-btn" class="action-btn primary">
+                                                    Financer l'expédition
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

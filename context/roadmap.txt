@@ -180,6 +180,16 @@ Les deux actions durent 2 jours. Il ne peut y avoir qu'une seule action de lanc�
 Phase 20 - Changement des gains
 Il faudrait passer sur des gains par heure et non par jour. De plus, il faudrait du coup baisser un petit peu les gains des batiments.
 
+Phase 21
+Dans le menu commerce, sous menu banque, il y a possibilité de pouvoir paramétrer les banques.
+Pour cela, il y a 2 boutons qui permettent de lancer 2 actions différentes:
+- Investir dans un commerce (safe)
+- Financer une expédition d'aventuriers indépendants (risqué)
+Les deux actions durent 2 jours.  Une fois l'action lancée, les boutons sont grisés et un message doit être affiché pour dire l'aciton en cours et combien de temps il reste.
+Une fois l'action terminée, un evenement doit être créé.
+L'effet de l'action dure 1 jour et se lance une fois l'action terminée.
+A la fin de la premiere action, il y a 50% de chances pour que le nombre de golds donnés par une banque soit doublé pendant 1 jours.
+A la fin de la seconde action, il y a 25% de chances pour que le nombre de golds donnés par la banque soit quintuplé pendant 1 jour ou 70% de chances que ça soit divisé par 2 pendant 1 jour.
 
 ## Phase X
 event aléatoire chaque jour

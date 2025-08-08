@@ -49,6 +49,7 @@ class GameManager {
         this.city.setNewDayCallback(this.processNewDay.bind(this));
         this.city.setMarketActionCallback(this.onMarketActionCompleted.bind(this));
         this.city.setArtisanActionCallback(this.onArtisanActionCompleted.bind(this));
+        this.city.setBankActionCallback(this.onBankActionCompleted.bind(this));
         
         // Changer l'état du jeu
         this.gameState = 'playing';
@@ -127,6 +128,7 @@ class GameManager {
                 this.city.setNewDayCallback(this.processNewDay.bind(this));
                 this.city.setMarketActionCallback(this.onMarketActionCompleted.bind(this));
                 this.city.setArtisanActionCallback(this.onArtisanActionCompleted.bind(this));
+                this.city.setBankActionCallback(this.onBankActionCompleted.bind(this));
                 
                 // Démarrer le timer de jeu si pas déjà démarré
                 this.startGameTimer();
@@ -733,6 +735,26 @@ class GameManager {
         return { success: false, message: 'Événement introuvable' };
     }
 
+    acknowledgeAllEvents() {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const count = this.eventManager.acknowledgeAllEvents();
+        this.notifyStateChange();
+        this.autoSave();
+        return { success: true, message: `${count} événement(s) acquitté(s)` };
+    }
+
+    makeEventChoice(eventId, choiceId) {
+        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
+        
+        const result = this.eventManager.makeEventChoice(eventId, choiceId);
+        if (result.success) {
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        return result;
+    }
+
     markAllEventsAsRead() {
         if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
         
@@ -905,6 +927,76 @@ class GameManager {
                     effect: actionResult.effect
                 }
             );
+        }
+    }
+
+    // === MÉTHODES POUR LES ACTIONS DES BANQUES ===
+
+    startBankAction(actionType) {
+        if (!this.city) {
+            return { success: false, message: 'Pas de ville active' };
+        }
+
+        // Vérifier qu'au moins une banque est construite
+        const hasBankBuilding = this.city.buildings.some(b => b.buildingType.id === 'banque');
+        if (!hasBankBuilding) {
+            return { success: false, message: 'Aucune banque construite' };
+        }
+
+        const result = this.city.startBankAction(actionType);
+        
+        if (result.success) {
+            this.notifyStateChange();
+            this.autoSave();
+        }
+        
+        return result;
+    }
+
+    getBankInfo() {
+        if (!this.city) return null;
+
+        // Vérifier qu'au moins une banque est construite
+        const hasBankBuilding = this.city.buildings.some(b => b.buildingType.id === 'banque');
+
+        return {
+            hasBank: hasBankBuilding,
+            investmentStatus: this.city.getBankActionStatus('investment'),
+            expeditionFundingStatus: this.city.getBankActionStatus('expeditionFunding')
+        };
+    }
+
+    onBankActionCompleted(actionResult) {
+        // Créer un événement pour l'action terminée
+        if (this.eventManager) {
+            let eventTitle = '';
+            let eventDescription = actionResult.message;
+            let eventIcon = '🏦';
+
+            if (actionResult.type === 'investment') {
+                eventTitle = actionResult.success ? 'Investissement réussi !' : 'Investissement sans résultat';
+                eventIcon = actionResult.success ? '💰' : '💸';
+            } else if (actionResult.type === 'expeditionFunding') {
+                if (actionResult.result === 'big_success') {
+                    eventTitle = 'Expédition légendaire !';
+                    eventIcon = '⚔️💰';
+                } else if (actionResult.result === 'failure') {
+                    eventTitle = 'Expédition ratée';
+                    eventIcon = '💸';
+                } else {
+                    eventTitle = 'Expédition normale';
+                    eventIcon = '⚔️';
+                }
+            }
+
+            this.eventManager.createEvent({
+                title: eventTitle,
+                description: eventDescription,
+                type: 'bank_action_completed',
+                icon: eventIcon
+            });
+
+            this.notifyStateChange();
         }
     }
 

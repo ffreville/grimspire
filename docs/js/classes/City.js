@@ -42,6 +42,27 @@ class City {
                 effectDuration: 1 * 24 * 60 // 1 jour d'effet en minutes
             }
         };
+
+        // Actions des banques
+        this.bankActions = {
+            investment: {
+                isActive: false,
+                startTime: null,
+                duration: 2 * 24 * 60, // 2 jours en minutes (2 jours * 24h * 60min)
+                effectStartTime: null,
+                effectDuration: 1 * 24 * 60, // 1 jour d'effet en minutes
+                successRate: 0.5 // 50% de chances de succès
+            },
+            expeditionFunding: {
+                isActive: false,
+                startTime: null,
+                duration: 2 * 24 * 60, // 2 jours en minutes (2 jours * 24h * 60min)
+                effectStartTime: null,
+                effectDuration: 1 * 24 * 60, // 1 jour d'effet en minutes
+                bigSuccessRate: 0.25, // 25% de chances de gros succès
+                failureRate: 0.70 // 70% de chances d'échec
+            }
+        };
         
         // Initialiser les gestionnaires
         this.achievementManager = new AchievementManager(this);
@@ -151,6 +172,10 @@ class City {
         this.onArtisanActionCompleted = callback;
     }
 
+    setBankActionCallback(callback) {
+        this.onBankActionCompleted = callback;
+    }
+
     pauseGame() {
         this.isPaused = true;
     }
@@ -193,6 +218,16 @@ class City {
                 this.onArtisanActionCompleted(action);
             });
         }
+
+        // Vérifier les actions des banques à chaque heure
+        const completedBankActions = this.processBankActionCompletion();
+        
+        // Notifier le GameManager des actions des banques terminées (sera géré par le callback)
+        if (completedBankActions.length > 0 && this.onBankActionCompleted) {
+            completedBankActions.forEach(action => {
+                this.onBankActionCompleted(action);
+            });
+        }
     }
 
     // Nouveau : traitement des constructions/améliorations
@@ -227,6 +262,18 @@ class City {
         }
         if (artisanEffects.doubleGold) {
             hourlyGain.gold *= 2;
+        }
+
+        // Appliquer les effets des actions de banque actives
+        const bankEffects = this.getActiveBankEffects();
+        if (bankEffects.doubleGold) {
+            hourlyGain.gold *= 2;
+        }
+        if (bankEffects.quintupleGold) {
+            hourlyGain.gold *= 5;
+        }
+        if (bankEffects.halfGold) {
+            hourlyGain.gold *= 0.5;
         }
         
         this.resources.gain(hourlyGain);
@@ -498,6 +545,161 @@ class City {
         return completedActions;
     }
 
+    // === ACTIONS DES BANQUES ===
+
+    startBankAction(actionType) {
+        if (!['investment', 'expeditionFunding'].includes(actionType)) {
+            return { success: false, message: 'Action inconnue' };
+        }
+
+        const action = this.bankActions[actionType];
+        if (action.isActive) {
+            return { success: false, message: 'Cette action est déjà en cours' };
+        }
+
+        // Vérifier qu'aucune autre action des banques n'est en cours (exclusivité)
+        const otherActionType = actionType === 'investment' ? 'expeditionFunding' : 'investment';
+        const otherAction = this.bankActions[otherActionType];
+        if (otherAction.isActive) {
+            const otherActionName = actionType === 'investment' ? 'financement d\'expédition' : 'investissement commercial';
+            return { success: false, message: `Le ${otherActionName} est déjà en cours. Attendez sa fin.` };
+        }
+
+        // Démarrer l'action
+        action.isActive = true;
+        action.startTime = this.day * 1440 + this.currentTime; // Convertir en temps absolu en minutes
+
+        return { success: true, message: `${actionType === 'investment' ? 'Investissement commercial' : 'Financement d\'expédition'} lancé avec succès` };
+    }
+
+    getBankActionStatus(actionType) {
+        if (!['investment', 'expeditionFunding'].includes(actionType)) {
+            return null;
+        }
+
+        const action = this.bankActions[actionType];
+        if (!action.isActive) {
+            return { isActive: false };
+        }
+
+        const currentTime = this.day * 1440 + this.currentTime; // Temps absolu actuel en minutes
+        const elapsed = currentTime - action.startTime;
+        const isCompleted = elapsed >= action.duration;
+
+        return {
+            isActive: true,
+            isCompleted: isCompleted,
+            timeRemaining: Math.max(0, action.duration - elapsed),
+            progress: Math.min(1, elapsed / action.duration)
+        };
+    }
+
+    isBankEffectActive(actionType) {
+        if (!['investment', 'expeditionFunding'].includes(actionType)) {
+            return false;
+        }
+
+        const action = this.bankActions[actionType];
+        if (!action.effectStartTime) {
+            return false;
+        }
+
+        const currentTime = this.day * 1440 + this.currentTime;
+        const effectElapsed = currentTime - action.effectStartTime;
+        
+        return effectElapsed >= 0 && effectElapsed < action.effectDuration;
+    }
+
+    getActiveBankEffects() {
+        return {
+            doubleGold: this.isBankEffectActive('investment') && this.bankActions.investment.wasSuccessful,
+            quintupleGold: this.isBankEffectActive('expeditionFunding') && this.bankActions.expeditionFunding.result === 'big_success',
+            halfGold: this.isBankEffectActive('expeditionFunding') && this.bankActions.expeditionFunding.result === 'failure'
+        };
+    }
+
+    processBankActionCompletion() {
+        const completedActions = [];
+
+        // Vérifier l'investissement commercial
+        const investmentStatus = this.getBankActionStatus('investment');
+        if (investmentStatus && investmentStatus.isCompleted && this.bankActions.investment.isActive) {
+            // Action terminée - commencer l'effet avec probabilité
+            if (!this.bankActions.investment.effectStartTime) {
+                this.bankActions.investment.effectStartTime = this.day * 1440 + this.currentTime;
+                
+                // Calculer le succès (50% de chances)
+                const success = Math.random() < this.bankActions.investment.successRate;
+                this.bankActions.investment.wasSuccessful = success;
+                
+                completedActions.push({
+                    type: 'investment',
+                    message: success ? 
+                        'L\'investissement commercial a réussi ! Les banques rapportent le double pendant 1 jour.' :
+                        'L\'investissement commercial n\'a pas porté ses fruits cette fois.',
+                    effect: success ? 'double_gold' : 'none',
+                    success: success
+                });
+            }
+            
+            // Vérifier si l'effet est terminé
+            if (!this.isBankEffectActive('investment')) {
+                // Réinitialiser l'action
+                this.bankActions.investment.isActive = false;
+                this.bankActions.investment.startTime = null;
+                this.bankActions.investment.effectStartTime = null;
+                this.bankActions.investment.wasSuccessful = false;
+            }
+        }
+
+        // Vérifier le financement d'expédition
+        const expeditionStatus = this.getBankActionStatus('expeditionFunding');
+        if (expeditionStatus && expeditionStatus.isCompleted && this.bankActions.expeditionFunding.isActive) {
+            // Action terminée - commencer l'effet avec probabilité
+            if (!this.bankActions.expeditionFunding.effectStartTime) {
+                this.bankActions.expeditionFunding.effectStartTime = this.day * 1440 + this.currentTime;
+                
+                // Calculer le résultat (25% gros succès, 70% échec, 5% normal)
+                const random = Math.random();
+                let result, message, effect;
+                
+                if (random < this.bankActions.expeditionFunding.bigSuccessRate) {
+                    result = 'big_success';
+                    message = 'L\'expédition indépendante a rapporté d\'énormes trésors ! Les banques rapportent 5x plus pendant 1 jour.';
+                    effect = 'quintuple_gold';
+                } else if (random < this.bankActions.expeditionFunding.bigSuccessRate + this.bankActions.expeditionFunding.failureRate) {
+                    result = 'failure';
+                    message = 'L\'expédition indépendante a mal tourné. Les banques ne rapportent que la moitié pendant 1 jour.';
+                    effect = 'half_gold';
+                } else {
+                    result = 'normal';
+                    message = 'L\'expédition indépendante s\'est déroulée normalement sans gain ni perte particulière.';
+                    effect = 'none';
+                }
+                
+                this.bankActions.expeditionFunding.result = result;
+                
+                completedActions.push({
+                    type: 'expeditionFunding',
+                    message: message,
+                    effect: effect,
+                    result: result
+                });
+            }
+            
+            // Vérifier si l'effet est terminé
+            if (!this.isBankEffectActive('expeditionFunding')) {
+                // Réinitialiser l'action
+                this.bankActions.expeditionFunding.isActive = false;
+                this.bankActions.expeditionFunding.startTime = null;
+                this.bankActions.expeditionFunding.effectStartTime = null;
+                this.bankActions.expeditionFunding.result = null;
+            }
+        }
+
+        return completedActions;
+    }
+
     getGameState() {
         return {
             name: this.name,
@@ -523,6 +725,7 @@ class City {
             isPaused: this.isPaused,
             marketActions: this.marketActions,
             artisanActions: this.artisanActions,
+            bankActions: this.bankActions,
             seasonManager: this.seasonManager.toJSON()
         };
     }
@@ -560,6 +763,11 @@ class City {
         // Restaurer les actions des artisans
         if (data.artisanActions) {
             city.artisanActions = data.artisanActions;
+        }
+
+        // Restaurer les actions des banques
+        if (data.bankActions) {
+            city.bankActions = data.bankActions;
         }
         
         // Restaurer le gestionnaire de saisons

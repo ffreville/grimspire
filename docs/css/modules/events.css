@@ -292,6 +292,29 @@
     border-color: #8c6a9c;
 }
 
+.event-choice-made {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    background: rgba(74, 124, 89, 0.2);
+    border: 1px solid #4a7c59;
+    border-radius: 5px;
+    color: #90ee90;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.choice-text {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.choice-effects {
+    font-size: 0.7rem;
+    color: #b8b8b8;
+    font-style: italic;
+    line-height: 1.2;
+}
+
 /* === TYPES D'ÉVÉNEMENTS SPÉCIAUX === */
 .event-card[data-type="construction_complete"] {
     border-left-color: #4a7c59;

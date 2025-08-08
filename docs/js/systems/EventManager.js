@@ -159,6 +159,36 @@ class EventManager {
         return false;
     }
 
+    // Gérer le choix d'un événement
+    makeEventChoice(eventId, choiceId) {
+        const event = this.events.find(e => e.id === eventId);
+        if (!event || !event.requiresChoice) {
+            return { success: false, message: 'Événement non trouvé ou ne nécessite pas de choix' };
+        }
+
+        const choice = event.choices.find(c => c.id === choiceId);
+        if (!choice) {
+            return { success: false, message: 'Choix non valide' };
+        }
+
+        // Appliquer les effets du choix
+        if (choice.effects) {
+            this.city.resources.gain(choice.effects);
+        }
+
+        // Marquer l'événement comme traité et acquitté
+        event.isRead = true;
+        event.isAcknowledged = true;
+        event.choiceMade = choiceId;
+        event.choiceText = choice.text;
+
+        return {
+            success: true,
+            message: `Choix "${choice.text}" sélectionné`,
+            effects: choice.effects || {}
+        };
+    }
+
     // Acquitter un événement
     acknowledgeEvent(eventId) {
         const event = this.events.find(e => e.id === eventId);
@@ -168,6 +198,19 @@ class EventManager {
             return true;
         }
         return false;
+    }
+
+    // Acquitter tous les événements
+    acknowledgeAllEvents() {
+        let count = 0;
+        this.events.forEach(event => {
+            if (!event.isAcknowledged) {
+                event.isRead = true;
+                event.isAcknowledged = true;
+                count++;
+            }
+        });
+        return count;
     }
 
     // Marquer tous les événements comme lus

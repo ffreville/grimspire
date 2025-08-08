@@ -273,3 +273,22 @@
     font-size: 14px;
     margin-bottom: 5px;
 }
+
+/* === BANQUES ACTIONS === */
+
+.banque-actions {
+    padding: 20px 0;
+}
+
+.bank-action-card {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid #555;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.bank-action-card:hover {
+    border-color: #666;
+    background: rgba(35, 35, 35, 0.9);
+}
