@@ -11,7 +11,7 @@ class AudioManager {
         // Initialiser les fichiers audio
         this.music = {
             title: new Audio('sounds/title.mp3'),
-            game: new Audio('sounds/game.mp3')
+            game: new Audio('sounds/game2.mp3')
         };
         
         // Configuration des musiques en boucle
