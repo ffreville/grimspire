@@ -9,6 +9,7 @@ class GameManager {
         this.cityUpgradeManager = null;
         this.buildingManager = null;
         this.eventManager = null;
+        this.audioManager = null; // Référence vers l'AudioManager
         this.gameState = 'menu'; // 'menu', 'playing', 'paused'
         this.currentTab = 'batiments';
         this.saveKey = 'grimspire_save';
@@ -21,7 +22,6 @@ class GameManager {
     }
 
     startNewGame() {
-        console.log('Démarrage d\'une nouvelle partie...');
         
         // Créer une nouvelle ville
         this.city = new City();
@@ -295,6 +295,11 @@ class GameManager {
         
         const result = this.buildingManager.constructBuilding(typeId, customName);
         if (result.success) {
+            // Jouer le son de construction
+            if (this.audioManager) {
+                this.audioManager.playSound('hammer');
+            }
+            
             this.notifyResourcesChange();
             this.notifyStateChange();
             this.autoSave();
@@ -551,6 +556,10 @@ class GameManager {
     setResourcesChangeCallback(callback) {
         this.onResourcesChange = callback;
     }
+    
+    setAudioManager(audioManager) {
+        this.audioManager = audioManager;
+    }
 
     notifyStateChange() {
         if (this.onStateChange) {
@@ -711,17 +720,6 @@ class GameManager {
         };
     }
 
-    markEventAsRead(eventId) {
-        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
-        
-        const success = this.eventManager.markAsRead(eventId);
-        if (success) {
-            this.notifyStateChange();
-            this.autoSave();
-            return { success: true, message: 'Événement marqué comme lu' };
-        }
-        return { success: false, message: 'Événement introuvable' };
-    }
 
     acknowledgeEvent(eventId) {
         if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
@@ -755,19 +753,10 @@ class GameManager {
         return result;
     }
 
-    markAllEventsAsRead() {
+    clearAcknowledgedEvents() {
         if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
         
-        const count = this.eventManager.markAllAsRead();
-        this.notifyStateChange();
-        this.autoSave();
-        return { success: true, message: `${count} événement(s) marqué(s) comme lu(s)` };
-    }
-
-    clearReadEvents() {
-        if (!this.eventManager) return { success: false, message: 'Gestionnaire d\'événements non initialisé' };
-        
-        const count = this.eventManager.clearReadEvents();
+        const count = this.eventManager.clearAcknowledgedEvents();
         this.notifyStateChange();
         this.autoSave();
         return { success: true, message: `${count} événement(s) effacé(s)` };

@@ -1,0 +1,110 @@
+[
+    {
+        "id": "citizen_donation",
+        "name": "Don d'un citoyen",
+        "description": "Un citoyen généreux fait un don à la ville",
+        "type": "random_event",
+        "icon": "💰",
+        "weight": 60,
+        "sound": "coin",
+        "effects": {
+            "gold": 5
+        },
+        "messages": [
+            "Un marchand reconnaissant vous offre quelques pièces d'or.",
+            "Un citoyen satisfait fait un petit don à la ville.",
+            "Vous trouvez une bourse perdue dans la rue.",
+            "Un aventurier de passage laisse une donation.",
+            "Les taxes locales rapportent un peu plus que prévu."
+        ]
+    },
+    {
+        "id": "citizen_donation_2",
+        "name": "Don d'un citoyen",
+        "description": "Un citoyen généreux fait un don à la ville",
+        "type": "random_event",
+        "icon": "🔨",
+        "weight": 60,
+        "sound": "coin",
+        "effects": {
+            "materials": 5
+        },
+        "messages": [
+            "Un marchand reconnaissant vous offre quelques matériaux.",
+            "Un citoyen satisfait fait un petit don à la ville.",
+            "Un artisan de passage laisse une donation."
+        ]
+    },
+    {
+        "id": "merchant_citizen_conflict",
+        "name": "Conflit entre un commerçant et un habitant",
+        "description": "Un conflit éclate entre un commerçant et un habitant au sujet d'un produit défectueux.",
+        "type": "choice_event",
+        "icon": "⚖️",
+        "weight": 20,
+        "sound": "angry",
+        "effects": {},
+        "messages": [
+            "Un commerçant refuse de rembourser un habitant pour un produit défectueux. Le conflit s'envenime et tous deux vous demandent de trancher.",
+            "Une dispute éclate au marché entre un marchand et un client. L'affaire divise les habitants et nécessite votre intervention.",
+            "Un artisan refuse de reprendre un objet mal conçu. L'acheteur exige justice. Votre décision influencera votre réputation."
+        ],
+        "requiresChoice": true,
+        "choices": [
+            {
+                "id": "help_citizen",
+                "text": "Soutenir l'habitant",
+                "description": "Vous ordonnez au commerçant de rembourser et payez une compensation à l'habitant.",
+                "effects": {
+                    "gold": -10,
+                    "reputation": 5
+                }
+            },
+            {
+                "id": "help_merchant",
+                "text": "Soutenir le commerçant",
+                "description": "Vous soutenez le commerçant qui vous verse une somme en remerciement.",
+                "effects": {
+                    "gold": 15,
+                    "reputation": -3
+                }
+            }
+        ]
+    },
+    {
+        "id": "festival_request",
+        "name": "Demande pour organiser une fête",
+        "description": "Les habitants demandent l'organisation d'une fête pour célébrer la prospérité de la ville.",
+        "type": "choice_event",
+        "icon": "🎉",
+        "weight": 20,
+        "sound": "crowd",
+        "effects": {},
+        "messages": [
+            "Une délégation d'habitants vous demande de financer une grande fête pour célébrer les récents succès de la ville.",
+            "Les citoyens souhaitent organiser un festival et demandent une contribution de la ville pour les festivités.",
+            "Un groupe d'artisans propose d'organiser une célébration publique si vous acceptez d'en couvrir les frais."
+        ],
+        "requiresChoice": true,
+        "choices": [
+            {
+                "id": "fund_festival",
+                "text": "Financer la fête",
+                "description": "Vous acceptez de financer la fête. Les habitants sont ravis et votre popularité augmente.",
+                "effects": {
+                    "gold": -25,
+                    "reputation": 8
+                }
+            },
+            {
+                "id": "refuse_festival",
+                "text": "Refuser de financer",
+                "description": "Vous refusez de financer la fête. L'argent reste dans les caisses mais les habitants sont déçus.",
+                "effects": {
+                    "gold": 0,
+                    "reputation": -5
+                }
+            }
+        ]
+    }
+]

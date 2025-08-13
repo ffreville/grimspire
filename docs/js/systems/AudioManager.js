@@ -4,8 +4,10 @@
 class AudioManager {
     constructor() {
         this.currentMusic = null;
-        this.musicVolume = 0.5;
-        this.isMuted = false;
+        this.musicVolume = 0.15;
+        this.soundVolume = 0.8;
+        this.isMusicMuted = false;
+        this.isSoundMuted = false;
         this.activeIntervals = new Map(); // Pour gérer les fade en cours
         
         // Initialiser les fichiers audio
@@ -14,10 +16,27 @@ class AudioManager {
             game: new Audio('sounds/game2.mp3')
         };
         
+        // Initialiser les effets sonores
+        this.sounds = {
+            hammer: new Audio('sounds/hammer.mp3'),
+            clic: new Audio('sounds/clic.mp3'),
+            pop: new Audio('sounds/pop.mp3'),
+            interface_button: new Audio('sounds/interface_button.mp3'),
+            coin: new Audio('sounds/coin.mp3'),
+            angry: new Audio('sounds/angry.mp3'),
+            crowd: new Audio('sounds/crowd.mp3')
+        };
+        
         // Configuration des musiques en boucle
         Object.values(this.music).forEach(audio => {
             audio.loop = true;
             audio.volume = this.musicVolume;
+        });
+        
+        // Configuration des effets sonores
+        Object.values(this.sounds).forEach(audio => {
+            audio.loop = false;
+            audio.volume = this.soundVolume;
         });
     }
     
@@ -27,8 +46,8 @@ class AudioManager {
     playMusic(musicName, fadeIn = true) {
         console.log(`Tentative de lecture de la musique: ${musicName}`);
         
-        if (this.isMuted) {
-            console.log('Audio muet, pas de lecture');
+        if (this.isMusicMuted) {
+            console.log('Musique muette, pas de lecture');
             return;
         }
         
@@ -57,9 +76,9 @@ class AudioManager {
                 console.log(`Musique ${musicName} démarrée avec succès`);
                 if (fadeIn) {
                     this.currentMusic.volume = 0;
-                    this.fadeIn(this.currentMusic, this.musicVolume, 500); // Fade in plus rapide (500ms)
+                    this.fadeIn(this.currentMusic, this.isMusicMuted ? 0 : this.musicVolume, 500); // Fade in plus rapide (500ms)
                 } else {
-                    this.currentMusic.volume = this.musicVolume;
+                    this.currentMusic.volume = this.isMusicMuted ? 0 : this.musicVolume;
                 }
                 
                 // Faire le fade out de l'ancienne musique APRÈS avoir démarré la nouvelle
@@ -121,7 +140,7 @@ class AudioManager {
      */
     resumeMusic() {
         if (this.currentMusic && this.currentMusic.paused) {
-            if (this.isMuted) {
+            if (this.isMusicMuted) {
                 console.log('Musique en pause car désactivée');
                 return;
             }
@@ -131,7 +150,7 @@ class AudioManager {
                 playPromise.then(() => {
                     console.log('Musique reprise');
                     // S'assurer que le volume est correct
-                    this.currentMusic.volume = this.musicVolume;
+                    this.currentMusic.volume = this.isMusicMuted ? 0 : this.musicVolume;
                 }).catch(error => {
                     console.warn('Impossible de reprendre la musique:', error);
                 });
@@ -144,18 +163,37 @@ class AudioManager {
      */
     setMusicVolume(volume) {
         this.musicVolume = Math.max(0, Math.min(1, volume));
-        if (this.currentMusic && !this.isMuted) {
+        if (this.currentMusic && !this.isMusicMuted) {
             this.currentMusic.volume = this.musicVolume;
         }
     }
     
     /**
-     * Activer/désactiver le son
+     * Définir le volume des effets sonores
+     */
+    setSoundVolume(volume) {
+        this.soundVolume = Math.max(0, Math.min(1, volume));
+        Object.values(this.sounds).forEach(audio => {
+            if (!this.isSoundMuted) {
+                audio.volume = this.soundVolume;
+            }
+        });
+    }
+    
+    /**
+     * Activer/désactiver la musique (compatibilité)
      */
     toggleMute() {
-        this.isMuted = !this.isMuted;
+        return this.toggleMusicMute();
+    }
+    
+    /**
+     * Activer/désactiver la musique
+     */
+    toggleMusicMute() {
+        this.isMusicMuted = !this.isMusicMuted;
         
-        if (this.isMuted) {
+        if (this.isMusicMuted) {
             if (this.currentMusic) {
                 this.currentMusic.volume = 0;
             }
@@ -165,7 +203,53 @@ class AudioManager {
             }
         }
         
-        return this.isMuted;
+        return this.isMusicMuted;
+    }
+    
+    /**
+     * Activer/désactiver les effets sonores
+     */
+    toggleSoundMute() {
+        this.isSoundMuted = !this.isSoundMuted;
+        
+        Object.values(this.sounds).forEach(audio => {
+            if (this.isSoundMuted) {
+                audio.volume = 0;
+            } else {
+                audio.volume = this.soundVolume;
+            }
+        });
+        
+        return this.isSoundMuted;
+    }
+    
+    /**
+     * Jouer un effet sonore
+     */
+    playSound(soundName) {
+        if (this.isSoundMuted) {
+            console.log(`Son ${soundName} muet, pas de lecture`);
+            return;
+        }
+        
+        const sound = this.sounds[soundName];
+        if (!sound) {
+            console.warn(`Son "${soundName}" introuvable`);
+            return;
+        }
+        
+        // Remettre le son au début et le jouer
+        sound.currentTime = 0;
+        sound.volume = this.soundVolume;
+        
+        const playPromise = sound.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                //console.log(`Son ${soundName} joué avec succès`);
+            }).catch(error => {
+                console.error(`Erreur lors de la lecture du son ${soundName}:`, error);
+            });
+        }
     }
     
     /**
@@ -252,8 +336,13 @@ class AudioManager {
         return {
             currentMusic: this.currentMusic ? 
                 (this.currentMusic === this.music.title ? 'title' : 'game') : 'none',
+            musicVolume: this.musicVolume,
+            soundVolume: this.soundVolume,
+            isMusicMuted: this.isMusicMuted,
+            isSoundMuted: this.isSoundMuted,
+            // Compatibilité avec l'ancien code
             volume: this.musicVolume,
-            isMuted: this.isMuted,
+            isMuted: this.isMusicMuted,
             isPlaying: this.currentMusic && !this.currentMusic.paused,
             isPaused: this.currentMusic && this.currentMusic.paused
         };

@@ -7,6 +7,7 @@ class GrimspireApp {
     constructor() {
         this.gameManager = new GameManager();
         this.audioManager = new AudioManager();
+        this.gameManager.setAudioManager(this.audioManager); // Configurer l'audioManager
         this.currentScreen = 'menu';
         this.initializeEventListeners();
         
@@ -153,17 +154,13 @@ class GrimspireApp {
 
         // Contrôles des événements
         const acknowledgeAllEventsBtn = document.getElementById('acknowledge-all-events-btn');
-        const markAllReadBtn = document.getElementById('mark-all-read-btn');
-        const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
+        const clearAcknowledgedEventsBtn = document.getElementById('clear-acknowledged-events-btn');
         
         if (acknowledgeAllEventsBtn) {
             acknowledgeAllEventsBtn.addEventListener('click', this.acknowledgeAllEvents.bind(this));
         }
-        if (markAllReadBtn) {
-            markAllReadBtn.addEventListener('click', this.markAllEventsAsRead.bind(this));
-        }
-        if (clearReadEventsBtn) {
-            clearReadEventsBtn.addEventListener('click', this.clearReadEvents.bind(this));
+        if (clearAcknowledgedEventsBtn) {
+            clearAcknowledgedEventsBtn.addEventListener('click', this.clearAcknowledgedEvents.bind(this));
         }
 
         // Modal de sélection d'aventuriers
@@ -185,7 +182,9 @@ class GrimspireApp {
         const closeAudioModalBtn = document.getElementById('close-audio-modal-btn');
         const audioSettingsOkBtn = document.getElementById('audio-settings-ok-btn');
         const musicToggleBtn = document.getElementById('music-toggle');
-        const volumeSlider = document.getElementById('volume-slider');
+        const musicVolumeSlider = document.getElementById('music-volume-slider');
+        const soundToggleBtn = document.getElementById('sound-toggle');
+        const soundVolumeSlider = document.getElementById('sound-volume-slider');
 
         if (closeAudioModalBtn) {
             closeAudioModalBtn.addEventListener('click', this.closeAudioSettings.bind(this));
@@ -196,8 +195,14 @@ class GrimspireApp {
         if (musicToggleBtn) {
             musicToggleBtn.addEventListener('click', this.toggleMusic.bind(this));
         }
-        if (volumeSlider) {
-            volumeSlider.addEventListener('input', this.updateVolume.bind(this));
+        if (musicVolumeSlider) {
+            musicVolumeSlider.addEventListener('input', this.updateMusicVolume.bind(this));
+        }
+        if (soundToggleBtn) {
+            soundToggleBtn.addEventListener('click', this.toggleSound.bind(this));
+        }
+        if (soundVolumeSlider) {
+            soundVolumeSlider.addEventListener('input', this.updateSoundVolume.bind(this));
         }
 
         // Callbacks du GameManager
@@ -347,7 +352,6 @@ class GrimspireApp {
     }
 
     startNewGame() {
-        console.log('Démarrage d\'une nouvelle partie...');
         
         const gameState = this.gameManager.startNewGame();
         if (gameState) {
@@ -370,7 +374,6 @@ class GrimspireApp {
     }
 
     loadGame() {
-        console.log('Chargement de la partie...');
         
         if (this.gameManager.loadGame()) {
             this.fadeTransition(() => {
@@ -408,6 +411,9 @@ class GrimspireApp {
     }
 
     returnToMainMenu() {
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
+        
         // Arrêter le timer de jeu
         this.gameManager.stopGameTimer();
         
@@ -460,6 +466,9 @@ class GrimspireApp {
             });
             return;
         }
+        
+        // Jouer le son de clic pour les onglets principaux
+        this.audioManager.playSound('clic');
         
         this.gameManager.switchTab(tabName);
         this.updateActiveTab(tabName);
@@ -574,10 +583,9 @@ class GrimspireApp {
         const hourlyGains = this.gameManager.getHourlyGains();
         
         this.updateHourlyGainDisplay('gold', hourlyGains.gold);
-        this.updateHourlyGainDisplay('population', hourlyGains.population);
         this.updateHourlyGainDisplay('materials', hourlyGains.materials);
         this.updateHourlyGainDisplay('magic', hourlyGains.magic);
-        this.updateHourlyGainDisplay('reputation', hourlyGains.reputation);
+        // Population et réputation n'ont pas de gains horaires affichés
     }
 
     updateHourlyGainDisplay(resourceType, gain) {
@@ -600,11 +608,12 @@ class GrimspireApp {
             seasonIcon.textContent = seasonInfo.icon;
         }
         
-        // Mettre à jour le texte de saison
-        const seasonText = document.getElementById('season-text');
-        if (seasonText) {
-            seasonText.textContent = seasonInfo.formattedText;
+        // Mettre à jour le nom de la saison
+        const seasonName = document.getElementById('season-name');
+        if (seasonName) {
+            seasonName.textContent = seasonInfo.name;
         }
+        
         
         // Mettre à jour la couleur de la bordure de saison
         const seasonInfoElement = document.querySelector('.season-info');
@@ -778,18 +787,45 @@ class GrimspireApp {
 
     createBuildingTypeCard(buildingType, isLocked) {
         const card = document.createElement('div');
-        card.className = `building-type-card ${isLocked ? 'locked' : ''}`;
+        card.className = `building-type-card ${isLocked ? 'locked' : ''} ${!buildingType.canConstructMore ? 'maxed-out' : ''}`;
         
-        if (!isLocked) {
+        if (!isLocked && buildingType.canConstructMore) {
             card.onclick = () => this.openBuildingConstructionModal(buildingType.id);
+        } else if (!buildingType.canConstructMore) {
+            card.style.cursor = 'not-allowed';
         }
         
         // Récupérer l'instance complète du BuildingType pour accéder aux méthodes
         const fullBuildingType = this.gameManager.buildingManager.getBuildingTypeById(buildingType.id);
         const effectsAtLevel1 = this.formatEffects(fullBuildingType.getEffectsAtLevel(1));
         const baseCost = this.formatCost(buildingType.baseCost);
-        const statusClass = isLocked ? 'locked' : 'available';
-        const statusText = isLocked ? 'Verrouillé' : 'Disponible';
+        
+        // Déterminer le statut de la carte
+        let statusClass, statusText;
+        if (isLocked) {
+            statusClass = 'locked';
+            statusText = 'Verrouillé';
+        } else if (!buildingType.canConstructMore) {
+            statusClass = 'maxed-out';
+            statusText = 'Limite atteinte';
+        } else {
+            statusClass = 'available';
+            statusText = 'Disponible';
+        }
+        
+        // Préparer l'affichage des instances
+        let instancesInfo = '';
+        if (buildingType.maxInstances !== null) {
+            const remaining = buildingType.remainingInstances;
+            instancesInfo = `
+                <div class="instances-info ${remaining === 0 ? 'maxed' : ''}">
+                    <span class="instances-text">
+                        ${buildingType.currentInstances}/${buildingType.maxInstances} construits
+                        ${remaining > 0 ? ` - ${remaining} restant${remaining > 1 ? 's' : ''}` : ' - Complet'}
+                    </span>
+                </div>
+            `;
+        }
         
         
         card.innerHTML = `
@@ -799,6 +835,7 @@ class GrimspireApp {
                     <h5>${buildingType.name}</h5>
                     <div class="unlock-status ${statusClass}">${statusText}</div>
                     ${buildingType.unlocksTab ? `<div class="unlocks-tab">🎯 Débloque: ${buildingType.unlocksTab}</div>` : ''}
+                    ${instancesInfo}
                 </div>
             </div>
             
@@ -1003,6 +1040,8 @@ class GrimspireApp {
         this.showActionResult(result);
         
         if (result.success) {
+            // Jouer le son de construction pour l'amélioration
+            this.audioManager.playSound('hammer');
             this.renderBuildings();
         }
     }
@@ -1030,6 +1069,9 @@ class GrimspireApp {
     }
 
     togglePause() {
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
+        
         const isPaused = this.gameManager.toggleGamePause();
         
         // Gérer la pause/reprise de la musique
@@ -1056,6 +1098,9 @@ class GrimspireApp {
     }
 
     saveGame() {
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
+        
         if (this.gameManager.saveGame()) {
             this.showActionResult({ success: true, message: 'Partie sauvegardée' });
         } else {
@@ -1078,18 +1123,25 @@ class GrimspireApp {
     }
 
     openAudioSettings() {
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
+        
         const modal = document.getElementById('audio-settings-modal');
         const musicToggle = document.getElementById('music-toggle');
-        const volumeSlider = document.getElementById('volume-slider');
-        const volumeDisplay = document.getElementById('volume-display');
+        const musicVolumeSlider = document.getElementById('music-volume-slider');
+        const musicVolumeDisplay = document.getElementById('music-volume-display');
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundVolumeSlider = document.getElementById('sound-volume-slider');
+        const soundVolumeDisplay = document.getElementById('sound-volume-display');
 
         // Mettre à jour l'état des contrôles selon l'état actuel
         const audioStatus = this.audioManager.getStatus();
-        const currentVolume = Math.round(audioStatus.volume * 100);
+        const currentMusicVolume = Math.round(audioStatus.musicVolume * 100);
+        const currentSoundVolume = Math.round(audioStatus.soundVolume * 100);
         
         // Mettre à jour le bouton de musique
         if (musicToggle) {
-            if (audioStatus.isMuted) {
+            if (audioStatus.isMusicMuted) {
                 musicToggle.textContent = 'Désactivée';
                 musicToggle.className = 'toggle-btn disabled';
             } else {
@@ -1098,10 +1150,27 @@ class GrimspireApp {
             }
         }
 
-        // Mettre à jour le slider de volume
-        if (volumeSlider && volumeDisplay) {
-            volumeSlider.value = currentVolume;
-            volumeDisplay.textContent = currentVolume + '%';
+        // Mettre à jour le slider de volume de la musique
+        if (musicVolumeSlider && musicVolumeDisplay) {
+            musicVolumeSlider.value = currentMusicVolume;
+            musicVolumeDisplay.textContent = currentMusicVolume + '%';
+        }
+        
+        // Mettre à jour le bouton des effets sonores
+        if (soundToggle) {
+            if (audioStatus.isSoundMuted) {
+                soundToggle.textContent = 'Désactivés';
+                soundToggle.className = 'toggle-btn disabled';
+            } else {
+                soundToggle.textContent = 'Activés';
+                soundToggle.className = 'toggle-btn enabled';
+            }
+        }
+
+        // Mettre à jour le slider de volume des sons
+        if (soundVolumeSlider && soundVolumeDisplay) {
+            soundVolumeSlider.value = currentSoundVolume;
+            soundVolumeDisplay.textContent = currentSoundVolume + '%';
         }
 
         // Afficher la modal
@@ -1118,7 +1187,7 @@ class GrimspireApp {
     }
 
     toggleMusic() {
-        const isMuted = this.audioManager.toggleMute();
+        const isMuted = this.audioManager.toggleMusicMute();
         const musicToggle = document.getElementById('music-toggle');
         const audioBtn = document.getElementById('audio-toggle-btn');
         
@@ -1133,23 +1202,57 @@ class GrimspireApp {
             }
         }
 
-        // Mettre à jour le bouton principal
+        // Mettre à jour le bouton principal (basé sur la musique pour compatibilité)
         if (audioBtn) {
             audioBtn.textContent = isMuted ? '🔇 Audio' : '🔊 Audio';
         }
     }
+    
+    toggleSound() {
+        const isMuted = this.audioManager.toggleSoundMute();
+        const soundToggle = document.getElementById('sound-toggle');
+        
+        // Mettre à jour le bouton de la modal
+        if (soundToggle) {
+            if (isMuted) {
+                soundToggle.textContent = 'Désactivés';
+                soundToggle.className = 'toggle-btn disabled';
+            } else {
+                soundToggle.textContent = 'Activés';
+                soundToggle.className = 'toggle-btn enabled';
+            }
+        }
+    }
 
-    updateVolume(event) {
+    updateMusicVolume(event) {
         const volume = parseInt(event.target.value) / 100;
-        const volumeDisplay = document.getElementById('volume-display');
+        const volumeDisplay = document.getElementById('music-volume-display');
 
         // Mettre à jour l'affichage du pourcentage
         if (volumeDisplay) {
             volumeDisplay.textContent = event.target.value + '%';
         }
 
-        // Mettre à jour le volume dans l'AudioManager
+        // Mettre à jour le volume de la musique dans l'AudioManager
         this.audioManager.setMusicVolume(volume);
+    }
+    
+    updateSoundVolume(event) {
+        const volume = parseInt(event.target.value) / 100;
+        const volumeDisplay = document.getElementById('sound-volume-display');
+
+        // Mettre à jour l'affichage du pourcentage
+        if (volumeDisplay) {
+            volumeDisplay.textContent = event.target.value + '%';
+        }
+
+        // Mettre à jour le volume des effets sonores dans l'AudioManager
+        this.audioManager.setSoundVolume(volume);
+    }
+    
+    // Fonction de compatibilité avec l'ancien code
+    updateVolume(event) {
+        this.updateMusicVolume(event);
     }
 
     showActionResult(result) {
@@ -1329,10 +1432,15 @@ class GrimspireApp {
         card.innerHTML = `
             ${adventurer.isOnMission ? '<div class="mission-indicator">En Mission</div>' : ''}
             <div class="adventurer-header">
-                <h4 class="adventurer-name">${adventurer.name}</h4>
-                <span class="adventurer-level">Niv. ${adventurer.level}</span>
+                <div class="adventurer-avatar">
+                    <img src="art/${adventurer.class}.png" alt="${adventurer.class}" class="avatar-image">
+                </div>
+                <div class="adventurer-info">
+                    <h4 class="adventurer-name">${adventurer.name}</h4>
+                    <span class="adventurer-level">Niv. ${adventurer.level}</span>
+                    <div class="adventurer-class">${adventurer.class}</div>
+                </div>
             </div>
-            <div class="adventurer-class">${adventurer.class}</div>
             
             <div class="adventurer-stats">
                 ${statsHtml}
@@ -1390,6 +1498,9 @@ class GrimspireApp {
 
     // Actions pour l'onglet Guilde
     searchForAdventurers() {
+        // Jouer le son pop
+        this.audioManager.playSound('pop');
+        
         if (this.gameManager.city && this.gameManager.city.isPaused) {
             this.showActionResult({ success: false, message: 'Impossible de rechercher : jeu en pause' });
             return;
@@ -1752,9 +1863,14 @@ class GrimspireApp {
             card.onclick = () => this.toggleAdventurerSelection(adventurer.id);
 
             card.innerHTML = `
-                <div class="modal-adventurer-name">${adventurer.name}</div>
-                <div class="modal-adventurer-class">${adventurer.class}</div>
-                <div class="modal-adventurer-level">Niveau ${adventurer.level} - Puissance: ${adventurer.combatPower}</div>
+                <div class="modal-adventurer-avatar">
+                    <img src="art/${adventurer.class}.png" alt="${adventurer.class}" class="modal-avatar-image">
+                </div>
+                <div class="modal-adventurer-info">
+                    <div class="modal-adventurer-name">${adventurer.name}</div>
+                    <div class="modal-adventurer-class">${adventurer.class}</div>
+                    <div class="modal-adventurer-level">Niveau ${adventurer.level} - Puissance: ${adventurer.combatPower}</div>
+                </div>
             `;
 
             container.appendChild(card);
@@ -1988,6 +2104,9 @@ class GrimspireApp {
     }
 
     unlockUpgrade(upgradeId) {
+        // Jouer le son pop
+        this.audioManager.playSound('pop');
+        
         if (this.gameManager.city && this.gameManager.city.isPaused) {
             this.showActionResult({ success: false, message: 'Impossible de débloquer : jeu en pause' });
             return;
@@ -2650,7 +2769,7 @@ class GrimspireApp {
     }
 
     updateEventStats(stats) {
-        document.getElementById('events-unread-count').textContent = stats.unreadCount;
+        document.getElementById('events-unacknowledged-count').textContent = stats.unacknowledgedCount;
         document.getElementById('events-total-count').textContent = stats.totalCount;
         document.getElementById('events-last-activity').textContent = stats.lastActivity;
         document.getElementById('events-section-count').textContent = `${stats.totalCount} événement${stats.totalCount > 1 ? 's' : ''}`;
@@ -2662,9 +2781,9 @@ class GrimspireApp {
 
         const notificationBadge = document.getElementById('events-notification');
         if (notificationBadge) {
-            const unreadCount = eventInfo.stats.unreadCount;
-            if (unreadCount > 0) {
-                notificationBadge.textContent = unreadCount;
+            const unacknowledgedCount = eventInfo.stats.unacknowledgedCount;
+            if (unacknowledgedCount > 0) {
+                notificationBadge.textContent = unacknowledgedCount;
                 notificationBadge.style.display = 'inline-block';
             } else {
                 notificationBadge.style.display = 'none';
@@ -2676,19 +2795,14 @@ class GrimspireApp {
         const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
         const acknowledgeAllEventsBtn = document.getElementById('acknowledge-all-events-btn');
-        const markAllReadBtn = document.getElementById('mark-all-read-btn');
-        const clearReadEventsBtn = document.getElementById('clear-read-events-btn');
+        const clearAcknowledgedEventsBtn = document.getElementById('clear-acknowledged-events-btn');
         
         if (acknowledgeAllEventsBtn) {
             acknowledgeAllEventsBtn.disabled = isPaused;
         }
         
-        if (markAllReadBtn) {
-            markAllReadBtn.disabled = isPaused;
-        }
-        
-        if (clearReadEventsBtn) {
-            clearReadEventsBtn.disabled = isPaused;
+        if (clearAcknowledgedEventsBtn) {
+            clearAcknowledgedEventsBtn.disabled = isPaused;
         }
     }
 
@@ -2716,7 +2830,7 @@ class GrimspireApp {
 
     createEventCard(event) {
         const card = document.createElement('div');
-        card.className = `event-card ${event.isRead ? '' : 'unread'}`;
+        card.className = `event-card ${event.isAcknowledged ? '' : 'unacknowledged'}`;
         card.setAttribute('data-type', event.type);
 
         card.innerHTML = `
@@ -2768,17 +2882,9 @@ class GrimspireApp {
         const actions = [];
         const isPaused = this.gameManager.city && this.gameManager.city.isPaused;
         
-        if (!event.isRead) {
-            actions.push(`
-                <button class="event-action-btn acknowledge" 
-                        onclick="app.markEventAsRead('${event.id}')"
-                        ${isPaused ? 'disabled' : ''}>
-                    ${isPaused ? 'Jeu en pause' : 'Marquer comme lu'}
-                </button>
-            `);
-        }
-        
-        if (!event.isAcknowledged) {
+        // Pour les événements à choix, pas de bouton d'acquittement 
+        // car le choix fait l'acquittement automatiquement
+        if (!event.isAcknowledged && !event.requiresChoice) {
             actions.push(`
                 <button class="event-action-btn acknowledge" 
                         onclick="app.acknowledgeEvent('${event.id}')"
@@ -2840,15 +2946,6 @@ class GrimspireApp {
     }
 
     // Actions pour l'onglet Événements
-    markEventAsRead(eventId) {
-        const result = this.gameManager.markEventAsRead(eventId);
-        this.showActionResult(result);
-        
-        if (result.success) {
-            this.renderEvents();
-        }
-    }
-
     acknowledgeEvent(eventId) {
         const result = this.gameManager.acknowledgeEvent(eventId);
         this.showActionResult(result);
@@ -2858,11 +2955,15 @@ class GrimspireApp {
         }
     }
 
+
     acknowledgeAllEvents() {
         if (this.gameManager.city && this.gameManager.city.isPaused) {
             this.showActionResult({ success: false, message: 'Impossible d\'acquitter les événements : jeu en pause' });
             return;
         }
+        
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
         
         const result = this.gameManager.acknowledgeAllEvents();
         this.showActionResult(result);
@@ -2872,27 +2973,16 @@ class GrimspireApp {
         }
     }
 
-    markAllEventsAsRead() {
-        if (this.gameManager.city && this.gameManager.city.isPaused) {
-            this.showActionResult({ success: false, message: 'Impossible de marquer les événements : jeu en pause' });
-            return;
-        }
-        
-        const result = this.gameManager.markAllEventsAsRead();
-        this.showActionResult(result);
-        
-        if (result.success) {
-            this.renderEvents();
-        }
-    }
-
-    clearReadEvents() {
+    clearAcknowledgedEvents() {
         if (this.gameManager.city && this.gameManager.city.isPaused) {
             this.showActionResult({ success: false, message: 'Impossible d\'effacer les événements : jeu en pause' });
             return;
         }
         
-        const result = this.gameManager.clearReadEvents();
+        // Jouer le son interface_button
+        this.audioManager.playSound('interface_button');
+        
+        const result = this.gameManager.clearAcknowledgedEvents();
         this.showActionResult(result);
         
         if (result.success) {
@@ -2922,8 +3012,8 @@ class GrimspireApp {
 let app;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Grimspire - Phase 1.2 initialisée');
     app = new GrimspireApp();
+    window.app = app; // Exposer l'instance pour l'EventManager
 });
 
 // Gestion des erreurs globales

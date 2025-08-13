@@ -32,6 +32,27 @@ class BuildingManager {
         return this.buildingTypes.find(type => type.id === typeId);
     }
 
+    getBuildingInstanceCount(typeId) {
+        return this.city.buildings.filter(building => 
+            building.buildingType.id === typeId
+        ).length;
+    }
+
+    getRemainingInstances(typeId) {
+        const buildingType = this.getBuildingTypeById(typeId);
+        if (!buildingType || buildingType.maxInstances === null) {
+            return null; // Illimité
+        }
+        
+        const currentCount = this.getBuildingInstanceCount(typeId);
+        return Math.max(0, buildingType.maxInstances - currentCount);
+    }
+
+    canConstructMoreInstances(typeId) {
+        const remaining = this.getRemainingInstances(typeId);
+        return remaining === null || remaining > 0;
+    }
+
     generateDefaultBuildingName(buildingType) {
         // Compter les bâtiments existants du même type
         const existingCount = this.city.buildings.filter(b => 
@@ -45,13 +66,25 @@ class BuildingManager {
     getAvailableBuildingTypes() {
         return this.buildingTypes.filter(type => 
             type.isUnlocked(this.cityUpgradeManager)
-        ).map(type => type.getDisplayInfo(this.cityUpgradeManager));
+        ).map(type => {
+            const displayInfo = type.getDisplayInfo(this.cityUpgradeManager);
+            displayInfo.currentInstances = this.getBuildingInstanceCount(type.id);
+            displayInfo.remainingInstances = this.getRemainingInstances(type.id);
+            displayInfo.canConstructMore = this.canConstructMoreInstances(type.id);
+            return displayInfo;
+        });
     }
 
     getLockedBuildingTypes() {
         return this.buildingTypes.filter(type => 
             !type.isUnlocked(this.cityUpgradeManager)
-        ).map(type => type.getDisplayInfo(this.cityUpgradeManager));
+        ).map(type => {
+            const displayInfo = type.getDisplayInfo(this.cityUpgradeManager);
+            displayInfo.currentInstances = this.getBuildingInstanceCount(type.id);
+            displayInfo.remainingInstances = this.getRemainingInstances(type.id);
+            displayInfo.canConstructMore = this.canConstructMoreInstances(type.id);
+            return displayInfo;
+        });
     }
 
     getAllBuildingTypes() {
@@ -67,6 +100,12 @@ class BuildingManager {
         // Vérifier si le type est débloqué
         if (!buildingType.isUnlocked(this.cityUpgradeManager)) {
             return { canConstruct: false, reason: 'Type de bâtiment non débloqué' };
+        }
+
+        // Vérifier les limites d'instances
+        if (!this.canConstructMoreInstances(typeId)) {
+            const maxInstances = buildingType.maxInstances;
+            return { canConstruct: false, reason: `Limite atteinte (max: ${maxInstances})` };
         }
 
         // Vérifier le nom personnalisé s'il est fourni

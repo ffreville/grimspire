@@ -195,5 +195,11 @@ Phase 22
 Affichage d'un menu quand on clique sur le bouton audio en haut à droite.
 Dans ce menu, possibilité de désactiver la musique, et de modifier le volume.
 
+Phase 23
+J'aimerai aujouter des sons en plus de la musique.
+Il faudrait donc gérer le son et la musique séparément pour pouvoir modifier chacun leur volume.
+Et on commence avec le premier son qui est joué quand on début la construction d'un batiment.
+Le son est dans sounds et il s'appelle hammer.mp3 
+
 ## Phase X
 event aléatoire chaque jour

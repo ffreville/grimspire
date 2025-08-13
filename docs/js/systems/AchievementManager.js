@@ -110,8 +110,8 @@ class AchievementManager {
         const goldHoarder = new Achievement(
             'gold_hoarder',
             'Coffres pleins',
-            'Accumulez 1000 pièces d\'or',
-            'Posséder 1000 or',
+            'Accumulez 100000 pièces d\'or',
+            'Posséder 100000 or',
             'economy'
         );
         goldHoarder.icon = '💰';

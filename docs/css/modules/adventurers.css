@@ -40,9 +40,37 @@
 
 .adventurer-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 12px;
     margin-bottom: 10px;
+}
+
+.adventurer-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #8b5a3c;
+    object-fit: cover;
+    transition: border-color 0.3s ease;
+}
+
+.adventurer-card:hover .avatar-image {
+    border-color: #d4af37;
+}
+
+.adventurer-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.adventurer-info .adventurer-level {
+    align-self: flex-start;
 }
 
 .adventurer-name {

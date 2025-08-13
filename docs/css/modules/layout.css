@@ -67,43 +67,21 @@
 .time-info {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     font-size: 0.9rem;
     color: #c9c9c9;
 }
 
-.time-info > div:first-child {
+.main-time {
     display: flex;
+    align-items: center;
     gap: 15px;
 }
 
-.time-info > div:first-child span {
+#day-counter {
     padding: 4px 8px;
     background: rgba(139, 90, 60, 0.3);
     border-radius: 4px;
-}
-
-/* === AFFICHAGE DES SAISONS === */
-.season-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    padding: 3px 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    border-left: 3px solid var(--season-color, #2ECC71);
-}
-
-#season-icon {
-    font-size: 1.1rem;
-    padding: 0;
-    background: none;
-}
-
-#season-text {
-    padding: 0;
-    background: none;
     color: #e8e6e3;
     font-weight: 500;
 }
@@ -111,9 +89,39 @@
 #game-clock {
     font-family: 'Courier New', monospace;
     font-weight: bold;
-    background: rgba(74, 124, 89, 0.3) !important;
+    padding: 4px 8px;
+    background: rgba(74, 124, 89, 0.3);
     border: 1px solid #4a7c59;
+    border-radius: 4px;
 }
+
+/* === AFFICHAGE DES SAISONS === */
+.season-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    border-left: 3px solid var(--season-color, #2ECC71);
+    color: #c9c9c9;
+}
+
+#season-icon {
+    font-size: 1rem;
+}
+
+#season-name {
+    font-weight: 500;
+    color: #e8e6e3;
+}
+
+#season-progress {
+    font-size: 0.8rem;
+    color: #a0a0a0;
+}
+
 
 /* État de pause du jeu */
 #game-screen.paused {

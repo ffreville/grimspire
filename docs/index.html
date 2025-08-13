@@ -64,13 +64,13 @@
                         <div class="city-details">
                             <h2 id="city-name">Grimspire</h2>
                             <div class="time-info">
-                                <div>
+                                <div class="main-time">
                                     <span id="day-counter">Jour 1</span>
                                     <span id="game-clock">00:00</span>
                                 </div>
                                 <div class="season-info">
                                     <span id="season-icon">🌸</span>
-                                    <span id="season-text">Printemps - Jour 1/10</span>
+                                    <span id="season-name">Printemps</span>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +89,6 @@
                         <span class="resource-icon">👥</span>
                         <div class="resource-info">
                             <span id="population-amount">0</span>
-                            <span id="population-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                     <div class="resource">
@@ -110,7 +109,6 @@
                         <span class="resource-icon">⭐</span>
                         <div class="resource-info">
                             <span id="reputation-amount">0</span>
-                            <span id="reputation-hourly-gain" class="hourly-gain">+0/heure</span>
                         </div>
                     </div>
                 </div>
@@ -149,8 +147,8 @@
                             <div class="events-stats-sidebar">
                                 <h4>📊 Événements</h4>
                                 <div class="stat-item-sidebar">
-                                    <span class="stat-label">Non lus</span>
-                                    <span id="events-unread-count" class="stat-value highlight">0</span>
+                                    <span class="stat-label">Non acquittés</span>
+                                    <span id="events-unacknowledged-count" class="stat-value highlight">0</span>
                                 </div>
                                 <div class="stat-item-sidebar">
                                     <span class="stat-label">Total</span>
@@ -168,11 +166,8 @@
                                 <button id="acknowledge-all-events-btn" class="events-control-btn">
                                     ✅ Acquitter tous les événements
                                 </button>
-                                <button id="mark-all-read-btn" class="events-control-btn">
-                                    ✓ Marquer tout comme lu
-                                </button>
-                                <button id="clear-read-events-btn" class="events-control-btn">
-                                    🗑️ Effacer les événements lus
+                                <button id="clear-acknowledged-events-btn" class="events-control-btn">
+                                    🗑️ Effacer les événements acquittés
                                 </button>
                             </div>
                         </div>
@@ -846,10 +841,21 @@
                                     <button id="music-toggle" class="toggle-btn enabled">Activée</button>
                                 </div>
                                 <div class="audio-setting-item">
-                                    <label for="volume-slider">Volume :</label>
+                                    <label for="music-volume-slider">Volume Musique :</label>
                                     <div class="volume-control">
-                                        <input type="range" id="volume-slider" min="0" max="100" value="50">
-                                        <span id="volume-display">50%</span>
+                                        <input type="range" id="music-volume-slider" min="0" max="100" value="15">
+                                        <span id="music-volume-display">15%</span>
+                                    </div>
+                                </div>
+                                <div class="audio-setting-item">
+                                    <label for="sound-toggle">Effets Sonores :</label>
+                                    <button id="sound-toggle" class="toggle-btn enabled">Activés</button>
+                                </div>
+                                <div class="audio-setting-item">
+                                    <label for="sound-volume-slider">Volume Sons :</label>
+                                    <div class="volume-control">
+                                        <input type="range" id="sound-volume-slider" min="0" max="100" value="80">
+                                        <span id="sound-volume-display">80%</span>
                                     </div>
                                 </div>
                             </div>
@@ -905,6 +911,13 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Données -->
+    <script src="json/events.js"></script>
+    
+    <!-- Enums -->
+    <script src="js/enums/ResourceTypes.js"></script>
+    
+    <!-- Classes -->
     <script src="js/classes/Resource.js"></script>
     <script src="js/classes/BuildingType.js"></script>
     <script src="js/classes/Building.js"></script>
@@ -914,6 +927,7 @@
     <script src="js/classes/City.js"></script>
     <script src="js/classes/Mission.js"></script>
     <script src="js/classes/CityUpgrade.js"></script>
+    <script src="js/classes/Events.js"></script>
     <script src="js/classes/GameManager.js"></script>
     <script src="js/systems/BuildingManager.js"></script>
     <script src="js/systems/AdventurerManager.js"></script>

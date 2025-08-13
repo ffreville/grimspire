@@ -339,6 +339,19 @@
     opacity: 0.6;
 }
 
+.building-type-card.maxed-out {
+    background: rgba(40, 30, 30, 0.7);
+    border-color: #8b5a3c;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.building-type-card.maxed-out:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #8b5a3c;
+}
+
 .building-type-header {
     display: flex;
     align-items: center;
@@ -376,6 +389,12 @@
     border: 1px solid #8b5a3c;
 }
 
+.unlock-status.maxed-out {
+    background: rgba(139, 90, 60, 0.3);
+    color: #c9a94a;
+    border: 1px solid #c9a94a;
+}
+
 .building-type-description {
     color: #c9c9c9;
     font-size: 0.85rem;
@@ -385,6 +404,35 @@
 
 .building-type-card.locked .building-type-description {
     color: #666;
+}
+
+.building-type-card.maxed-out .building-type-description {
+    color: #999;
+}
+
+/* === INFORMATIONS D'INSTANCES === */
+
+.instances-info {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(74, 124, 89, 0.2);
+    border: 1px solid #4a7c59;
+}
+
+.instances-info.maxed {
+    background: rgba(139, 90, 60, 0.2);
+    border: 1px solid #8b5a3c;
+}
+
+.instances-text {
+    color: #c9c9c9;
+    font-weight: 500;
+}
+
+.instances-info.maxed .instances-text {
+    color: #c9a94a;
 }
 
 /* === EFFETS ET COÛTS === */

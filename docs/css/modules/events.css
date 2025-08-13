@@ -170,13 +170,13 @@
     transform: translateY(-2px);
 }
 
-.event-card.unread {
+.event-card.unacknowledged {
     border-color: #4a7c59;
     background: rgba(74, 124, 89, 0.1);
     border-left: 4px solid #4a7c59;
 }
 
-.event-card.unread::before {
+.event-card.unacknowledged::before {
     content: '';
     position: absolute;
     top: 0;

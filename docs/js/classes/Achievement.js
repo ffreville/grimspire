@@ -39,7 +39,7 @@ class Achievement {
                 shouldUnlock = gameState.adventurers && gameState.adventurers.length > 0;
                 break;
             case 'gold_hoarder':
-                shouldUnlock = gameState.resources && gameState.resources.gold >= 1000;
+                shouldUnlock = gameState.resources && gameState.resources.gold >= 100000;
                 break;
             case 'population_100':
                 shouldUnlock = gameState.resources && gameState.resources.population >= 100;

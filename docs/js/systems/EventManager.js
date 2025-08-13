@@ -6,101 +6,87 @@ class EventManager {
         this.city = city;
         this.events = [];
         this.nextEventId = 1;
-        this.randomEventTypes = this.initializeRandomEventTypes();
-        this.dailyEventCount = { min: 4, max: 5 };
+        this.randomEventTypes = [];
         this.scheduledEvents = []; // Événements programmés pour être générés dans les heures suivantes
+        this.isInitialized = false;
+        
+        // Initialiser les types d'événements 
+        this.randomEventTypes = this.initializeRandomEventTypes();
+        this.isInitialized = true;
+        
+        // Générer les événements pour le jour actuel
+        this.generateDailyRandomEvents();
     }
 
     // Initialiser les types d'événements aléatoires
     initializeRandomEventTypes() {
-        return [
-            {
-                id: 'citizen_donation',
-                name: 'Don d\'un citoyen',
-                description: 'Un citoyen généreux fait un don à la ville',
-                type: 'random_event',
-                icon: '💰',
-                weight: 60, // Probabilité relative réduite pour faire place aux événements à choix
-                effects: {
-                    gold: 5
-                },
-                messages: [
-                    'Un marchand reconnaissant vous offre quelques pièces d\'or.',
-                    'Un citoyen satisfait fait un petit don à la ville.',
-                    'Vous trouvez une bourse perdue dans la rue.',
-                    'Un aventurier de passage laisse une donation.',
-                    'Les taxes locales rapportent un peu plus que prévu.'
-                ]
-            },
-            {
-                id: 'merchant_citizen_conflict',
-                name: 'Conflit entre un commerçant et un habitant',
-                description: 'Un conflit éclate entre un commerçant et un habitant au sujet d\'un produit défectueux.',
-                type: 'choice_event',
-                icon: '⚖️',
-                weight: 20,
-                requiresChoice: true,
-                messages: [
-                    'Un commerçant refuse de rembourser un habitant pour un produit défectueux. Le conflit s\'envenime et tous deux vous demandent de trancher.',
-                    'Une dispute éclate au marché entre un marchand et un client. L\'affaire divise les habitants et nécessite votre intervention.',
-                    'Un artisan refuse de reprendre un objet mal conçu. L\'acheteur exige justice. Votre décision influencera votre réputation.'
-                ],
-                choices: [
-                    {
-                        id: 'help_citizen',
-                        text: 'Soutenir l\'habitant',
-                        description: 'Vous ordonnez au commerçant de rembourser et payez une compensation à l\'habitant.',
-                        effects: {
-                            gold: -10,
-                            reputation: 5
-                        }
-                    },
-                    {
-                        id: 'help_merchant',
-                        text: 'Soutenir le commerçant', 
-                        description: 'Vous soutenez le commerçant qui vous verse une somme en remerciement.',
-                        effects: {
-                            gold: 15,
-                            reputation: -3
-                        }
-                    }
-                ]
-            },
-            {
-                id: 'festival_request',
-                name: 'Demande pour organiser une fête',
-                description: 'Les habitants demandent l\'organisation d\'une fête pour célébrer la prospérité de la ville.',
-                type: 'choice_event',
-                icon: '🎉',
-                weight: 20,
-                requiresChoice: true,
-                messages: [
-                    'Une délégation d\'habitants vous demande de financer une grande fête pour célébrer les récents succès de la ville.',
-                    'Les citoyens souhaitent organiser un festival et demandent une contribution de la ville pour les festivités.',
-                    'Un groupe d\'artisans propose d\'organiser une célébration publique si vous acceptez d\'en couvrir les frais.'
-                ],
-                choices: [
-                    {
-                        id: 'fund_festival',
-                        text: 'Financer la fête',
-                        description: 'Vous acceptez de financer la fête. Les habitants sont ravis et votre popularité augmente.',
-                        effects: {
-                            gold: -25,
-                            reputation: 8
-                        }
-                    },
-                    {
-                        id: 'refuse_festival',
-                        text: 'Refuser de financer',
-                        description: 'Vous refusez de financer la fête. L\'argent reste dans les caisses mais les habitants sont déçus.',
-                        effects: {
-                            gold: 0,
-                            reputation: -5
-                        }
-                    }
-                ]
+        try {
+            // Utiliser les données d'événements depuis la variable globale
+            if (!window.EVENTS_DATA) {
+                throw new Error('EVENTS_DATA non disponible');
             }
-        ];
+            
+            return window.EVENTS_DATA.map(eventData => {
+                // Convertir les effets avec les constantes ResourceTypes
+                const effects = {};
+                if (eventData.effects) {
+                    Object.entries(eventData.effects).forEach(([resource, amount]) => {
+                        // Mapper les noms de ressources vers les constantes
+                        const resourceKey = this.mapResourceName(resource);
+                        effects[resourceKey] = amount;
+                    });
+                }
+                
+                // Traiter les choix si ils existent
+                let choices = eventData.choices || [];
+                if (choices.length > 0) {
+                    choices = choices.map(choice => ({
+                        ...choice,
+                        effects: this.convertEffects(choice.effects || {})
+                    }));
+                }
+                
+                return new Events(
+                    eventData.id,
+                    eventData.name,
+                    eventData.description,
+                    eventData.type,
+                    eventData.icon,
+                    eventData.weight,
+                    eventData.sound,
+                    effects,
+                    eventData.messages,
+                    eventData.requiresChoice || false,
+                    choices
+                );
+            });
+        } catch (error) {
+            console.error('Erreur lors du chargement des événements:', error);
+            // Retourner un tableau vide en cas d'erreur pour éviter de casser le jeu
+            return [];
+        }
+    }
+    
+    // Mapper les noms de ressources du JSON vers les constantes ResourceTypes
+    mapResourceName(resourceName) {
+        const mapping = {
+            'gold': ResourceTypes.GOLD,
+            'population': ResourceTypes.POPULATION,
+            'materials': ResourceTypes.MATERIALS,
+            'magic': ResourceTypes.MAGIC,
+            'reputation': ResourceTypes.REPUTATION
+        };
+        return mapping[resourceName] || resourceName;
+    }
+    
+    // Convertir les effets d'un objet JSON vers les constantes ResourceTypes
+    convertEffects(effects) {
+        const converted = {};
+        Object.entries(effects).forEach(([resource, amount]) => {
+            const resourceKey = this.mapResourceName(resource);
+            converted[resourceKey] = amount;
+        });
+        return converted;
     }
 
     // Créer un nouvel événement
@@ -114,7 +100,6 @@ class EventManager {
             gameDay: this.city.day,
             gameTime: this.city.currentTime,
             formattedTime: this.city.getFormattedTime(),
-            isRead: false,
             isAcknowledged: false,
             requiresChoice: false,
             choices: [],
@@ -149,15 +134,6 @@ class EventManager {
         return icons[type] || '📰';
     }
 
-    // Marquer un événement comme lu
-    markAsRead(eventId) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            event.isRead = true;
-            return true;
-        }
-        return false;
-    }
 
     // Gérer le choix d'un événement
     makeEventChoice(eventId, choiceId) {
@@ -177,7 +153,6 @@ class EventManager {
         }
 
         // Marquer l'événement comme traité et acquitté
-        event.isRead = true;
         event.isAcknowledged = true;
         event.choiceMade = choiceId;
         event.choiceText = choice.text;
@@ -193,7 +168,6 @@ class EventManager {
     acknowledgeEvent(eventId) {
         const event = this.events.find(e => e.id === eventId);
         if (event) {
-            event.isRead = true;
             event.isAcknowledged = true;
             return true;
         }
@@ -205,7 +179,6 @@ class EventManager {
         let count = 0;
         this.events.forEach(event => {
             if (!event.isAcknowledged) {
-                event.isRead = true;
                 event.isAcknowledged = true;
                 count++;
             }
@@ -213,33 +186,22 @@ class EventManager {
         return count;
     }
 
-    // Marquer tous les événements comme lus
-    markAllAsRead() {
-        let count = 0;
-        this.events.forEach(event => {
-            if (!event.isRead) {
-                event.isRead = true;
-                count++;
-            }
-        });
-        return count;
-    }
 
-    // Effacer les événements lus
-    clearReadEvents() {
+    // Effacer les événements acquittés
+    clearAcknowledgedEvents() {
         const initialCount = this.events.length;
-        this.events = this.events.filter(event => !event.isRead || !event.isAcknowledged);
+        this.events = this.events.filter(event => !event.isAcknowledged);
         return initialCount - this.events.length;
     }
 
     // Obtenir les statistiques des événements
     getEventStats() {
-        const unreadCount = this.events.filter(e => !e.isRead).length;
+        const unacknowledgedCount = this.events.filter(e => !e.isAcknowledged).length;
         const totalCount = this.events.length;
         const lastActivity = this.events.length > 0 ? this.events[0].formattedTime : '-';
 
         return {
-            unreadCount,
+            unacknowledgedCount,
             totalCount,
             lastActivity
         };
@@ -273,39 +235,22 @@ class EventManager {
 
     // Programmer des événements aléatoires pour un nouveau jour
     generateDailyRandomEvents() {
-        // Déterminer le nombre d'événements à générer (entre 4 et 5)
-        const eventCount = Math.floor(Math.random() * (this.dailyEventCount.max - this.dailyEventCount.min + 1)) + this.dailyEventCount.min;
         
         // Vider les événements programmés précédents
         this.scheduledEvents = [];
         
-        // Programmer les événements à des heures différentes de la journée (éviter minuit-6h)
-        const possibleHours = [];
-        for (let hour = 6; hour < 24; hour++) { // De 6h à 23h
-            for (let quarter = 0; quarter < 4; quarter++) { // Chaque quart d'heure
-                possibleHours.push(hour * 60 + quarter * 15); // Convertir en minutes
-            }
-        }
-        
-        // Mélanger les heures disponibles
-        for (let i = possibleHours.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [possibleHours[i], possibleHours[j]] = [possibleHours[j], possibleHours[i]];
-        }
-        
-        // Programmer les événements
-        for (let i = 0; i < eventCount && i < possibleHours.length; i++) {
+        // Programmer un événement toutes les heures à heure pile (de 1h à 23h)
+        for (let hour = 1; hour < 24; hour++) {
             const randomEvent = this.selectRandomEvent();
             if (randomEvent) {
                 this.scheduledEvents.push({
                     eventType: randomEvent,
-                    scheduledTime: possibleHours[i], // Temps en minutes depuis minuit
+                    scheduledTime: hour * 60, // Heure pile en minutes depuis minuit (1:00 = 60, 2:00 = 120, etc.)
                     day: this.city.day
                 });
             }
         }
         
-        console.log(`${this.scheduledEvents.length} événement(s) aléatoire(s) programmé(s) pour le jour ${this.city.day}`);
         return [];
     }
     
@@ -399,6 +344,11 @@ class EventManager {
     
     // Afficher une popup pour un événement aléatoire
     showRandomEventPopup(event) {
+        // Jouer le son associé à l'événement si disponible
+        if (event.originalEventType && event.originalEventType.sound && window.app && window.app.audioManager) {
+            window.app.audioManager.playSound(event.originalEventType.sound);
+        }
+        
         // Créer la popup s'il n'y en a pas déjà une
         let popup = document.getElementById('random-event-popup');
         if (!popup) {
@@ -439,7 +389,12 @@ class EventManager {
                 popupFooter.appendChild(choiceBtn);
             });
             
-            // Pas d'auto-fermeture pour les événements à choix
+            // Auto-fermeture après 30 secondes pour les événements à choix
+            setTimeout(() => {
+                if (popup.classList.contains('active')) {
+                    popup.classList.remove('active');
+                }
+            }, 30000);
         } else {
             // Événement normal - afficher les effets et bouton continuer
             if (event.effects && Object.keys(event.effects).length > 0) {
@@ -461,15 +416,19 @@ class EventManager {
             popupFooter.innerHTML = '<button class="popup-btn popup-close">Continuer</button>';
             const closeBtn = popupFooter.querySelector('.popup-close');
             closeBtn.addEventListener('click', () => {
+                // Acquitter l'événement quand on clique sur Continuer
+                this.acknowledgeEvent(event.id);
                 popup.classList.remove('active');
             });
             
-            // Auto-fermeture après 5 secondes
+            // Auto-fermeture après 30 secondes
             setTimeout(() => {
                 if (popup.classList.contains('active')) {
+                    // Acquitter l'événement lors de l'auto-fermeture
+                    this.acknowledgeEvent(event.id);
                     popup.classList.remove('active');
                 }
-            }, 5000);
+            }, 30000);
         }
         
         // Afficher la popup
@@ -501,7 +460,11 @@ class EventManager {
                 window.gameManager.autoSave();
             }
             
-            console.log(`Choix traité: ${result.choice.text} - ${result.message}`);
+            // Mettre à jour l'affichage des événements
+            if (window.app && window.app.renderEvents) {
+                window.app.renderEvents();
+            }
+            
         } else {
             console.error('Erreur lors du traitement du choix:', result.message);
         }
@@ -546,26 +509,12 @@ class EventManager {
     
     // Obtenir l'icône d'une ressource
     getResourceIcon(resource) {
-        const icons = {
-            gold: '💰',
-            population: '👥',
-            materials: '🔨',
-            magic: '✨',
-            reputation: '🏛️'
-        };
-        return icons[resource] || '📦';
+        return ResourceTypes.getIcon(resource);
     }
     
     // Obtenir le nom d'une ressource
     getResourceName(resource) {
-        const names = {
-            gold: 'Or',
-            population: 'Population',
-            materials: 'Matériaux',
-            magic: 'Magie',
-            reputation: 'Réputation'
-        };
-        return names[resource] || resource;
+        return ResourceTypes.getName(resource);
     }
     
     // Traiter le choix d'un joueur pour un événement
@@ -594,7 +543,7 @@ class EventManager {
         event.selectedChoice = choice;
         event.isAcknowledged = true;
         
-        // Créer un événement de suivi pour indiquer le résultat
+        // Créer un événement de suivi pour indiquer le résultat (déjà acquitté)
         const followUpEvent = this.createEvent(
             'choice_result',
             `Résultat : ${event.title}`,
@@ -606,6 +555,7 @@ class EventManager {
             }
         );
         followUpEvent.icon = '✅';
+        followUpEvent.isAcknowledged = true; // Événement de résultat déjà acquitté
         
         return { 
             success: true, 
@@ -716,7 +666,6 @@ class EventManager {
         return {
             events: this.events,
             nextEventId: this.nextEventId,
-            dailyEventCount: this.dailyEventCount,
             scheduledEvents: this.scheduledEvents
         };
     }
@@ -726,7 +675,6 @@ class EventManager {
         if (data) {
             manager.events = data.events || [];
             manager.nextEventId = data.nextEventId || 1;
-            manager.dailyEventCount = data.dailyEventCount || { min: 4, max: 5 };
             manager.scheduledEvents = data.scheduledEvents || [];
         }
         return manager;

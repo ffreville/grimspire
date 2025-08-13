@@ -12,6 +12,7 @@ class BuildingType {
         this.icon = '🏗️'; // Icône par défaut
         this.description = '';
         this.maxLevel = 5; // Niveau maximum par défaut
+        this.maxInstances = null; // Nombre maximum d'instances (null = illimité)
         this.baseConstructionTime = 1; // Temps de construction de base en heures de jeu
         this.baseUpgradeTime = 1; // Temps d'amélioration de base en heures de jeu
         this.unlocksTab = null; // Nom de l'onglet que ce bâtiment débloque (si applicable)
@@ -62,6 +63,7 @@ class BuildingType {
             icon: this.icon,
             description: this.description,
             maxLevel: this.maxLevel,
+            maxInstances: this.maxInstances,
             baseConstructionTime: this.baseConstructionTime,
             baseUpgradeTime: this.baseUpgradeTime,
             unlocksTab: this.unlocksTab,
@@ -99,6 +101,7 @@ class BuildingType {
         buildingType.icon = data.icon || '🏗️';
         buildingType.description = data.description || '';
         buildingType.maxLevel = data.maxLevel || 5;
+        buildingType.maxInstances = data.maxInstances || null;
         buildingType.baseConstructionTime = data.baseConstructionTime || 4;
         buildingType.baseUpgradeTime = data.baseUpgradeTime || 4;
         buildingType.unlocksTab = data.unlocksTab || null;
@@ -173,6 +176,7 @@ class BuildingType {
         );
         type.icon = '🏦';
         type.description = "Institution financière générant de l'or et de la réputation";
+        type.maxInstances = 3; // Maximum 3 banques
         return type;
     }
 
@@ -186,6 +190,7 @@ class BuildingType {
         );
         type.icon = '🏛️';
         type.description = 'Centre administratif de votre cité';
+        type.maxInstances = 1; // Un seul hôtel de ville par cité
         type.baseConstructionTime = 1; // Plus long car c'est un bâtiment important
         type.baseUpgradeTime = 1;
         type.unlocksTab = 'administration';
@@ -202,7 +207,7 @@ class BuildingType {
         );
         type.icon = '⚒️';
         type.description = "Forge pour la production d'équipements et d'outils";
-        type.baseConstructionTime = 8;
+        type.baseConstructionTime = 1;
         type.unlocksTab = 'industrie';
         return type;
     }
@@ -249,6 +254,7 @@ class BuildingType {
         type.icon = '⚔️';
         type.description = 'Quartier général pour recruter et gérer les aventuriers';
         type.maxLevel = 3; // Moins de niveaux car c'est un bâtiment unique
+        type.maxInstances = 1; // Une seule guilde par cité
         type.unlocksTab = 'guilde et expéditions'
         return type;
     }
@@ -264,6 +270,7 @@ class BuildingType {
         );
         type.icon = '🔒';
         type.description = "Prison pour maintenir l'ordre et la sécurité";
+        type.maxInstances = 2; // Maximum 2 prisons
         return type;
     }
 }

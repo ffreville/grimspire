@@ -121,6 +121,34 @@
     padding: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-adventurer-avatar {
+    flex-shrink: 0;
+}
+
+.modal-avatar-image {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #8b5a3c;
+    object-fit: cover;
+    transition: border-color 0.3s ease;
+}
+
+.modal-adventurer-card:hover .modal-avatar-image {
+    border-color: #d4af37;
+}
+
+.modal-adventurer-card.selected .modal-avatar-image {
+    border-color: #4a7c59;
+}
+
+.modal-adventurer-info {
+    flex: 1;
 }
 
 .modal-adventurer-card:hover {
